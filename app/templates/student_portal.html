@@ -21,7 +21,6 @@
 </div>
 
 <div class="row">
-    <!-- Cột trái: Tab điều hướng -->
     <div class="col-lg-3 mb-4">
         <div class="card card-custom p-3 bg-white">
             <h6 class="fw-bold text-muted text-uppercase mb-3 px-2">Menu Phân Hệ</h6>
@@ -41,8 +40,7 @@
             </div>
         </div>
     </div>
-
-    <!-- Cột phải: Nội dung từng Tab -->
+  
     <div class="col-lg-9">
         <div class="tab-content" id="v-pills-tabContent">
             
@@ -110,7 +108,7 @@
 
                                 <!-- Hàng nội dung chính: 3 cột thoáng đãng -->
                                 <div class="row g-3 align-items-center">
-                                    <!-- Cột 1: Thông tin nguyện vọng -->
+                                    
                                     <div class="col-lg-5">
                                         <div class="mb-2">
                                             <span class="badge bg-primary me-2">NV1</span>
@@ -138,8 +136,7 @@
                                         </div>
                                         {% endif %}
                                     </div>
-
-                                    <!-- Cột 2: Điểm số & Minh chứng -->
+                                   
                                     <div class="col-lg-4 border-start ps-lg-4">
                                         <div class="d-flex align-items-baseline gap-2 mb-1">
                                             <span class="small text-muted">Tổng điểm xét tuyển:</span>
@@ -168,8 +165,7 @@
                                             {% endif %}
                                         </div>
                                     </div>
-
-                                    <!-- Cột 3: Tác nghiệp & Nút bấm -->
+                           
                                     <div class="col-lg-3 text-lg-end">
                                         <div class="d-flex flex-column gap-2">
                                             {% if not app.payment or app.payment.status != 'PAID' %}
@@ -224,8 +220,7 @@
                     {% endif %}
                 </div>
             </div>
-
-            <!-- TAB 1: NỘP HỒ SƠ XÉT TUYỂN MỚI (M02) -->
+            <!-- TAB 1: NỘP HỒ SƠ XÉT TUYỂN MỚI -->
             <div class="tab-pane fade" id="content-apply">
                 <div class="card card-custom p-4 bg-white">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 border-bottom pb-3">
@@ -238,8 +233,7 @@
 
                     <form id="applyForm" onsubmit="handleApply(event)">
                         <input type="hidden" id="app_userId" value="{{ user.id }}">
-                        
-                        <!-- 1. THÔNG TIN CÁ NHÂN -->
+                                           
                         <h6 class="fw-bold text-secondary text-uppercase small mb-3"><i class="bi bi-person-badge"></i> 1. Thông Tin Thí Sinh</h6>
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
@@ -260,8 +254,7 @@
                                 <input type="tel" id="app_phone" class="form-control" required value="{{ user.phone or '' }}" placeholder="0987654321">
                             </div>
                         </div>
-
-                        <!-- 2. PHƯƠNG THỨC XÉT TUYỂN CHUẨN NEU -->
+                       
                         <h6 class="fw-bold text-secondary text-uppercase small mb-3"><i class="bi bi-diagram-3-fill"></i> 2. Chọn Phương Thức Xét Tuyển (Chuẩn NEU ai.neu.vn)</h6>
                         <div class="row g-3 mb-4">
                             <div class="col-md-12">
@@ -275,8 +268,7 @@
                                 </select>
                             </div>
                         </div>
-
-                        <!-- 3. NHẬP ĐIỂM CHI TIẾT THEO TỪNG PHƯƠNG THỨC -->
+                      
                         <div class="card bg-light border p-3 mb-4 rounded-3">
                             <h6 class="fw-bold text-dark mb-3"><i class="bi bi-calculator-fill text-primary"></i> 3. Nhập Điểm Thành Phần & Quy Đổi Chuẩn NEU</h6>
 
@@ -946,7 +938,6 @@ function switchToPay(appCode) {
     bootstrap.Tab.getOrCreateInstance(payTabBtn).show();
     handleFetchPayment();
 }
-
 // --- Upload ảnh học bạ thật từ máy tính/điện thoại (M02) ---
 async function uploadRealProof(fileInput) {
     const file = fileInput.files[0];
