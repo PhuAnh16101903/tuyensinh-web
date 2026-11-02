@@ -3,9 +3,6 @@ import datetime
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from .database import Base
-# ==========================================================
-# AUTH & TÀI KHOẢN NGƯỜI DÙNG (Dành cho Học Sinh & Admin)
-# ==========================================================
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -88,7 +85,6 @@ class AdmissionApplication(Base):
     # Trạng thái: CHO_DUYET, HOP_LE, TU_CHOI, TRUNG_TUYEN_NV1, TRUNG_TUYEN_NV2, KHONG_TRUNG_TUYEN
     officer_note = Column(Text, nullable=True) # Ghi chú của cán bộ tuyển sinh khi duyệt hồ sơ
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
-
     # Liên kết sang Module Finance (M07) và Support (M12)
     payment = relationship("PaymentTransaction", back_populates="application", uselist=False)
     tickets = relationship("SupportTicket", back_populates="application")
@@ -99,8 +95,8 @@ class AdmissionApplication(Base):
 class FeeConfig(Base):
     __tablename__ = "fee_configs"
     id = Column(Integer, primary_key=True, index=True)
-    fee_name = Column(String(150), nullable=False)     # VD: Lệ phí xét tuyển đại học 2026
-    amount = Column(Float, default=50000.0)            # 50.000 VNĐ / hồ sơ
+    fee_name = Column(String(150), nullable=False)     
+    amount = Column(Float, default=50000.0)            
     description = Column(String(255), nullable=True)
 class PaymentTransaction(Base):
     __tablename__ = "payment_transactions"
@@ -109,7 +105,7 @@ class PaymentTransaction(Base):
     application_id = Column(Integer, ForeignKey("admission_applications.id"), unique=True, nullable=False)
     amount = Column(Float, nullable=False)
     method = Column(String(50), default="QR_CHUYEN_KHOAN")
-    status = Column(String(30), default="UNPAID")         # UNPAID, PAID, FAILED
+    status = Column(String(30), default="UNPAID")         
     qr_payload = Column(Text, nullable=True)              # Dữ liệu nội dung chuyển khoản / QR
     paid_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
@@ -127,7 +123,7 @@ class FAQItem(Base):
 class SupportTicket(Base):
     __tablename__ = "support_tickets"
     id = Column(Integer, primary_key=True, index=True)
-    ticket_code = Column(String(50), unique=True, index=True, nullable=False) # TK-XXXX
+    ticket_code = Column(String(50), unique=True, index=True, nullable=False)
     application_id = Column(Integer, ForeignKey("admission_applications.id"), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     user = relationship("User", back_populates="tickets")
@@ -138,7 +134,7 @@ class SupportTicket(Base):
     subject = Column(String(250), nullable=False)
     message = Column(Text, nullable=False)
     reply = Column(Text, nullable=True)
-    status = Column(String(30), default="PENDING") # PENDING, RESOLVED
+    status = Column(String(30), default="PENDING") 
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     resolved_at = Column(DateTime, nullable=True)
     application = relationship("AdmissionApplication", back_populates="tickets")
