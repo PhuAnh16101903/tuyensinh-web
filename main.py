@@ -1,9 +1,10 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 import os
 import datetime
-
+from fastapi.responses import PlainTextResponse
+import logging
 from app.database import engine, Base, SessionLocal
 from app.models import Major, Subject, FeeConfig, FAQItem, AdmissionApplication, PaymentTransaction, SupportTicket, User
 from app.routers import admissions, finance, support, web_views, auth
@@ -21,10 +22,6 @@ app = FastAPI(
     version="2.0.0",
     redirect_slashes=False
 )
-
-from fastapi import Request
-from fastapi.responses import PlainTextResponse
-import logging
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):

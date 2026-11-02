@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
-
 from ..database import get_db
 from ..models import FAQItem, SupportTicket, AdmissionApplication, Major, Subject
 from ..schemas import FAQOut, TicketCreate, TicketReply, TicketOut, AIChatQuery
@@ -98,9 +97,8 @@ def get_support_stats(db: Session = Depends(get_db)):
 
 from ..ai_engine import process_ai_admission_chat
 
-# =========================================================================
-# TÍNH NĂNG ĐIỂM CỘNG 10/10: TRỢ LÝ AI TƯ VẤN TUYỂN SINH THÔNG MINH (AI ADMISSION ASSISTANT)
-# =========================================================================
+# Điểm cộng
+
 @router.post("/ai-consultant")
 def ai_admission_consultant(data: AIChatQuery, db: Session = Depends(get_db)):
     """

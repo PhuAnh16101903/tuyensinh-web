@@ -201,7 +201,7 @@ assert decoded['role'] == 'STUDENT'
 print('Test 13: JWT Authentication & HS256 Signed Token Verification: OK')
 
 # 14. Test Candidate Lifecycle: Sửa hồ sơ & Phúc khảo
-# 14a. Tạo hồ sơ mới để test sửa và phúc khảo
+# Tạo hồ sơ mới để test sửa và phúc khảo
 new_app2_payload = {
     'full_name': 'Nguyễn Văn An',
     'id_card': f'001202{random.randint(100000, 999999)}',
@@ -246,14 +246,14 @@ r_rev_appeal = client.post(f'/api/admissions/applications/{app2_id}/review-appea
 assert r_rev_appeal.status_code == 200
 assert r_rev_appeal.json()['appeal_status'] == 'APPROVED'
 assert r_rev_appeal.json()['score'] == 27.5
-print('Test 14b: Candidate appeal submission & Officer review/approval: OK')
+print('Test 14: Candidate appeal submission & Officer review/approval: OK')
 
 # 15. Test Post-Admission Online Enrollment (Cấp MSSV, Email @st.neu.edu.vn & Giấy Báo Nhập Học)
 # Giả sử hồ sơ trúng tuyển
 r_pass = client.patch(f'/api/admissions/applications/{app2_id}/status', json={'status': 'TRUNG_TUYEN_NV1'})
 assert r_pass.status_code == 200
 
-# Thí sinh xác nhận nhập học trực tuyến
+# 15a. Thí sinh xác nhận nhập học trực tuyến
 r_enroll = client.post(f'/api/admissions/applications/{app2_id}/enroll')
 assert r_enroll.status_code == 200
 enroll_res = r_enroll.json()
@@ -261,7 +261,7 @@ assert enroll_res['student_code'].startswith('26')
 assert '@st.neu.edu.vn' in enroll_res['student_email']
 print(f'Test 15a: Online Enrollment (MSSV: {enroll_res["student_code"]}, Email: {enroll_res["student_email"]}): OK')
 
-# Lấy Giấy báo trúng tuyển điện tử có mã QR và chữ ký điện tử
+# 15b. Lấy Giấy báo trúng tuyển điện tử có mã QR và chữ ký điện tử
 r_cert = client.get(f'/api/admissions/certificate/{app2_code}')
 assert r_cert.status_code == 200
 cert_data = r_cert.json()
@@ -285,7 +285,7 @@ r_check_paid = client.get(f'/api/finance/transaction/{tx2_code}')
 assert r_check_paid.json()['status'] == 'PAID'
 print('Test 16: Automated Webhook IPN Payment Reconciliation (MBBank Auto-Reconcile in 0.5s): OK')
 
-# Rút hồ sơ test (Withdrawal)
+# 17. Test Candidate Application Withdrawal
 r_withdraw = client.post(f'/api/admissions/applications/{neu_res["id"]}/withdraw')
 assert r_withdraw.status_code == 200
 assert r_withdraw.json()['status'] == 'DA_RUT'

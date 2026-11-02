@@ -1,9 +1,3 @@
-"""
-AI ADMISSION & CAREER CONSULTANT ENGINE (HỆ THỐNG TRÍ TUỆ NHÂN TẠO TƯ VẤN TUYỂN SINH)
-Hỗ trợ chế độ kép:
-1. Google Gemini API (khi cấu hình GEMINI_API_KEY hoặc GOOGLE_API_KEY).
-2. Autonomous Expert Reasoning & Multi-Factor Matching Engine (Offline / Tự chủ 100%).
-"""
 import os
 import re
 import json
@@ -230,9 +224,8 @@ class StandaloneAIAdvisor:
         norm_q = normalize_vn(query)
         extracted_score, extracted_combo = cls.extract_entities(query, user_score, combination)
 
-        # -------------------------------------------------------------
         # 1. TRƯỜNG HỢP CÓ ĐIỂM SỐ + HỎI ĐÍCH DANH MỘT NGÀNH
-        # -------------------------------------------------------------
+
         matched_major = cls.find_matched_major(query, db)
         if matched_major and extracted_score is not None:
             m = matched_major
@@ -261,9 +254,8 @@ class StandaloneAIAdvisor:
                 "type": "major_score_eval"
             }
 
-        # -------------------------------------------------------------
         # 2. HỎI VỀ MỘT NGÀNH CỤ THỂ (Điểm chuẩn, chỉ tiêu, môn học)
-        # -------------------------------------------------------------
+
         if matched_major:
             m = matched_major
             subj_count = db.query(Subject).filter(Subject.major_id == m.id).count()
@@ -284,9 +276,8 @@ class StandaloneAIAdvisor:
                 "type": "major_detail"
             }
 
-        # -------------------------------------------------------------
-        # 2. HỎI VỀ 4 PHƯƠNG THỨC XÉT TUYỂN (Admission Methods)
-        # -------------------------------------------------------------
+        # 3. HỎI VỀ 4 PHƯƠNG THỨC XÉT TUYỂN (Admission Methods)
+
         if any(k in norm_q for k in ["phuong thuc", "cach xet", "xet tuyen nhu the nao", "xet hoc ba", "ielts", "sat", "dgnl", "danh gia nang luc", "hsa", "tsa", "tuyen thang"]):
             return {
                 "reply": (
@@ -305,9 +296,8 @@ class StandaloneAIAdvisor:
                 "type": "admission_methods"
             }
 
-        # -------------------------------------------------------------
-        # 3. HỎI VỀ THỜI GIAN, LỊCH TRÌNH & HẠN NỘP HỒ SƠ
-        # -------------------------------------------------------------
+        # 4. HỎI VỀ THỜI GIAN, LỊCH TRÌNH & HẠN NỘP HỒ SƠ
+
         if any(k in norm_q for k in ["han nop", "khi nao", "thoi gian", "lich tuyen sinh", "lich trinh", "bao gio", "het han", "dot 1", "dot 2", "ngay bao nhieu"]):
             return {
                 "reply": (
@@ -325,9 +315,8 @@ class StandaloneAIAdvisor:
                 "type": "timeline_guide"
             }
 
-        # -------------------------------------------------------------
-        # 4. HỎI VỀ HỌC PHÍ & HỌC BỔNG
-        # -------------------------------------------------------------
+        # 5. HỎI VỀ HỌC PHÍ & HỌC BỔNG
+
         if any(k in norm_q for k in ["hoc phi", "tien hoc", "chi phi", "ton bao nhieu", "hoc bong"]):
             return {
                 "reply": (
@@ -345,9 +334,8 @@ class StandaloneAIAdvisor:
                 "type": "tuition_guide"
             }
 
-        # -------------------------------------------------------------
-        # 5. HỎI VỀ LỆ PHÍ XÉT TUYỂN & THANH TOÁN VIETQR
-        # -------------------------------------------------------------
+        # 6. HỎI VỀ LỆ PHÍ XÉT TUYỂN & THANH TOÁN VIETQR
+
         if any(k in norm_q for k in ["le phi", "vietqr", "dong tien", "thanh toan", "chuyen khoan", "50k", "50.000", "bien lai"]):
             return {
                 "reply": (
@@ -363,9 +351,8 @@ class StandaloneAIAdvisor:
                 "type": "payment_guide"
             }
 
-        # -------------------------------------------------------------
-        # 6. HỎI VỀ XÁC NHẬN NHẬP HỌC & SAU TRÚNG TUYỂN
-        # -------------------------------------------------------------
+        # 7. HỎI VỀ XÁC NHẬN NHẬP HỌC & SAU TRÚNG TUYỂN
+
         if any(k in norm_q for k in ["nhap hoc", "trung tuyen roi", "lam gi tiep", "mssv", "giay bao", "email truong", "xac nhan nhap hoc"]):
             return {
                 "reply": (
@@ -379,9 +366,8 @@ class StandaloneAIAdvisor:
                 "type": "enrollment_guide"
             }
 
-        # -------------------------------------------------------------
-        # 7. HỎI VỀ PHÚC KHẢO ĐIỂM & RÚT HỒ SƠ
-        # -------------------------------------------------------------
+        # 8. HỎI VỀ PHÚC KHẢO ĐIỂM & RÚT HỒ SƠ
+
         if any(k in norm_q for k in ["phuc khao", "khieu nai", "rut ho so", "cham lai", "sai diem"]):
             return {
                 "reply": (
@@ -396,9 +382,8 @@ class StandaloneAIAdvisor:
                 "type": "appeal_guide"
             }
 
-        # -------------------------------------------------------------
-        # 8. TƯ VẤN THEO ĐIỂM SỐ & XÁC SUẤT TRÚNG TUYỂN (Probability Scoring)
-        # -------------------------------------------------------------
+        # 9. TƯ VẤN THEO ĐIỂM SỐ & XÁC SUẤT TRÚNG TUYỂN (Probability Scoring)
+
         if extracted_score is not None:
             score = extracted_score
             analysis = cls.evaluate_admission_probability(score, db)
@@ -442,9 +427,8 @@ class StandaloneAIAdvisor:
                 "extracted_score": score
             }
 
-        # -------------------------------------------------------------
-        # 9. TƯ VẤN THEO TỔ HỢP XÉT TUYỂN (A00, A01, D01, D07, B00...)
-        # -------------------------------------------------------------
+        # 10. TƯ VẤN THEO TỔ HỢP XÉT TUYỂN (A00, A01, D01, D07, B00...)
+
         if extracted_combo:
             combo = extracted_combo
             combo_majors = []
@@ -467,9 +451,8 @@ class StandaloneAIAdvisor:
                 "type": "combo_recommendation"
             }
 
-        # -------------------------------------------------------------
-        # 10. TRẢ LỜI TỔNG QUAN / MENU HỖ TRỢ TRỌNG TÂM
-        # -------------------------------------------------------------
+        # 11. TRẢ LỜI TỔNG QUAN / MENU HỖ TRỢ TRỌNG TÂM
+
         return {
             "reply": (
                 f"Xin chào bạn! 👋 Tôi là <strong>Trợ Lý AI Tư Vấn Tuyển Sinh 2026</strong>.<br><br>"
