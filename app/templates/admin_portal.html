@@ -320,7 +320,6 @@
             </div>
         </div>
     </div>
-
     <!-- PANE 2: M07 TÀI CHÍNH KẾ TOÁN -->
     <div class="tab-pane fade" id="pane-m07">
         <!-- Biểu phí xét tuyển cấu hình -->
@@ -633,7 +632,7 @@
 
 {% block scripts %}
 <script>
-// --- Bộ Lọc Đa Tiêu Chí Thí Sinh (Multi-Facet Filter) ---
+// --- Bộ Lọc Đa Tiêu Chí Thí Sinh ---
 function filterCandidatesMultiFacet() {
     const majorFilter = document.getElementById("filterNv1Major").value;
     const statusFilter = document.getElementById("filterStatus").value;
@@ -712,8 +711,7 @@ function exportCandidatesToCSV() {
     link.click();
     document.body.removeChild(link);
 }
-
-// --- Quản lý chỉ tiêu & điểm chuẩn ngành (M02) ---
+// --- Quản lý chỉ tiêu & điểm chuẩn ngành ---
 let quotaModalObj = null;
 function openQuotaModal(id, name, quota, benchmark) {
     document.getElementById('quotaMajorId').value = id;
@@ -781,8 +779,7 @@ async function submitFeeUpdate() {
         alert("Lỗi kết nối máy chủ!");
     }
 }
-
-// --- Thẩm định & Duyệt hồ sơ kèm điểm chi tiết (Chuẩn NEU) ---
+// --- Thẩm định & Duyệt hồ sơ kèm điểm chi tiết ---
 let adminReviewModalObj = null;
 
 function openAdminReviewModal(appId, appCode, fullName, idCard, methodName, combo, priorityArea, priorityScore, finalScore, proofUrl, status, officerNote, scoreDetailsJson) {
@@ -901,7 +898,6 @@ function openAdminReviewModal(appId, appCode, fullName, idCard, methodName, comb
             <td>Quy chế tuyển sinh hiện hành</td>
         </tr>
     `;
-
     const proofContainer = document.getElementById('revProofPreview');
     if (proofUrl && proofUrl.trim()) {
         const isPdf = proofUrl.toLowerCase().endsWith('.pdf');
@@ -958,8 +954,7 @@ async function submitAdminReview() {
         alert("Lỗi kết nối máy chủ!");
     }
 }
-
-// Duyệt nhanh (tương thích)
+// Duyệt nhanh
 async function reviewApp(appId, status) {
     if (!confirm(`Bạn có chắc chắn muốn duyệt hồ sơ này là [${status}]?`)) return;
     try {
@@ -977,7 +972,6 @@ async function reviewApp(appId, status) {
         alert("Lỗi kết nối!");
     }
 }
-
 // --- Kích hoạt thuật toán lọc ảo (M02) ---
 async function triggerVirtualFilter() {
     const majorId = document.getElementById('filterMajorId').value;
@@ -1007,7 +1001,6 @@ async function triggerVirtualFilter() {
         alertBox.textContent = "Lỗi kết nối máy chủ!";
     }
 }
-
 // --- Trả lời Ticket (M12) ---
 let currentTicketId = null;
 let replyModalObj = null;
@@ -1044,7 +1037,6 @@ async function submitReply() {
         alert("Lỗi kết nối!");
     }
 }
-
 // Chuyển đổi phân hệ Quản trị từ thanh header
 function switchAdminTab(paneId, btnEl) {
     document.querySelectorAll('#adminTabsContent .tab-pane').forEach(el => {
