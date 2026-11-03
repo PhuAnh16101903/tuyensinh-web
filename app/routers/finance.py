@@ -89,6 +89,59 @@ def simulate_payment(tx_code: str, db: Session = Depends(get_db)):
         "status": tx.status,
         "paid_at": tx.paid_at
     }
+
+@router.patch("/transactions/{tx_code}/status")
+def update_transaction_status(tx_code: str, payload: dict = None, db: Session = Depends(get_db)):
+    """[Cán bộ Kế toán / Admin] Cập nhật hoặc đảo trạng thái thanh toán (PAID <-> UNPAID/PENDING)"""
+    tx = db.query(PaymentTransaction).filter(PaymentTransaction.tx_code == tx_code).first()
+    if not tx:
+        raise HTTPException(status_code=404, detail="Giao dịch không tồn tại!")
+    
+    target_status = payload.get("status") if payload else None
+    if target_status:
+        tx.status = target_status.upper()
+    else:
+        tx.status = "PAID" if tx.status != "PAID" else "PENDING"
+        
+    if tx.status == "PAID":
+        if not tx.paid_at:
+            tx.paid_at = datetime.datetime.utcnow()
+    else:
+        tx.paid_at = None
+        
+    db.commit()
+    return {
+        "success": True,
+        "message": f"Đã chuyển trạng thái giao dịch sang [{tx.status}] thành công!",
+        "tx_code": tx.tx_code,
+        "status": tx.status,
+        "paid_at": tx.paid_at.isoformat() if tx.paid_at else None
+    }
+
+@router.post("/pay-by-app-code/{app_code}")
+def pay_by_app_code(app_code: str, db: Session = Depends(get_db)):
+    """[Kế toán / Thu ngân] Xác nhận thu lệ phí nhanh bằng Mã hồ sơ"""
+    app = db.query(AdmissionApplication).filter(AdmissionApplication.app_code == app_code).first()
+    if not app:
+        raise HTTPException(status_code=404, detail="Hồ sơ không tồn tại!")
+    tx = db.query(PaymentTransaction).filter(PaymentTransaction.application_id == app.id).first()
+    if not tx:
+        tx = PaymentTransaction(
+            tx_code=f"PAY-{app.app_code}",
+            application_id=app.id,
+            amount=30000.0,
+            status="PAID",
+            paid_at=datetime.datetime.utcnow(),
+            method="CASH_TRANSFER"
+        )
+        db.add(tx)
+    else:
+        tx.status = "PAID"
+        if not tx.paid_at:
+            tx.paid_at = datetime.datetime.utcnow()
+    db.commit()
+    return {"success": True, "message": f"Đã xác nhận thu lệ phí cho hồ sơ {app_code} thành công!"}
+
 @router.post("/webhook-ipn")
 def webhook_ipn(payload: WebhookIPNPayload, db: Session = Depends(get_db)):
     """

@@ -266,12 +266,15 @@
                             </td>
                             <td>
                                 {% if app.payment and app.payment.status == 'PAID' %}
-                                    <span class="badge bg-success">Đã Đóng</span>
+                                    <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Đã Đóng</span>
                                     <a href="/receipt/{{ app.payment.tx_code }}" target="_blank" class="btn btn-sm btn-outline-success py-0 ms-1" title="In Biên Lai Điện Tử">
                                         <i class="bi bi-printer"></i>
                                     </a>
                                 {% else %}
                                     <span class="badge bg-danger">Chưa Nộp</span>
+                                    <button class="btn btn-sm btn-outline-success py-0 px-2 mt-1 d-block fw-semibold" onclick="quickMarkPaid('{{ app.app_code }}')" title="Xác nhận thí sinh đã đóng lệ phí">
+                                        <i class="bi bi-check-circle"></i> Thu phí
+                                    </button>
                                 {% endif %}
                             </td>
                             <td>
@@ -308,7 +311,7 @@
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary" onclick="openAdminReviewModal({{ app.id }}, '{{ app.app_code }}', '{{ app.full_name }}', '{{ app.id_card }}', '{{ app.method_name or app.method }}', '{{ app.subject_combination or '' }}', '{{ app.priority_area or '' }}', {{ app.priority_score or 0 }}, {{ app.score }}, '{{ app.proof_url or '' }}', '{{ app.status }}', '{{ (app.officer_note or '')|replace('\'', '\\\'') }}', {{ (app.score_details or '{}')|tojson }})">
+                                    <button class="btn btn-outline-primary" onclick="openAdminReviewModal({{ app.id }})">
                                         <i class="bi bi-shield-check"></i> Xem Điểm & Duyệt
                                     </button>
                                 </div>
@@ -361,24 +364,41 @@
                             <th>Phương Thức</th>
                             <th>Trạng Thái</th>
                             <th>Thời Gian Thu</th>
+                            <th class="text-center">Thao Tác Kế Toán</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for tx in transactions %}
                         <tr>
                             <td><code>{{ tx.tx_code }}</code></td>
-                            <td><strong>{{ tx.application.app_code }}</strong></td>
-                            <td>{{ tx.application.full_name }}</td>
+                            <td><strong>{{ tx.application.app_code if tx.application else '---' }}</strong></td>
+                            <td>{{ tx.application.full_name if tx.application else '---' }}</td>
                             <td class="fw-bold text-danger">{{ "{:,.0f}".format(tx.amount) }} đ</td>
                             <td><span class="badge bg-light text-dark border">{{ tx.method }}</span></td>
                             <td>
                                 {% if tx.status == 'PAID' %}
-                                    <span class="badge bg-success">PAID</span>
+                                    <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> ĐÃ THANH TOÁN</span>
                                 {% else %}
-                                    <span class="badge bg-danger">UNPAID</span>
+                                    <span class="badge bg-danger"><i class="bi bi-clock-history me-1"></i> CHƯA NỘP</span>
                                 {% endif %}
                             </td>
                             <td>{{ tx.paid_at.strftime('%H:%M %d/%m/%Y') if tx.paid_at else '---' }}</td>
+                            <td class="text-center">
+                                {% if tx.status == 'PAID' %}
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="/receipt/{{ tx.tx_code }}" target="_blank" class="btn btn-outline-success" title="In biên lai điện tử">
+                                            <i class="bi bi-printer"></i> In Biên Lai
+                                        </a>
+                                        <button class="btn btn-outline-warning" onclick="togglePaymentStatus('{{ tx.tx_code }}', 'PENDING')" title="Chuyển lại trạng thái chưa thanh toán nếu đối soát nhầm">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Hủy
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    <button class="btn btn-sm btn-success fw-bold shadow-sm" onclick="togglePaymentStatus('{{ tx.tx_code }}', 'PAID')">
+                                        <i class="bi bi-check2-circle me-1"></i> Xác nhận Đã thanh toán
+                                    </button>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -546,7 +566,11 @@
                     <div class="col-md-6">
                         <strong>Ưu tiên:</strong> <span id="revPriority" class="text-muted"></span>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-6">
+                        <strong>Lệ phí xét tuyển:</strong> <span id="revPaymentBadge"></span>
+                        <button id="revQuickPayBtn" type="button" class="btn btn-sm btn-outline-success ms-2 py-0" style="display:none;" onclick="quickMarkPaidFromModal()"><i class="bi bi-check2-circle"></i> Xác nhận đã nộp</button>
+                    </div>
+                    <div class="col-md-6">
                         <strong>Phương thức xét tuyển:</strong> <span id="revMethodName" class="fw-semibold text-dark"></span>
                     </div>
                 </div>
@@ -632,7 +656,29 @@
 
 {% block scripts %}
 <script>
-// --- Bộ Lọc Đa Tiêu Chí Thí Sinh ---
+// Cache dữ liệu an toàn cho hồ sơ thí sinh (tránh lỗi ký tự đặc biệt / ngoặc kép trong HTML inline)
+const APPLICATIONS_DATA = {
+    {% for app in applications %}
+    {{ app.id }}: {
+        id: {{ app.id }},
+        app_code: {{ app.app_code | tojson }},
+        full_name: {{ app.full_name | tojson }},
+        id_card: {{ app.id_card | tojson }},
+        method_name: {{ (app.method_name or app.method) | tojson }},
+        combination: {{ (app.subject_combination or '') | tojson }},
+        priority_area: {{ (app.priority_area or '') | tojson }},
+        priority_score: {{ app.priority_score or 0 }},
+        score: {{ app.score }},
+        proof_url: {{ (app.proof_url or '') | tojson }},
+        status: {{ app.status | tojson }},
+        officer_note: {{ (app.officer_note or '') | tojson }},
+        score_details: {{ (app.score_details or '{}') | tojson }},
+        has_paid: {{ 'true' if (app.payment and app.payment.status == 'PAID') else 'false' }}
+    },
+    {% endfor %}
+};
+
+// --- Bộ Lọc Đa Tiêu Chí Thí Sinh (Multi-Facet Filter) ---
 function filterCandidatesMultiFacet() {
     const majorFilter = document.getElementById("filterNv1Major").value;
     const statusFilter = document.getElementById("filterStatus").value;
@@ -783,6 +829,34 @@ async function submitFeeUpdate() {
 let adminReviewModalObj = null;
 
 function openAdminReviewModal(appId, appCode, fullName, idCard, methodName, combo, priorityArea, priorityScore, finalScore, proofUrl, status, officerNote, scoreDetailsJson) {
+    if (typeof APPLICATIONS_DATA !== 'undefined' && APPLICATIONS_DATA[appId]) {
+        const a = APPLICATIONS_DATA[appId];
+        appCode = a.app_code;
+        fullName = a.full_name;
+        idCard = a.id_card;
+        methodName = a.method_name;
+        combo = a.combination;
+        priorityArea = a.priority_area;
+        priorityScore = a.priority_score;
+        finalScore = a.score;
+        proofUrl = a.proof_url;
+        status = a.status;
+        officerNote = a.officer_note;
+        scoreDetailsJson = a.score_details;
+
+        const payBadge = document.getElementById('revPaymentBadge');
+        const payBtn = document.getElementById('revQuickPayBtn');
+        if (payBadge) {
+            if (a.has_paid) {
+                payBadge.innerHTML = '<span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Đã hoàn tất</span>';
+                if (payBtn) payBtn.style.display = 'none';
+            } else {
+                payBadge.innerHTML = '<span class="badge bg-danger"><i class="bi bi-clock-history me-1"></i> Chưa nộp</span>';
+                if (payBtn) payBtn.style.display = 'inline-block';
+            }
+        }
+    }
+
     document.getElementById('revAppId').value = appId;
     document.getElementById('revAppCode').textContent = appCode;
     document.getElementById('revStudentName').textContent = fullName;
@@ -972,7 +1046,53 @@ async function reviewApp(appId, status) {
         alert("Lỗi kết nối!");
     }
 }
-// --- Kích hoạt thuật toán lọc ảo (M02) ---
+
+// --- Kế toán & Quản lý Lệ Phí (M07) ---
+async function togglePaymentStatus(txCode, newStatus) {
+    const actionText = newStatus === 'PAID' ? 'ĐÃ THANH TOÁN' : 'CHƯA NỘP (HỦY)';
+    if (!confirm(`Bạn có chắc chắn muốn chuyển trạng thái giao dịch ${txCode} sang [${actionText}]?`)) return;
+    try {
+        const res = await fetch(`/api/finance/transactions/${txCode}/status`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(data.message || "Cập nhật thành công!");
+            location.reload();
+        } else {
+            alert(data.detail || "Lỗi khi cập nhật trạng thái!");
+        }
+    } catch(e) {
+        alert("Lỗi kết nối máy chủ!");
+    }
+}
+
+async function quickMarkPaid(appCode) {
+    if (!confirm(`Xác nhận đã thu lệ phí xét tuyển cho hồ sơ [${appCode}]?`)) return;
+    try {
+        const res = await fetch(`/api/finance/pay-by-app-code/${appCode}`, {
+            method: 'POST'
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(data.message || "Đã xác nhận thu lệ phí thành công!");
+            location.reload();
+        } else {
+            alert(data.detail || "Lỗi khi xác nhận thu phí!");
+        }
+    } catch(e) {
+        alert("Lỗi kết nối máy chủ!");
+    }
+}
+
+function quickMarkPaidFromModal() {
+    const appCode = document.getElementById('revAppCode').textContent;
+    if (appCode) {
+        quickMarkPaid(appCode);
+    }
+}
 async function triggerVirtualFilter() {
     const majorId = document.getElementById('filterMajorId').value;
     const alertBox = document.getElementById('filterResultAlert');
