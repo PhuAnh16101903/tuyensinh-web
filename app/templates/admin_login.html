@@ -1,42 +1,71 @@
 {% extends "base.html" %}
 
-{% block title %}Đăng Nhập Quản Trị Viên (Admin) - Cổng Tuyển Sinh 2026{% endblock %}
+{% block title %}Đăng Nhập Quản Trị Viên & Cán Bộ - Cổng Tuyển Sinh 2026{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center py-4">
-    <div class="col-md-5">
-        <div class="card card-custom p-4 border-top border-danger border-4">
+<div class="row justify-content-center py-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card card-modern p-4 p-md-5 border-0 shadow-sm position-relative overflow-hidden" 
+             style="background: #ffffff; border: 1px solid rgba(226, 232, 240, 0.9); border-radius: 20px;">
+            
             <div class="text-center mb-4">
-                <i class="bi bi-shield-lock-fill fs-1 text-danger"></i>
-                <h3 class="fw-bold text-dark mt-2">Cổng Đăng Nhập Quản Trị</h3>
-                <p class="text-muted small">Dành cho Cán bộ Hội đồng Tuyển sinh, Kế toán và Ban Tư vấn</p>
+                <div class="rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-2 shadow-xs" 
+                     style="width: 64px; height: 64px; background: rgba(220, 38, 38, 0.08); color: #dc2626;">
+                    <i class="bi bi-shield-lock-fill fs-2"></i>
+                </div>
+                <h3 class="fw-bold text-dark mb-1" style="font-family: 'Outfit', sans-serif;">Cổng Đăng Nhập Quản Trị</h3>
+                <p class="text-muted small mb-0">Hội Đồng Tuyển Sinh, Ban Duyệt Hồ Sơ & Ban Tài Chính</p>
+            </div>
+
+            <!-- Quick Demo Helper Chips for Admin & Officer -->
+            <div class="p-3 rounded-3 bg-light border mb-4 small">
+                <div class="fw-semibold text-secondary mb-2" style="font-size: 0.8rem;">
+                    <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Tài khoản dùng thử (Hội đồng):
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-danger flex-fill py-1 rounded-pill fw-semibold" style="font-size: 0.76rem;" onclick="fillDemoAdmin()">
+                        <i class="bi bi-person-fill-gear me-1"></i>Admin (Toàn quyền)
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary flex-fill py-1 rounded-pill fw-semibold" style="font-size: 0.76rem;" onclick="fillDemoOfficer()">
+                        <i class="bi bi-person-check-fill me-1"></i>Cán bộ xét duyệt
+                    </button>
+                </div>
             </div>
 
             <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Email Cán bộ (*)</label>
+                    <label class="form-label small fw-bold text-secondary mb-1">Email Cán bộ / Ban Quản Trị (*)</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-envelope-at"></i></span>
-                        <input type="email" id="admin_email" class="form-control" required placeholder="admin@tuyensinh.edu.vn">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope-at"></i></span>
+                        <input type="email" id="admin_email" class="form-control border-start-0" required placeholder="admin@tuyensinh.edu.vn" autofocus>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Mật khẩu (*)</label>
+                    <label class="form-label small fw-bold text-secondary mb-1">Mật khẩu Quản Trị (*)</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-key"></i></span>
-                        <input type="password" id="admin_password" class="form-control" required placeholder="Nhập mật khẩu quản trị">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-key"></i></span>
+                        <input type="password" id="admin_password" class="form-control border-start-0" required placeholder="Nhập mật khẩu quản trị">
                     </div>
                 </div>
 
                 <div class="d-grid mt-4">
-                    <button type="submit" class="btn btn-danger btn-lg fw-bold" id="btnAdminLogin">
-                        <i class="bi bi-shield-check"></i> Xác Thực & Vào Trang Quản Trị
+                    <button type="submit" class="btn btn-danger btn-lg fw-bold rounded-pill shadow-sm py-2.5 d-flex align-items-center justify-content-center gap-2" id="btnAdminLogin">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Xác Thực & Vào Quản Trị Viên</span>
                     </button>
                 </div>
             </form>
 
             <div id="adminLoginAlert" class="mt-3 d-none"></div>
+
+            <hr class="my-4">
+
+            <!-- Switch to Student Login -->
+            <div class="p-2.5 rounded-3 bg-light border text-center small text-muted">
+                <i class="bi bi-mortarboard text-primary me-1"></i>Bạn là Thí sinh xét tuyển?<br>
+                <a href="/login" class="fw-semibold text-primary text-decoration-none">Chuyển sang Cổng Đăng Nhập Thí Sinh &raquo;</a>
+            </div>
         </div>
     </div>
 </div>
@@ -44,6 +73,16 @@
 
 {% block scripts %}
 <script>
+function fillDemoAdmin() {
+    document.getElementById('admin_email').value = 'admin@tuyensinh.edu.vn';
+    document.getElementById('admin_password').value = 'admin123';
+}
+
+function fillDemoOfficer() {
+    document.getElementById('admin_email').value = 'canbo@tuyensinh.edu.vn';
+    document.getElementById('admin_password').value = 'canbo123';
+}
+
 async function handleAdminLogin(e) {
     e.preventDefault();
     const btn = document.getElementById('btnAdminLogin');
@@ -63,20 +102,20 @@ async function handleAdminLogin(e) {
         });
         const data = await res.json();
         if (res.ok) {
-            alertBox.className = "alert alert-success mt-3";
-            alertBox.textContent = "Xác thực Quản trị thành công! Đang chuyển hướng...";
+            alertBox.className = "alert alert-success mt-3 py-2 text-center rounded-3";
+            alertBox.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Xác thực thành công! Đang vào Cổng Quản Trị...';
             alertBox.classList.remove('d-none');
             setTimeout(() => {
                 window.location.href = '/admin';
-            }, 800);
+            }, 500);
         } else {
-            alertBox.className = "alert alert-danger mt-3";
-            alertBox.textContent = data.detail || "Đăng nhập thất bại!";
+            alertBox.className = "alert alert-danger mt-3 py-2 text-center rounded-3";
+            alertBox.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> ${data.detail || "Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin."}`;
             alertBox.classList.remove('d-none');
         }
     } catch(err) {
-        alertBox.className = "alert alert-danger mt-3";
-        alertBox.textContent = "Lỗi kết nối máy chủ!";
+        alertBox.className = "alert alert-danger mt-3 py-2 text-center rounded-3";
+        alertBox.innerHTML = '<i class="bi bi-wifi-off me-1"></i> Lỗi kết nối máy chủ! Vui lòng thử lại.';
         alertBox.classList.remove('d-none');
     } finally {
         btn.disabled = false;

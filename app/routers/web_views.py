@@ -84,14 +84,18 @@ def major_detail_page(major_id: int, request: Request, db: Session = Depends(get
 @router.get("/login")
 def login_page(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
-    if user and user.role == "STUDENT":
+    if user:
+        if user.role in ["ADMIN", "OFFICER"]:
+            return RedirectResponse(url="/admin")
         return RedirectResponse(url="/student")
     return render_template(request, "login.html", {"user": None})
 
 @router.get("/register")
 def register_page(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
-    if user and user.role == "STUDENT":
+    if user:
+        if user.role in ["ADMIN", "OFFICER"]:
+            return RedirectResponse(url="/admin")
         return RedirectResponse(url="/student")
     return render_template(request, "register.html", {"user": None})
 
@@ -106,8 +110,10 @@ def logout_view():
 @router.get("/admin/login")
 def admin_login_page(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
-    if user and user.role in ["ADMIN", "OFFICER"]:
-        return RedirectResponse(url="/admin")
+    if user:
+        if user.role in ["ADMIN", "OFFICER"]:
+            return RedirectResponse(url="/admin")
+        return RedirectResponse(url="/student")
     return render_template(request, "admin_login.html", {"user": None})
 
 # --- CỔNG HỌC SINH (YÊU CẦU ĐĂNG NHẬP) ---
@@ -116,6 +122,8 @@ def student_portal(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse(url="/login?msg=please_login")
+    if user.role in ["ADMIN", "OFFICER"]:
+        return RedirectResponse(url="/admin")
 
     majors = db.query(Major).all()
     fees = db.query(FeeConfig).all()
