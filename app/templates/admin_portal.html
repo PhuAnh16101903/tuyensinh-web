@@ -173,11 +173,14 @@
                     <h5 class="fw-bold mb-0">Danh Sách Hồ Sơ Xét Tuyển</h5>
                     <span id="filterCountBadge" class="badge bg-primary fs-6">Hiển thị {{ applications|length }} / {{ applications|length }}</span>
                 </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-success fw-semibold" onclick="exportCandidatesToCSV()">
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-sm btn-success fw-bold rounded-pill px-3 shadow-xs" onclick="batchApproveAllPending()" title="Duyệt tất cả hồ sơ đang ở trạng thái Chờ Duyệt">
+                        <i class="bi bi-check-all me-1"></i> Duyệt Hàng Loạt Hồ Sơ Chờ
+                    </button>
+                    <button class="btn btn-sm btn-outline-success fw-semibold rounded-pill px-3" onclick="exportCandidatesToCSV()">
                         <i class="bi bi-file-earmark-spreadsheet me-1"></i> Xuất Báo Cáo CSV
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="resetAllFilters()">
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="resetAllFilters()">
                         <i class="bi bi-arrow-counterclockwise me-1"></i> Xóa Bộ Lọc
                     </button>
                 </div>
@@ -404,10 +407,35 @@
                                 {% endif %}
                             </td>
                             <td class="text-end px-3">
-                                <button type="button" class="btn btn-sm btn-primary fw-bold rounded-pill px-3 py-1.5 shadow-sm d-inline-flex align-items-center gap-1.5 text-nowrap" onclick="openAdminReviewModal({{ app.id }})">
-                                    <i class="bi bi-shield-check"></i>
-                                    <span>Xem & Duyệt</span>
-                                </button>
+                                <div class="d-flex align-items-center justify-content-end gap-1.5 flex-nowrap">
+                                    {% if app.status == 'CHO_DUYET' %}
+                                    <button type="button" class="btn btn-sm btn-success fw-bold rounded-pill px-2.5 py-1 shadow-sm d-inline-flex align-items-center gap-1 text-nowrap" onclick="quickApproveValid({{ app.id }}, '{{ app.app_code }}')" title="Duyệt Hợp Lệ hồ sơ ngay lập tức">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        <span>Duyệt Hợp Lệ</span>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger fw-semibold rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1 text-nowrap" onclick="quickReject({{ app.id }}, '{{ app.app_code }}')" title="Từ chối hồ sơ này">
+                                        <i class="bi bi-x-circle"></i>
+                                        <span>Từ Chối</span>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary fw-semibold rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 text-nowrap" onclick="openAdminReviewModal({{ app.id }})" title="Xem chi tiết điểm thành phần và thẩm định hồ sơ">
+                                        <i class="bi bi-eye"></i>
+                                        <span>Chi Tiết</span>
+                                    </button>
+                                    {% elif app.status == 'HOP_LE' %}
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-30 rounded-pill px-2.5 py-1 small fw-bold">
+                                        <i class="bi bi-patch-check-fill me-1"></i>Đã Duyệt
+                                    </span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 text-nowrap" onclick="openAdminReviewModal({{ app.id }})" title="Xem thẩm định và đổi trạng thái nếu cần">
+                                        <i class="bi bi-pencil-square"></i>
+                                        <span>Thẩm Định</span>
+                                    </button>
+                                    {% else %}
+                                    <button type="button" class="btn btn-sm btn-outline-primary fw-semibold rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 text-nowrap" onclick="openAdminReviewModal({{ app.id }})" title="Xem chi tiết hồ sơ">
+                                        <i class="bi bi-search"></i>
+                                        <span>Chi Tiết</span>
+                                    </button>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -738,9 +766,21 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-primary fw-bold px-4" onclick="submitAdminReview()"><i class="bi bi-save me-1"></i> Lưu Kết Quả Thẩm Định</button>
+            <div class="modal-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg me-1"></i> Đóng
+                </button>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-outline-danger fw-bold rounded-pill px-3" onclick="submitAdminReviewWithStatus('TU_CHOI')">
+                        <i class="bi bi-x-circle-fill me-1"></i> Từ Chối Hồ Sơ
+                    </button>
+                    <button type="button" class="btn btn-success fw-bold rounded-pill px-4 shadow-sm" onclick="submitAdminReviewWithStatus('HOP_LE')">
+                        <i class="bi bi-check-circle-fill me-1"></i> Duyệt Hồ Sơ Hợp Lệ
+                    </button>
+                    <button type="button" class="btn btn-primary fw-bold rounded-pill px-3" onclick="submitAdminReview()">
+                        <i class="bi bi-save me-1"></i> Lưu Quyết Định Tùy Chỉnh
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1168,6 +1208,96 @@ async function reviewApp(appId, status) {
     } catch(e) {
         alert("Lỗi kết nối!");
     }
+}
+
+// 1-Click Duyệt Hợp Lệ trực tiếp trên hàng danh sách
+async function quickApproveValid(appId, appCode) {
+    if (!confirm(`Xác nhận DUYỆT HỢP LỆ cho hồ sơ [${appCode}]?\nHồ sơ sẽ được công nhận đủ điều kiện tham gia quy trình xét tuyển & lọc ảo NEU 2026.`)) {
+        return;
+    }
+    try {
+        const res = await fetch(`/api/admissions/applications/${appId}/status`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                status: 'HOP_LE',
+                officer_note: 'Hồ sơ, minh chứng và điểm số hợp lệ theo quy chế tuyển sinh NEU 2026.'
+            })
+        });
+        if (res.ok) {
+            location.reload();
+        } else {
+            const data = await res.json();
+            alert(data.detail || 'Lỗi khi duyệt hồ sơ!');
+        }
+    } catch(e) {
+        alert('Lỗi kết nối máy chủ!');
+    }
+}
+
+// 1-Click Từ Chối hồ sơ trực tiếp
+async function quickReject(appId, appCode) {
+    const reason = prompt(`Nhập lý do TỪ CHỐI hồ sơ [${appCode}]:`, 'Bản scan minh chứng chưa rõ nét hoặc điểm khai báo sai lệch so với minh chứng.');
+    if (reason === null) return;
+    try {
+        const res = await fetch(`/api/admissions/applications/${appId}/status`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                status: 'TU_CHOI',
+                officer_note: reason.trim() || 'Hồ sơ không hợp lệ theo quy chế tuyển sinh NEU.'
+            })
+        });
+        if (res.ok) {
+            location.reload();
+        } else {
+            const data = await res.json();
+            alert(data.detail || 'Lỗi khi từ chối hồ sơ!');
+        }
+    } catch(e) {
+        alert('Lỗi kết nối máy chủ!');
+    }
+}
+
+// Duyệt theo nút bấm rõ ràng trong Modal Thẩm định
+async function submitAdminReviewWithStatus(targetStatus) {
+    document.getElementById('revStatusSelect').value = targetStatus;
+    if (targetStatus === 'HOP_LE' && !document.getElementById('revOfficerNote').value.trim()) {
+        document.getElementById('revOfficerNote').value = 'Hồ sơ và điểm số hợp lệ chuẩn xác theo quy chế tuyển sinh NEU 2026.';
+    }
+    if (targetStatus === 'TU_CHOI' && !document.getElementById('revOfficerNote').value.trim()) {
+        document.getElementById('revOfficerNote').value = 'Bản scan minh chứng chưa rõ nét hoặc điểm số sai lệch so với hồ sơ đính kèm.';
+    }
+    await submitAdminReview();
+}
+
+// Duyệt hàng loạt tất cả hồ sơ Chờ Duyệt
+async function batchApproveAllPending() {
+    if (typeof APPLICATIONS_DATA === 'undefined') return;
+    const pendingApps = Object.values(APPLICATIONS_DATA).filter(a => a.status === 'CHO_DUYET');
+    if (pendingApps.length === 0) {
+        alert("Hiện tại không có hồ sơ nào ở trạng thái 'Chờ duyệt'!");
+        return;
+    }
+    if (!confirm(`Hội đồng tuyển sinh xác nhận duyệt HỢP LỆ đồng loạt cho ${pendingApps.length} hồ sơ đang ở trạng thái Chờ Duyệt?`)) {
+        return;
+    }
+    let successCount = 0;
+    for (const app of pendingApps) {
+        try {
+            const res = await fetch(`/api/admissions/applications/${app.id}/status`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    status: 'HOP_LE',
+                    officer_note: 'Duyệt hợp lệ hàng loạt theo quy chế tuyển sinh NEU 2026.'
+                })
+            });
+            if (res.ok) successCount++;
+        } catch(e) {}
+    }
+    alert(`Đã hoàn tất duyệt HỢP LỆ cho ${successCount}/${pendingApps.length} hồ sơ!`);
+    location.reload();
 }
 
 // --- Kế toán & Quản lý Lệ Phí (M07) ---
