@@ -3,19 +3,42 @@
 {% block title %}Cổng Thí Sinh Cá Nhân - UniAdmission 2026{% endblock %}
 
 {% block content %}
-<!-- Header User Profile -->
-<div class="card card-custom p-4 bg-white border-start border-primary border-4 mb-4">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+<!-- Clean Tech Header User Profile -->
+<div class="card card-modern p-4 mb-4 position-relative overflow-hidden" 
+     style="background: #ffffff; border: 1px solid rgba(226, 232, 240, 0.9); border-left: 5px solid #2563eb !important; box-shadow: 0 8px 25px -4px rgba(37, 99, 235, 0.08);">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div class="d-flex align-items-center gap-3">
-            <div class="bg-primary text-white rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
-                <i class="bi bi-person-fill fs-3"></i>
+            <div class="position-relative">
+                <div class="rounded-4 text-white d-flex align-items-center justify-content-center shadow-sm" 
+                     style="width: 58px; height: 58px; background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);">
+                    <i class="bi bi-person-fill fs-3"></i>
+                </div>
+                <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-white rounded-circle tech-pulse" style="width: 14px; height: 14px;" title="Tài khoản đang trực tuyến"></span>
             </div>
             <div>
-                <h4 class="fw-bold mb-0 text-dark">Xin chào, {{ user.full_name }}</h4>
-                <div class="text-muted small">
-                    <i class="bi bi-envelope"></i> {{ user.email }} | <i class="bi bi-telephone"></i> {{ user.phone or 'Chưa cập nhật' }}
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <h4 class="fw-bold mb-0 text-dark" style="font-family: 'Montserrat', sans-serif;">Xin chào, {{ user.full_name }}</h4>
+                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-2.5 py-1 small fw-semibold">
+                        <i class="bi bi-mortarboard me-1"></i>Thí Sinh K68
+                    </span>
+                </div>
+                <div class="text-muted small mt-1 d-flex align-items-center gap-3 flex-wrap">
+                    <span><i class="bi bi-envelope-at text-primary me-1"></i>{{ user.email }}</span>
+                    <span><i class="bi bi-phone text-primary me-1"></i>{{ user.phone or 'Chưa cập nhật SĐT' }}</span>
+                    <span class="text-success"><i class="bi bi-patch-check-fill me-1"></i>Đã kích hoạt 2FA</span>
                 </div>
             </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <div class="p-2 px-3 rounded-3 bg-light border text-center">
+                <div class="text-muted small" style="font-size: 0.72rem; letter-spacing: 0.5px;">HỒ SƠ ĐÃ NỘP</div>
+                <div class="fw-bold fs-5 text-primary" style="font-family: 'Montserrat', sans-serif;">{{ my_applications|length }}</div>
+            </div>
+            <button class="btn btn-primary fw-bold px-3 py-2.5 rounded-3 shadow-sm d-flex align-items-center gap-2" onclick="switchToApplyTab()">
+                <i class="bi bi-plus-circle"></i>
+                <span>Nộp Hồ Sơ Mới</span>
+            </button>
         </div>
     </div>
 </div>
@@ -103,6 +126,73 @@
                                         {% else %}
                                             <span class="badge bg-secondary px-3 py-2 rounded-pill">{{ app.status }}</span>
                                         {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Visual 5-Step Application Stepper -->
+                                <div class="py-2.5 px-3 my-3 rounded-3" style="background: rgba(248, 250, 252, 0.9); border: 1px solid rgba(226, 232, 240, 0.9);">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 text-center">
+                                        <!-- Step 1: Nộp hồ sơ -->
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge rounded-circle bg-success text-white p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;"><i class="bi bi-check"></i></span>
+                                            <span class="small fw-bold text-dark">Nộp hồ sơ</span>
+                                        </div>
+                                        <i class="bi bi-chevron-right text-muted small opacity-50"></i>
+                                        <!-- Step 2: Lệ phí -->
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if app.payment and app.payment.status == 'PAID' %}
+                                            <span class="badge rounded-circle bg-success text-white p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;"><i class="bi bi-check"></i></span>
+                                            <span class="small fw-bold text-success">Lệ phí Napas (Đã nộp)</span>
+                                            {% else %}
+                                            <span class="badge rounded-circle bg-danger text-white p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;"><i class="bi bi-clock"></i></span>
+                                            <span class="small fw-semibold text-danger">Chưa nộp phí</span>
+                                            {% endif %}
+                                        </div>
+                                        <i class="bi bi-chevron-right text-muted small opacity-50"></i>
+                                        <!-- Step 3: Xét duyệt -->
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if app.status in ['HOP_LE', 'TRUNG_TUYEN_NV1', 'TRUNG_TUYEN_NV2', 'TRUNG_TUYEN', 'DA_NHAP_HOC'] %}
+                                            <span class="badge rounded-circle bg-success text-white p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;"><i class="bi bi-check"></i></span>
+                                            <span class="small fw-bold text-primary">Duyệt hợp lệ</span>
+                                            {% elif app.status == 'CHO_DUYET' %}
+                                            <span class="badge rounded-circle bg-warning text-dark p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;"><i class="bi bi-hourglass-split"></i></span>
+                                            <span class="small fw-semibold text-muted">Chờ duyệt</span>
+                                            {% elif app.status == 'DA_RUT' %}
+                                            <span class="badge rounded-circle bg-secondary text-white p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;"><i class="bi bi-dash"></i></span>
+                                            <span class="small text-muted">Đã rút HS</span>
+                                            {% else %}
+                                            <span class="badge rounded-circle bg-danger text-white p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;"><i class="bi bi-x"></i></span>
+                                            <span class="small text-danger">Không hợp lệ</span>
+                                            {% endif %}
+                                        </div>
+                                        <i class="bi bi-chevron-right text-muted small opacity-50"></i>
+                                        <!-- Step 4: Lọc ảo -->
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if app.status in ['TRUNG_TUYEN_NV1', 'TRUNG_TUYEN_NV2', 'TRUNG_TUYEN', 'DA_NHAP_HOC'] %}
+                                            <span class="badge rounded-circle bg-success text-white p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;"><i class="bi bi-award-fill"></i></span>
+                                            <span class="small fw-bold text-success">Trúng tuyển</span>
+                                            {% elif app.status == 'KHONG_TRUNG_TUYEN' %}
+                                            <span class="badge rounded-circle bg-secondary text-white p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;"><i class="bi bi-x"></i></span>
+                                            <span class="small text-muted">Trượt chỉ tiêu</span>
+                                            {% else %}
+                                            <span class="badge rounded-circle bg-light text-muted border p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;"><i class="bi bi-circle"></i></span>
+                                            <span class="small text-muted">Lọc ảo</span>
+                                            {% endif %}
+                                        </div>
+                                        <i class="bi bi-chevron-right text-muted small opacity-50"></i>
+                                        <!-- Step 5: Nhập học -->
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if app.status == 'DA_NHAP_HOC' %}
+                                            <span class="badge rounded-circle bg-success text-white p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;"><i class="bi bi-mortarboard-fill"></i></span>
+                                            <span class="small fw-bold text-success">Đã nhập học</span>
+                                            {% elif app.status in ['TRUNG_TUYEN_NV1', 'TRUNG_TUYEN_NV2', 'TRUNG_TUYEN'] %}
+                                            <span class="badge rounded-circle bg-primary text-white p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;"><i class="bi bi-arrow-right-circle"></i></span>
+                                            <span class="small fw-bold text-primary">Chờ xác nhận</span>
+                                            {% else %}
+                                            <span class="badge rounded-circle bg-light text-muted border p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;"><i class="bi bi-circle"></i></span>
+                                            <span class="small text-muted">Nhập học</span>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
 
