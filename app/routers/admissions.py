@@ -114,13 +114,45 @@ def submit_application(data: ApplicationCreate, db: Session = Depends(get_db)):
         if not major2:
             raise HTTPException(status_code=404, detail="Ngành nguyện vọng 2 không tồn tại!")
 
-    # Kiểm tra số CCCD đã nộp trùng chưa
+    # Quy tắc 1 Sinh viên = 1 Hồ sơ duy nhất:
+    # Nếu thí sinh đã đăng nhập (có user_id) và đã có hồ sơ trên hệ thống -> Cập nhật trực tiếp trên hồ sơ duy nhất đó
+    if data.user_id:
+        existing_user_app = db.query(AdmissionApplication).filter(
+            AdmissionApplication.user_id == data.user_id
+        ).first()
+        if existing_user_app:
+            existing_user_app.full_name = data.full_name
+            existing_user_app.id_card = data.id_card
+            existing_user_app.email = data.email
+            existing_user_app.phone = data.phone
+            existing_user_app.method = data.method or data.method_code or "THPT"
+            existing_user_app.method_code = data.method_code or "THPT"
+            existing_user_app.method_name = data.method_name or "Xét tuyển kết quả thi tốt nghiệp THPT"
+            existing_user_app.subject_combination = data.subject_combination
+            existing_user_app.priority_area = data.priority_area or "KV3"
+            existing_user_app.priority_score = data.priority_score or 0.0
+            existing_user_app.score_details = data.score_details
+            existing_user_app.score = data.score
+            existing_user_app.major_id = data.major_id
+            existing_user_app.major_nv2_id = data.major_nv2_id
+            if data.proof_url:
+                existing_user_app.proof_url = data.proof_url
+            if existing_user_app.status in ["DA_RUT", "CHO_DUYET"]:
+                existing_user_app.status = "CHO_DUYET"
+            db.commit()
+            db.refresh(existing_user_app)
+            return existing_user_app
+
+    # Kiểm tra số CCCD đã tồn tại trên hệ thống chưa (1 CCCD = 1 Mã hồ sơ duy nhất)
     existing = db.query(AdmissionApplication).filter(
         AdmissionApplication.id_card == data.id_card,
-        AdmissionApplication.major_id == data.major_id
+        AdmissionApplication.status != "DA_RUT"
     ).first()
     if existing:
-        raise HTTPException(status_code=400, detail="Thí sinh với số CCCD này đã nộp hồ sơ vào ngành này rồi!")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Mỗi thí sinh chỉ có 01 mã hồ sơ duy nhất! Số CCCD {data.id_card} đã được đăng ký với mã hồ sơ {existing.app_code}."
+        )
 
     app_code = f"TS2026-{random.randint(100000, 999999)}"
 
@@ -409,8 +441,8 @@ def update_application(app_id: int, data: ApplicationUpdate, request: Request, d
         if app.user_id != curr_user.id and app.email != curr_user.email:
             raise HTTPException(status_code=403, detail="Bảo mật: Bạn không có quyền chỉnh sửa hồ sơ này!")
 
-    if app.status != "CHO_DUYET":
-        raise HTTPException(status_code=400, detail=f"Hồ sơ đã ở trạng thái [{app.status}], không thể tự ý chỉnh sửa! Vui lòng liên hệ ban tuyển sinh hoặc nộp đơn phúc khảo.")
+    if app.status not in ["CHO_DUYET", "HOP_LE"]:
+        raise HTTPException(status_code=400, detail=f"Hồ sơ đã chốt kết quả [{app.status}], không thể tự ý chỉnh sửa nguyện vọng! Vui lòng liên hệ ban tuyển sinh hoặc nộp đơn phúc khảo.")
 
     if data.major_id is not None:
         major = db.query(Major).filter(Major.id == data.major_id).first()

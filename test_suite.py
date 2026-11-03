@@ -292,3 +292,27 @@ assert r_withdraw.json()['status'] == 'DA_RUT'
 print('Test 17: Candidate active application withdrawal: OK')
 
 print("\n🎉 TẤT CẢ 17 BÀI KIỂM THỬ TOÀN DIỆN (MBBANK QR, JWT SECURITY, POST-ADMISSION LIFECYCLE, IPN RECONCILE) ĐẠT ĐIỂM 10/10 TUYỆT ĐỐI! 🎉")
+
+
+# Dọn dẹp toàn bộ dữ liệu tạm sinh ra trong quá trình chạy Test để DB luôn sạch 100% (1 Sinh viên = 1 Hồ sơ = 1 MSSV)
+import os
+from app.database import SessionLocal
+from app.models import AdmissionApplication, PaymentTransaction
+
+db_clean = SessionLocal()
+core_codes = ['TS2026-100001', 'TS2026-100002', 'TS2026-100003', 'TS2026-100004', 'TS2026-100005']
+extra_apps = db_clean.query(AdmissionApplication).filter(~AdmissionApplication.app_code.in_(core_codes)).all()
+for ea in extra_apps:
+    db_clean.query(PaymentTransaction).filter(PaymentTransaction.application_id == ea.id).delete()
+    db_clean.delete(ea)
+db_clean.commit()
+db_clean.close()
+
+if uploaded_url and 'proof_' in uploaded_url:
+    local_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'app', uploaded_url.lstrip('/'))
+    if os.path.exists(local_file):
+        try:
+            os.remove(local_file)
+        except Exception:
+            pass
+print('Cleanup: Database restored to clean 5 unique candidates (1 student = 1 profile = 1 MSSV): OK')

@@ -68,14 +68,18 @@
             <div class="d-flex gap-3 flex-wrap align-items-center">
                 {% if user and user.role == 'STUDENT' %}
                     <a href="/student" class="btn btn-warning text-dark px-4 py-2.5 fs-6 fw-bold rounded-pill shadow" style="box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4) !important;">
-                        <i class="bi bi-speedometer2 me-1"></i> Truy Cập Cổng Thí Sinh Của Bạn
+                        <i class="bi bi-person-badge-fill me-1"></i> Xem Hồ Sơ Xét Tuyển Của Bạn
+                    </a>
+                {% elif user and user.role in ['ADMIN', 'OFFICER'] %}
+                    <a href="/admin" class="btn btn-danger text-white px-4 py-2.5 fs-6 fw-bold rounded-pill shadow" style="box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4) !important;">
+                        <i class="bi bi-shield-lock-fill me-1"></i> Vào Trung Tâm Quản Trị Tuyển Sinh
                     </a>
                 {% else %}
                     <a href="/register" class="btn btn-warning text-dark px-4 py-2.5 fs-6 fw-bold rounded-pill shadow" style="box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4) !important;">
                         <i class="bi bi-pencil-square me-1"></i> Đăng Ký Xét Tuyển Ngay
                     </a>
                     <a href="/login" class="btn btn-outline-light px-4 py-2.5 fs-6 rounded-pill fw-semibold" style="backdrop-filter: blur(8px); background: rgba(255,255,255,0.08);">
-                        <i class="bi bi-box-arrow-in-right me-1"></i> Đăng Nhập Hồ Sơ
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Đăng Nhập Thí Sinh
                     </a>
                 {% endif %}
                 <a href="#majors-list" class="btn btn-link text-white text-decoration-none px-2 py-2 fs-6 fw-semibold">
