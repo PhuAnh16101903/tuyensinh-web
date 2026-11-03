@@ -228,7 +228,7 @@ def seed_demo_data():
                     }),
                     "score": 26.05,
                     "paid": True,
-                    "uid": student_id,
+                    "uid": None,
                     "status": "TRUNG_TUYEN_NV1",
                     "admitted_major_name": "Công nghệ thông tin (Nguyện vọng 1)",
                     "officer_note": "Hồ sơ xét tuyển đạt điểm chuẩn trúng tuyển Nguyện vọng 1."

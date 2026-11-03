@@ -18,9 +18,11 @@
 {% endblock %}
 
 {% block content %}
+{% set enrolled_apps = my_applications | selectattr('status', 'equalto', 'DA_NHAP_HOC') | list %}
+{% set enrolled_app = enrolled_apps[0] if enrolled_apps else None %}
 {% set my_app = my_applications[0] if my_applications else None %}
 
-<!-- Clean Academic Header User Profile (1 Sinh Viên = 1 Mã Hồ Sơ = 1 MSSV Duy Nhất) -->
+<!-- Clean Academic Header User Profile -->
 <div class="card card-modern p-4 mb-4 position-relative overflow-hidden" 
      style="background: #ffffff; border: 1px solid rgba(226, 232, 240, 0.9); border-left: 5px solid #2563eb !important; box-shadow: 0 8px 25px -4px rgba(37, 99, 235, 0.08);">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -35,12 +37,16 @@
             <div>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <h4 class="fw-bold mb-0 text-dark" style="font-family: 'Montserrat', sans-serif;">Xin chào, {{ user.full_name }}</h4>
-                    {% if my_app and my_app.status == 'DA_NHAP_HOC' %}
+                    {% if enrolled_app %}
                     <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1 small fw-bold">
                         <i class="bi bi-mortarboard-fill me-1"></i>Tân Sinh Viên K68
                     </span>
-                    {% else %}
+                    {% elif my_applications|length > 0 %}
                     <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-2.5 py-1 small fw-semibold">
+                        <i class="bi bi-mortarboard me-1"></i>Thí Sinh K68 ({{ my_applications|length }} Hồ sơ)
+                    </span>
+                    {% else %}
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-2.5 py-1 small fw-semibold">
                         <i class="bi bi-mortarboard me-1"></i>Thí Sinh K68
                     </span>
                     {% endif %}
@@ -48,7 +54,7 @@
                 <div class="text-muted small mt-1 d-flex align-items-center gap-3 flex-wrap">
                     <span><i class="bi bi-envelope-at text-primary me-1"></i>{{ user.email }}</span>
                     <span><i class="bi bi-phone text-primary me-1"></i>{{ user.phone or 'Chưa cập nhật SĐT' }}</span>
-                    {% if my_app %}
+                    {% if my_app and my_app.id_card %}
                     <span><i class="bi bi-person-vcard text-primary me-1"></i>CCCD: <strong>{{ my_app.id_card }}</strong></span>
                     {% endif %}
                 </div>
@@ -56,25 +62,32 @@
         </div>
 
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            {% if my_app %}
-            <div class="p-2 px-3 rounded-3 bg-light border text-center">
-                <div class="text-muted small fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">MÃ HỒ SƠ ĐỊNH DANH</div>
-                <div class="fw-bold fs-6 text-primary font-monospace">{{ my_app.app_code }}</div>
-            </div>
-            {% if my_app.student_code %}
+            {% if enrolled_app and enrolled_app.student_code %}
             <div class="p-2 px-3 rounded-3 bg-success bg-opacity-10 border border-success border-opacity-25 text-center">
                 <div class="text-success small fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">MÃ SỐ SINH VIÊN (MSSV)</div>
-                <div class="fw-bold fs-6 text-success font-monospace"><i class="bi bi-mortarboard-fill me-1"></i>{{ my_app.student_code }}</div>
+                <div class="fw-bold fs-6 text-success font-monospace"><i class="bi bi-mortarboard-fill me-1"></i>{{ enrolled_app.student_code }}</div>
             </div>
-            {% endif %}
-            <button class="btn btn-outline-primary fw-bold px-3 py-2.5 rounded-3 shadow-xs d-flex align-items-center gap-2" onclick="switchToApplyTab()">
-                <i class="bi bi-pencil-square"></i>
-                <span>Cập Nhật Hồ Sơ</span>
+            <button class="btn btn-success fw-bold px-3 py-2.5 rounded-3 shadow-sm d-flex align-items-center gap-2" onclick="openCertificateModal('{{ enrolled_app.app_code }}')">
+                <i class="bi bi-award-fill"></i>
+                <span>Giấy Báo Nhập Học</span>
             </button>
-            {% else %}
+            {% elif my_applications|length > 0 %}
+            <div class="p-2 px-3 rounded-3 bg-light border text-center">
+                <div class="text-muted small fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">HỒ SƠ ĐÃ ĐĂNG KÝ</div>
+                <div class="fw-bold fs-6 text-primary font-monospace">{{ my_applications|length }} Hồ sơ</div>
+            </div>
             <button class="btn btn-primary fw-bold px-3 py-2.5 rounded-3 shadow-sm d-flex align-items-center gap-2" onclick="switchToApplyTab()">
                 <i class="bi bi-plus-circle"></i>
-                <span>Đăng Ký Hồ Sơ Xét Tuyển</span>
+                <span>+ Đăng Ký Thêm Hồ Sơ / NV</span>
+            </button>
+            {% else %}
+            <div class="p-2 px-3 rounded-3 bg-light border text-center">
+                <div class="text-muted small fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">SỐ LƯỢNG HỒ SƠ</div>
+                <div class="fw-bold fs-6 text-muted font-monospace">0 Hồ sơ</div>
+            </div>
+            <button class="btn btn-primary fw-bold px-3 py-2.5 rounded-3 shadow-sm d-flex align-items-center gap-2" onclick="switchToApplyTab()">
+                <i class="bi bi-plus-circle"></i>
+                <span>Nộp Hồ Sơ Xét Tuyển</span>
             </button>
             {% endif %}
         </div>
@@ -87,10 +100,10 @@
             <h6 class="fw-bold text-muted text-uppercase mb-3 px-2" style="font-size: 0.78rem; letter-spacing: 0.5px;">Chức Năng Thí Sinh</h6>
             <div class="nav flex-column nav-pills gap-1" id="v-pills-tab" role="tablist">
                 <button class="nav-link active text-start py-3" id="tab-my-apps" data-bs-toggle="pill" data-bs-target="#content-my-apps">
-                    <i class="bi bi-person-vcard me-2"></i> Hồ sơ xét tuyển của tôi
+                    <i class="bi bi-person-vcard me-2"></i> Hồ sơ xét tuyển của tôi {% if my_applications|length > 0 %}<span class="badge bg-primary ms-1">{{ my_applications|length }}</span>{% endif %}
                 </button>
                 <button class="nav-link text-start py-3" id="tab-apply" data-bs-toggle="pill" data-bs-target="#content-apply">
-                    <i class="bi bi-file-earmark-text me-2"></i> {% if my_app %}Cập nhật nguyện vọng{% else %}Đăng ký xét tuyển{% endif %}
+                    <i class="bi bi-file-earmark-plus me-2"></i> {% if my_applications|length > 0 %}Đăng ký thêm hồ sơ / NV{% else %}Đăng ký xét tuyển mới{% endif %}
                 </button>
                 <button class="nav-link text-start py-3" id="tab-pay" data-bs-toggle="pill" data-bs-target="#content-pay">
                     <i class="bi bi-qr-code-scan me-2"></i> Nộp lệ phí VietQR
@@ -110,33 +123,34 @@
                 <div class="card card-custom p-4 bg-white">
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 pb-2 border-bottom">
                         <div>
-                            <h4 class="fw-bold text-primary mb-1"><i class="bi bi-person-vcard-fill me-1"></i> Hồ Sơ Xét Tuyển Cá Nhân Của Bạn</h4>
-                            <p class="text-muted small mb-0">Mỗi thí sinh có 01 mã hồ sơ xét tuyển duy nhất (tích hợp Nguyện vọng 1 & Nguyện vọng 2) và được cấp 01 Mã số sinh viên (MSSV) khi trúng tuyển.</p>
+                            <h4 class="fw-bold text-primary mb-1"><i class="bi bi-person-vcard-fill me-1"></i> Hồ Sơ Xét Tuyển Của Bạn</h4>
+                            <p class="text-muted small mb-0">Theo dõi trạng thái xét tuyển, nộp lệ phí VietQR và tiến trình nhập học chính thức Khóa 68.</p>
                         </div>
-                        {% if my_app %}
-                        <button class="btn btn-sm btn-outline-primary fw-semibold rounded-pill px-3" onclick="openEditAppModal('{{ my_app.id }}', '{{ my_app.app_code }}', {{ my_app.major_id }}, {{ my_app.major_nv2_id or 'null' }})">
-                            <i class="bi bi-pencil-square me-1"></i> Điều Chỉnh Nguyện Vọng
+                        {% if not enrolled_app and my_applications|length > 0 %}
+                        <button class="btn btn-sm btn-primary fw-semibold rounded-pill px-3" onclick="switchToApplyTab()">
+                            <i class="bi bi-plus-circle me-1"></i> Đăng Ký Thêm Hồ Sơ
                         </button>
                         {% endif %}
                     </div>
 
                     {% if my_applications|length == 0 %}
-                    <div class="text-center py-5 px-4 my-2 rounded-4" style="background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); border: 1.5px dashed #cbd5e1;">
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-3 shadow-xs" 
-                             style="width: 72px; height: 72px; background: rgba(37, 99, 235, 0.08); color: #1d4ed8;">
-                            <i class="bi bi-mortarboard-fill fs-2"></i>
+                    <div class="rounded-3 text-center py-5 px-4 my-3" style="background-color: #e0f2fe; border: 1px solid #bae6fd;">
+                        <div class="mb-3 d-inline-flex align-items-center justify-content-center rounded-circle" 
+                             style="width: 44px; height: 44px; border: 2.2px solid #0369a1; color: #0369a1;">
+                            <i class="bi bi-info-lg fs-3 fw-bold"></i>
                         </div>
-                        <h5 class="fw-bold text-dark mb-2" style="font-family: 'Outfit', sans-serif;">Bạn Chưa Có Hồ Sơ Xét Tuyển Nào</h5>
-                        <p class="text-muted small mx-auto mb-4" style="max-width: 480px; line-height: 1.65;">
-                            Cổng tuyển sinh Khóa 68 đang mở tiếp nhận hồ sơ trực tuyến. Hãy bắt đầu tạo và nộp hồ sơ xét tuyển chỉ với 3 phút theo quy chế tuyển sinh Đại học Kinh tế Quốc dân.
-                        </p>
-                        <button type="button" class="btn btn-primary px-4 py-2.5 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center gap-2" onclick="switchToApplyTab()">
-                            <i class="bi bi-plus-circle-fill"></i>
-                            <span>Bắt Đầu Nộp Hồ Sơ Ngay</span>
-                            <i class="bi bi-arrow-right"></i>
-                        </button>
+                        <h5 class="fw-normal mb-4" style="color: #0c4a6e; font-size: 1.25rem; font-family: 'Montserrat', sans-serif;">
+                            Bạn chưa nộp hồ sơ xét tuyển nào vào trường.
+                        </h5>
+                        <div>
+                            <button type="button" class="btn btn-primary fw-semibold px-4 py-2.5 rounded-3 shadow-sm" 
+                                    style="background-color: #2563eb; border: none; font-size: 1rem; padding-left: 2rem !important; padding-right: 2rem !important;" 
+                                    onclick="switchToApplyTab()">
+                                Nộp hồ sơ ngay bây giờ &raquo;
+                            </button>
+                        </div>
                     </div>
-                {% else %}
+                    {% else %}
                         <div class="d-flex flex-column gap-3">
                             {% for app in my_applications %}
                             <div class="card card-custom p-4 border border-light-subtle shadow-sm">
@@ -365,7 +379,7 @@
             </div>
             <!-- TAB 1: ĐĂNG KÝ / CẬP NHẬT HỒ SƠ XÉT TUYỂN -->
             <div class="tab-pane fade" id="content-apply">
-                {% if my_app and my_app.status == 'DA_NHAP_HOC' %}
+                {% if enrolled_app %}
                 <!-- Trạng thái ĐÃ NHẬP HỌC: Đóng băng hồ sơ vĩnh viễn -->
                 <div class="card card-custom p-5 text-center border-success bg-white shadow-sm rounded-4">
                     <div class="rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-3 shadow-sm mx-auto" 
@@ -374,16 +388,16 @@
                     </div>
                     <h3 class="fw-bold text-success mb-2" style="font-family: 'Montserrat', sans-serif;">Chúc Mừng Tân Sinh Viên Khóa 68!</h3>
                     <p class="text-muted fs-6 mx-auto mb-3" style="max-width: 620px; line-height: 1.7;">
-                        Bạn đã hoàn tất xác nhận nhập học chính thức vào ngành <strong class="text-dark">{{ my_app.admitted_major_name or my_app.major.name }}</strong>.<br>
+                        Bạn đã hoàn tất xác nhận nhập học chính thức vào ngành <strong class="text-dark">{{ enrolled_app.admitted_major_name or enrolled_app.major.name }}</strong>.<br>
                         Mã số sinh viên (MSSV) chính thức của bạn: 
-                        <span class="badge bg-primary fs-5 font-monospace px-3 py-1.5 ms-1">{{ my_app.student_code }}</span>
+                        <span class="badge bg-primary fs-5 font-monospace px-3 py-1.5 ms-1">{{ enrolled_app.student_code }}</span>
                     </p>
                     <div class="p-3 bg-light rounded-3 border d-inline-block mx-auto mb-4 text-start small" style="max-width: 540px;">
                         <div><i class="bi bi-shield-check text-success me-1"></i> <strong>Hồ sơ xét tuyển đã được đóng băng và lưu trữ vĩnh viễn:</strong></div>
                         <div class="text-muted mt-1">Theo Quy chế Tuyển sinh Đại học chính quy của Bộ GD&ĐT và Trường Đại học Kinh tế Quốc dân, sau khi thí sinh đã hoàn tất xác nhận nhập học và được cấp MSSV, dữ liệu hồ sơ được chuyển tiếp vào Cơ sở dữ liệu Quản lý Đào tạo Đại học, không được tạo mới hoặc chỉnh sửa nguyện vọng khác.</div>
                     </div>
                     <div class="d-flex justify-content-center gap-3">
-                        <button type="button" class="btn btn-success fw-bold rounded-pill px-4 py-2.5 shadow-sm" onclick="openCertificateModal('{{ my_app.app_code }}')">
+                        <button type="button" class="btn btn-success fw-bold rounded-pill px-4 py-2.5 shadow-sm" onclick="openCertificateModal('{{ enrolled_app.app_code }}')">
                             <i class="bi bi-award-fill me-1"></i> Mở Giấy Báo Nhập Học Điện Tử
                         </button>
                         <button type="button" class="btn btn-outline-primary fw-semibold rounded-pill px-4 py-2.5" onclick="switchToMyAppsTab()">
@@ -391,47 +405,21 @@
                         </button>
                     </div>
                 </div>
-                {% elif my_app and my_app.status in ['TRUNG_TUYEN_NV1', 'TRUNG_TUYEN_NV2', 'TRUNG_TUYEN'] %}
-                <!-- Trạng thái ĐÃ TRÚNG TUYỂN: Hướng dẫn xác nhận nhập học -->
-                <div class="card card-custom p-5 text-center border-success bg-white shadow-sm rounded-4">
-                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-3 shadow-sm mx-auto" 
-                         style="width: 80px; height: 80px; background: rgba(37, 99, 235, 0.1); color: #2563eb;">
-                        <i class="bi bi-award-fill fs-1"></i>
-                    </div>
-                    <h3 class="fw-bold text-primary mb-2" style="font-family: 'Montserrat', sans-serif;">Chúc Mừng Bạn Đã Trúng Tuyển Chính Thức!</h3>
-                    <p class="text-muted fs-6 mx-auto mb-3" style="max-width: 620px; line-height: 1.7;">
-                        Hội đồng Tuyển sinh thông báo hồ sơ <strong class="font-monospace text-primary">{{ my_app.app_code }}</strong> đã trúng tuyển chính thức vào ngành:<br>
-                        <span class="fs-4 fw-bold text-success d-block my-2">{{ my_app.admitted_major_name or my_app.major.name }}</span>
-                        Tổng điểm xét tuyển của bạn: <strong class="text-danger">{{ my_app.score }}</strong> điểm.
-                    </p>
-                    <div class="alert alert-info border-info-subtle bg-info bg-opacity-10 py-2.5 px-3 mx-auto mb-4 text-start small rounded-3" style="max-width: 540px;">
-                        <i class="bi bi-info-circle-fill text-info me-1"></i> <strong>Bước tiếp theo:</strong>
-                        Vui lòng bấm nút <strong>"Xác Nhận Nhập Học Ngay"</strong> bên dưới để hoàn tất thủ tục, nhận Mã Số Sinh Viên (MSSV) và Giấy Báo Nhập Học Điện Tử theo quy định.
-                    </div>
-                    <div class="d-flex justify-content-center gap-3">
-                        <button type="button" class="btn btn-success btn-lg fw-bold rounded-pill px-4 py-2.5 shadow" onclick="confirmEnroll('{{ my_app.id }}', '{{ my_app.app_code }}', '{{ my_app.admitted_major_name or my_app.major.name }}')">
-                            <i class="bi bi-mortarboard-fill me-1"></i> Xác Nhận Nhập Học Ngay
-                        </button>
-                        <button type="button" class="btn btn-outline-primary fw-semibold rounded-pill px-4 py-2.5" onclick="switchToMyAppsTab()">
-                            <i class="bi bi-person-vcard me-1"></i> Xem Chi Tiết Điểm
-                        </button>
-                    </div>
-                </div>
                 {% else %}
-                <!-- Form Đăng Ký / Cập Nhật Hồ Sơ Khi Chưa Chốt Trúng Tuyển -->
+                <!-- Form Đăng Ký Xét Tuyển / Thêm Nguyện Vọng Mới -->
                 <div class="card card-custom p-4 bg-white">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 border-bottom pb-3">
                         <div>
-                            <h4 class="fw-bold text-primary mb-1"><i class="bi bi-mortarboard-fill"></i> {% if my_app %}Cập Nhật Hồ Sơ & Nguyện Vọng Xét Tuyển ({{ my_app.app_code }}){% else %}Đăng Ký Xét Tuyển Đại Học 2026{% endif %}</h4>
+                            <h4 class="fw-bold text-primary mb-1"><i class="bi bi-mortarboard-fill"></i> {% if my_applications|length > 0 %}Đăng Ký Thêm Hồ Sơ / Nguyện Vọng Xét Tuyển{% else %}Đăng Ký Xét Tuyển Đại Học Khóa 68 (Năm 2026){% endif %}</h4>
                             <p class="text-muted mb-0 small">Hệ thống xét tuyển tích hợp 5 phương thức chuẩn Đại học Kinh tế Quốc dân (NEU), tự động quy đổi chứng chỉ Quốc tế và tính điểm ưu tiên.</p>
                         </div>
                         <span class="badge bg-danger fs-6 px-3 py-2"><i class="bi bi-lightning-charge-fill"></i> Tự Động Quy Đổi Điểm Real-Time</span>
                     </div>
 
-                    {% if my_app %}
-                    <div class="alert alert-primary bg-primary bg-opacity-10 border-primary border-opacity-25 py-2.5 px-3 mb-4 small rounded-3">
-                        <i class="bi bi-info-circle-fill text-primary me-1"></i>
-                        <strong>Quy định 1 Sinh viên - 1 Mã hồ sơ duy nhất:</strong> Bạn đang sở hữu mã hồ sơ định danh <strong>{{ my_app.app_code }}</strong>. Mọi thay đổi về phương thức, điểm số hoặc nguyện vọng dưới đây sẽ được cập nhật trực tiếp vào hồ sơ <strong>{{ my_app.app_code }}</strong> của bạn.
+                    {% if my_applications|length > 0 %}
+                    <div class="alert alert-info bg-info bg-opacity-10 border-info border-opacity-25 py-2.5 px-3 mb-4 small rounded-3">
+                        <i class="bi bi-info-circle-fill text-info me-1"></i>
+                        Bạn hiện đang có <strong>{{ my_applications|length }} hồ sơ xét tuyển</strong> trên hệ thống. Bạn có thể nộp thêm hồ sơ cho các ngành đào tạo hoặc phương thức xét tuyển khác để tối đa hóa cơ hội trúng tuyển vào Trường.
                     </div>
                     {% endif %}
 
@@ -446,7 +434,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Số CCCD / CMND định danh (*)</label>
-                                <input type="text" id="app_idCard" class="form-control" required value="{{ my_app.id_card if my_app else '001202002222' }}" placeholder="001202012345">
+                                <input type="text" id="app_idCard" class="form-control" required value="{{ my_app.id_card if my_app else '' }}" placeholder="Ví dụ: 001202012345">
                             </div>
 
                             <div class="col-md-6">
@@ -741,8 +729,21 @@
 
                     <div class="row g-3 align-items-end mb-4">
                         <div class="col-md-8">
-                            <label class="form-label fw-semibold">Mã hồ sơ xét tuyển của bạn</label>
-                            <input type="text" id="pay_appCode" class="form-control fw-bold text-primary font-monospace" value="{{ my_app.app_code if my_app else '' }}" placeholder="Ví dụ: TS2026-100002">
+                            <label class="form-label fw-semibold">Mã hồ sơ xét tuyển cần nộp phí</label>
+                            {% if my_applications|length > 1 %}
+                            <div class="input-group">
+                                <select class="form-select fw-bold text-primary font-monospace" onchange="document.getElementById('pay_appCode').value = this.value; handleFetchPayment();">
+                                    {% for a in my_applications %}
+                                    <option value="{{ a.app_code }}" {% if loop.first %}selected{% endif %}>
+                                        {{ a.app_code }} - {{ a.major.name }} ({% if a.payment and a.payment.status == 'PAID' %}Đã nộp phí{% else %}Chưa nộp phí{% endif %})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <input type="text" id="pay_appCode" class="form-control fw-bold text-primary font-monospace" value="{{ my_applications[0].app_code }}" style="max-width: 200px;">
+                            </div>
+                            {% else %}
+                            <input type="text" id="pay_appCode" class="form-control fw-bold text-primary font-monospace" value="{{ my_applications[0].app_code if my_applications else '' }}" placeholder="Ví dụ: TS2026-100002">
+                            {% endif %}
                         </div>
                         <div class="col-md-4">
                             <button class="btn btn-success w-100 fw-bold" onclick="handleFetchPayment()">

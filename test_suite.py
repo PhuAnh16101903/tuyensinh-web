@@ -306,7 +306,7 @@ for ea in extra_apps:
     db_clean.query(PaymentTransaction).filter(PaymentTransaction.application_id == ea.id).delete()
     db_clean.delete(ea)
 
-# Đảm bảo thí sinh mẫu TS2026-100002 dừng ở mức ĐÃ TRÚNG TUYỂN để người dùng trải nghiệm nút Xác nhận nhập học
+# Đảm bảo thí sinh mẫu TS2026-100002 là hồ sơ độc lập, không gán cho tài khoản student@gmail.com để sinh viên tự tạo hồ sơ mới
 app_student = db_clean.query(AdmissionApplication).filter(AdmissionApplication.app_code == 'TS2026-100002').first()
 if app_student:
     app_student.status = 'TRUNG_TUYEN_NV1'
@@ -314,6 +314,8 @@ if app_student:
     app_student.student_code = None
     app_student.student_email = None
     app_student.enrolled_at = None
+    app_student.user_id = None
+    app_student.email = 'candidate2@gmail.com'
 
 db_clean.commit()
 db_clean.close()

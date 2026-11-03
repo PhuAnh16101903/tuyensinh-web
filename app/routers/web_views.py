@@ -127,10 +127,10 @@ def student_portal(request: Request, db: Session = Depends(get_db)):
 
     majors = db.query(Major).all()
     fees = db.query(FeeConfig).all()
-    # Lấy duy nhất 01 hồ sơ xét tuyển chính thức của học sinh này (Quy tắc: 1 Sinh viên = 1 Mã hồ sơ = 1 MSSV)
+    # Lấy toàn bộ danh sách hồ sơ xét tuyển / nguyện vọng của thí sinh này
     my_applications = db.query(AdmissionApplication).filter(
         (AdmissionApplication.user_id == user.id) | (AdmissionApplication.email == user.email)
-    ).order_by(AdmissionApplication.id.asc()).limit(1).all()
+    ).order_by(AdmissionApplication.created_at.desc()).all()
 
     my_tickets = db.query(SupportTicket).filter(
         (SupportTicket.user_id == user.id) | (SupportTicket.sender_email == user.email)

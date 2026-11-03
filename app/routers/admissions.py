@@ -114,55 +114,28 @@ def submit_application(data: ApplicationCreate, db: Session = Depends(get_db)):
         if not major2:
             raise HTTPException(status_code=404, detail="Ngành nguyện vọng 2 không tồn tại!")
 
-    # Quy tắc 1 Sinh viên = 1 Hồ sơ duy nhất:
-    # Nếu thí sinh đã đăng nhập (có user_id) và đã có hồ sơ trên hệ thống -> Cập nhật trực tiếp trên hồ sơ duy nhất đó
+    # 1. Kiểm tra trạng thái nhập học chính thức: nếu thí sinh đã nhập học thì không thể đăng ký thêm hồ sơ mới
     if data.user_id:
-        existing_user_app = db.query(AdmissionApplication).filter(
-            AdmissionApplication.user_id == data.user_id
+        enrolled_app = db.query(AdmissionApplication).filter(
+            AdmissionApplication.user_id == data.user_id,
+            AdmissionApplication.status == "DA_NHAP_HOC"
         ).first()
-        if existing_user_app:
-            if existing_user_app.status == "DA_NHAP_HOC":
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Thí sinh đã hoàn tất xác nhận nhập học chính thức Khóa 68 (MSSV: {existing_user_app.student_code}). Toàn bộ hồ sơ đã được lưu trữ vĩnh viễn, không thể đăng ký thêm hoặc thay đổi nguyện vọng!"
-                )
-            if existing_user_app.status in ["TRUNG_TUYEN_NV1", "TRUNG_TUYEN_NV2", "TRUNG_TUYEN"]:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Hồ sơ của bạn đã có kết quả TRÚNG TUYỂN CHÍNH THỨC! Vui lòng thực hiện Xác Nhận Nhập Học hoặc liên hệ Hội đồng Tuyển sinh nếu cần hỗ trợ."
-                )
+        if enrolled_app:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Thí sinh đã hoàn tất xác nhận nhập học chính thức Khóa 68 (MSSV: {enrolled_app.student_code}). Toàn bộ hồ sơ đã được lưu trữ vĩnh viễn, không thể đăng ký thêm hồ sơ xét tuyển mới!"
+            )
 
-            existing_user_app.full_name = data.full_name
-            existing_user_app.id_card = data.id_card
-            existing_user_app.email = data.email
-            existing_user_app.phone = data.phone
-            existing_user_app.method = data.method or data.method_code or "THPT"
-            existing_user_app.method_code = data.method_code or "THPT"
-            existing_user_app.method_name = data.method_name or "Xét tuyển kết quả thi tốt nghiệp THPT"
-            existing_user_app.subject_combination = data.subject_combination
-            existing_user_app.priority_area = data.priority_area or "KV3"
-            existing_user_app.priority_score = data.priority_score or 0.0
-            existing_user_app.score_details = data.score_details
-            existing_user_app.score = data.score
-            existing_user_app.major_id = data.major_id
-            existing_user_app.major_nv2_id = data.major_nv2_id
-            if data.proof_url:
-                existing_user_app.proof_url = data.proof_url
-            if existing_user_app.status in ["DA_RUT", "CHO_DUYET"]:
-                existing_user_app.status = "CHO_DUYET"
-            db.commit()
-            db.refresh(existing_user_app)
-            return existing_user_app
-
-    # Kiểm tra số CCCD đã tồn tại trên hệ thống chưa (1 CCCD = 1 Mã hồ sơ duy nhất)
-    existing = db.query(AdmissionApplication).filter(
+    # 2. Kiểm tra tránh đăng ký trùng lặp: cùng số CCCD và cùng ngành xét tuyển NV1
+    existing_same_major = db.query(AdmissionApplication).filter(
         AdmissionApplication.id_card == data.id_card,
+        AdmissionApplication.major_id == data.major_id,
         AdmissionApplication.status != "DA_RUT"
     ).first()
-    if existing:
+    if existing_same_major:
         raise HTTPException(
             status_code=400,
-            detail=f"Mỗi thí sinh chỉ có 01 mã hồ sơ duy nhất! Số CCCD {data.id_card} đã được đăng ký với mã hồ sơ {existing.app_code}."
+            detail=f"Số CCCD {data.id_card} đã có hồ sơ đăng ký vào ngành {major1.name} (Mã hồ sơ: {existing_same_major.app_code}). Thí sinh vui lòng chọn ngành khác hoặc điều chỉnh nguyện vọng trên hồ sơ đã có!"
         )
 
     app_code = f"TS2026-{random.randint(100000, 999999)}"
