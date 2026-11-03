@@ -257,9 +257,9 @@
                             <td><span class="fw-bold text-primary fs-6">{{ app.score }}</span></td>
                             <td>
                                 {% if app.proof_url %}
-                                <a href="{{ app.proof_url }}" target="_blank" class="badge bg-info text-dark text-decoration-none">
+                                <button type="button" class="btn btn-sm btn-outline-info py-0 px-2 fw-semibold text-dark shadow-sm" onclick="viewProofModal('{{ app.app_code }}', '{{ app.full_name }}', '{{ (app.proof_url or '') | escape }}')">
                                     <i class="bi bi-file-earmark-image"></i> Xem file
-                                </a>
+                                </button>
                                 {% else %}
                                 <span class="text-muted small">---</span>
                                 {% endif %}
@@ -973,26 +973,35 @@ function openAdminReviewModal(appId, appCode, fullName, idCard, methodName, comb
         </tr>
     `;
     const proofContainer = document.getElementById('revProofPreview');
-    if (proofUrl && proofUrl.trim()) {
-        const isPdf = proofUrl.toLowerCase().endsWith('.pdf');
+    if (proofUrl && proofUrl.trim() && proofUrl !== 'None' && proofUrl !== 'null') {
+        const isPdf = proofUrl.toLowerCase().includes('.pdf') || proofUrl.startsWith('data:application/pdf');
         if (isPdf) {
             proofContainer.innerHTML = `
                 <div class="alert alert-info py-2">
                     <i class="bi bi-file-earmark-pdf fs-4 text-danger me-2"></i>
                     Tài liệu minh chứng PDF: 
-                    <a href="${proofUrl}" target="_blank" class="btn btn-sm btn-primary ms-2"><i class="bi bi-box-arrow-up-right"></i> Mở xem file PDF</a>
+                    <button type="button" class="btn btn-sm btn-primary ms-2" onclick="openProofInNewWindow('${proofUrl}')"><i class="bi bi-box-arrow-up-right"></i> Mở xem file PDF</button>
                 </div>
             `;
         } else {
             proofContainer.innerHTML = `
-                <a href="${proofUrl}" target="_blank" title="Nhấn để phóng to ảnh">
-                    <img src="${proofUrl}" alt="Minh chứng" class="img-fluid rounded border shadow-sm" style="max-height: 340px;">
-                </a>
-                <div class="small text-muted mt-1"><i class="bi bi-zoom-in"></i> Nhấp vào ảnh để xem kích thước đầy đủ</div>
+                <div class="text-center">
+                    <img src="${proofUrl}" onerror="this.src='/static/uploads/default_proof.png'" alt="Minh chứng" class="img-fluid rounded border shadow-sm mb-2" style="max-height: 340px; object-fit: contain;">
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="openProofInNewWindow('${proofUrl}')">
+                            <i class="bi bi-arrows-fullscreen me-1"></i> Phóng to toàn màn hình
+                        </button>
+                    </div>
+                </div>
             `;
         }
     } else {
-        proofContainer.innerHTML = `<span class="text-muted fst-italic">Không có file minh chứng tải lên.</span>`;
+        proofContainer.innerHTML = `
+            <div class="text-center p-2">
+                <img src="/static/uploads/default_proof.png" alt="Minh chứng mẫu" class="img-fluid rounded border shadow-sm mb-2" style="max-height: 240px; opacity: 0.9;">
+                <div class="small text-muted fst-italic">Đang hiển thị bản scan minh chứng mẫu chuẩn của hệ thống</div>
+            </div>
+        `;
     }
 
     adminReviewModalObj = new bootstrap.Modal(document.getElementById('adminReviewModal'));

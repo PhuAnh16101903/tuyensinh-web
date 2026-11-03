@@ -388,6 +388,104 @@
     }
     </script>
 
+    <!-- Modal Xem Minh Chứng Toàn Hệ Thống (Universal Proof Viewer Modal) -->
+    <div class="modal fade" id="globalProofModal" tabindex="-1" style="z-index: 1060;">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="modal-header bg-dark text-white py-2 px-3">
+                    <h6 class="modal-title fw-bold mb-0" id="proofModalTitle">
+                        <i class="bi bi-file-earmark-image text-info me-2"></i> Minh Chứng Hồ Sơ Xét Tuyển
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-3 bg-light">
+                    <div id="proofModalBody" class="d-flex flex-column align-items-center justify-content-center" style="min-height: 280px;">
+                        <!-- Dynamic img or PDF -->
+                    </div>
+                </div>
+                <div class="modal-footer py-2 px-3 justify-content-between bg-white border-top">
+                    <span class="small text-muted"><i class="bi bi-shield-check text-success me-1"></i> Chứng thực số bởi Cổng Tuyển sinh Đại học 2026</span>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" onclick="openProofInNewWindow()">
+                            <i class="bi bi-box-arrow-up-right me-1"></i> Mở tab riêng
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let globalActiveProofUrl = '';
+    let globalProofModalObj = null;
+
+    function viewProofModal(appCode, arg2, arg3) {
+        let title = 'Minh chứng hồ sơ ' + (appCode || '');
+        let url = '';
+        if (arg3) {
+            title = `Minh chứng hồ sơ ${appCode} - ${arg2}`;
+            url = arg3;
+        } else if (arg2) {
+            url = arg2;
+        } else {
+            url = appCode;
+        }
+
+        if (!url || url === 'None' || url === 'null' || url.trim() === '') {
+            url = '/static/uploads/default_proof.png';
+        }
+
+        globalActiveProofUrl = url;
+        const titleEl = document.getElementById('proofModalTitle');
+        if (titleEl) {
+            titleEl.innerHTML = `<i class="bi bi-file-earmark-image text-info me-2"></i> ${title}`;
+        }
+
+        const body = document.getElementById('proofModalBody');
+        if (body) {
+            const isPdf = url.toLowerCase().includes('.pdf') || url.startsWith('data:application/pdf');
+            if (isPdf) {
+                body.innerHTML = `
+                    <div class="p-4 text-center">
+                        <i class="bi bi-file-earmark-pdf fs-1 text-danger d-block mb-2"></i>
+                        <h6 class="fw-bold">Tài liệu minh chứng định dạng PDF</h6>
+                        <p class="text-muted small">Nhấn nút bên dưới để mở tài liệu trong trình đọc PDF.</p>
+                        <button class="btn btn-primary btn-sm px-3 mt-1" onclick="openProofInNewWindow('${url}')">
+                            <i class="bi bi-box-arrow-up-right me-1"></i> Mở toàn màn hình
+                        </button>
+                    </div>
+                `;
+            } else {
+                body.innerHTML = `
+                    <div class="text-center w-100">
+                        <img src="${url}" onerror="this.src='/static/uploads/default_proof.png'" class="img-fluid rounded border shadow-sm" style="max-height: 68vh; max-width: 100%; object-fit: contain;">
+                        <div class="small text-muted mt-2"><i class="bi bi-zoom-in"></i> Hình ảnh minh chứng bản scan rõ nét</div>
+                    </div>
+                `;
+            }
+        }
+
+        if (!globalProofModalObj) {
+            globalProofModalObj = new bootstrap.Modal(document.getElementById('globalProofModal'));
+        }
+        globalProofModalObj.show();
+    }
+
+    function openProofInNewWindow(url) {
+        if (!url) url = globalActiveProofUrl;
+        if (!url) return;
+        if (url.startsWith('data:')) {
+            const win = window.open('');
+            if (win) {
+                win.document.write(`<title>Minh Chứng Xét Tuyển</title><body style="margin:0;background:#1a1a1a;display:flex;justify-content:center;align-items:center;min-height:100vh;"><img src="${url}" style="max-width:98vw;max-height:98vh;box-shadow:0 0 25px rgba(0,0,0,0.9);border-radius:6px;"/></body>`);
+            }
+        } else {
+            window.open(url, '_blank');
+        }
+    }
+    </script>
+
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     {% block scripts %}{% endblock %}

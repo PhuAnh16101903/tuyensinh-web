@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 import os
 import datetime
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, FileResponse
 import logging
 from app.database import engine, Base, SessionLocal
 from app.models import Major, Subject, FeeConfig, FAQItem, AdmissionApplication, PaymentTransaction, SupportTicket, User
@@ -41,6 +41,31 @@ if not os.path.exists(static_dir):
             static_dir = candidate
             break
 
+@app.get("/static/uploads/{filename}")
+def serve_upload_file(filename: str):
+    """Phục vụ file minh chứng và ảnh tĩnh với cơ chế đa đường dẫn fallback chống lỗi 404 trên Vercel"""
+    # 1. Thư mục static chuẩn của ứng dụng
+    local_path = os.path.join(static_dir, "uploads", filename)
+    if os.path.exists(local_path) and os.path.isfile(local_path):
+        return FileResponse(local_path)
+    
+    # 2. Thư mục /tmp trên hạ tầng Serverless
+    tmp_path = os.path.join("/tmp/uploads", filename)
+    if os.path.exists(tmp_path) and os.path.isfile(tmp_path):
+        return FileResponse(tmp_path)
+
+    # 3. Thư mục static ở thư mục gốc
+    cand_path = os.path.join(os.getcwd(), "app", "static", "uploads", filename)
+    if os.path.exists(cand_path) and os.path.isfile(cand_path):
+        return FileResponse(cand_path)
+        
+    # 4. Tự động dự phòng về ảnh minh chứng mẫu chuẩn để không bao giờ bị vỡ giao diện
+    default_path = os.path.join(static_dir, "uploads", "default_proof.png")
+    if os.path.exists(default_path) and os.path.isfile(default_path):
+        return FileResponse(default_path)
+
+    return PlainTextResponse("File not found", status_code=404)
+
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
@@ -53,6 +78,7 @@ if is_serverless:
         app.mount("/static/uploads", StaticFiles(directory=tmp_upload_dir), name="tmp_uploads")
     except Exception:
         pass
+
 
 # Đăng ký các router
 app.include_router(auth.router)

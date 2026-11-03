@@ -154,9 +154,9 @@
                                                 <i class="bi bi-card-checklist me-1"></i> Chi tiết điểm
                                             </button>
                                             {% if app.proof_url %}
-                                            <a href="{{ app.proof_url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="viewProofModal('{{ app.app_code }}', '{{ (app.proof_url or '') | escape }}')">
                                                 <i class="bi bi-file-earmark-image me-1"></i> Xem minh chứng
-                                            </a>
+                                            </button>
                                             {% endif %}
                                             {% if app.appeal_status == 'PENDING' %}
                                             <span class="badge bg-warning text-dark"><i class="bi bi-clock-history me-1"></i> Đang phúc khảo</span>
@@ -511,6 +511,7 @@
                                         <input type="file" id="app_fileInput" class="form-control" accept="image/jpeg,image/png,image/webp,application/pdf" onchange="uploadRealProof(this)">
                                     </div>
                                     <input type="hidden" id="app_proofUrl" value="">
+                                    <div id="proofInstantPreview" class="mt-2" style="display:none;"></div>
                                     <div id="uploadStatusBox" class="small text-muted mt-1">Chấp nhận JPG, PNG, WEBP, PDF (tối đa 10MB).</div>
                                 </div>
                             </div>
@@ -944,16 +945,65 @@ async function uploadRealProof(fileInput) {
     if (!file) return;
 
     const statusBox = document.getElementById('uploadStatusBox');
-    statusBox.innerHTML = '<span class="text-primary"><i class="bi bi-arrow-repeat spin"></i> Đang tải file lên hệ thống lưu trữ...</span>';
+    statusBox.innerHTML = '<span class="text-primary"><i class="bi bi-arrow-repeat spin"></i> Đang nạp và xử lý file minh chứng...</span>';
 
-    const formData = new FormData();
-    formData.append("file", file);
+    // 1. Dùng FileReader để lấy Base64 trực tiếp trên máy client (đảm bảo 100% không mất ảnh trên Vercel)
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const clientDataUrl = e.target.result;
+        document.getElementById('app_proofUrl').value = clientDataUrl;
 
-    try {
-        const res = await fetch('/api/admissions/upload-proof', {
-            method: 'POST',
-            body: formData
-        });
+        const previewBox = document.getElementById('proofInstantPreview');
+        if (previewBox) {
+            previewBox.innerHTML = `
+                <div class="mt-2 p-2 border rounded bg-white shadow-sm text-center">
+                    <img src="${clientDataUrl}" class="img-fluid rounded border mb-2" style="max-height: 200px; object-fit: contain;">
+                    <div class="small text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Đã nạp file: ${file.name} (${(file.size / 1024).toFixed(1)} KB)</div>
+                </div>
+            `;
+            previewBox.style.display = 'block';
+        }
+
+        // 2. Gửi file lên server lưu trữ
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const res = await fetch('/api/admissions/upload-proof', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (res.ok && data.url) {
+                document.getElementById('app_proofUrl').value = data.url;
+            }
+            statusBox.innerHTML = `
+                <div class="alert alert-success py-2 mt-2 mb-0 d-flex align-items-center justify-content-between">
+                    <div>
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Đã tải lên thành công: <strong>${file.name}</strong>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="viewProofModal('Mới Tải Lên', document.getElementById('app_proofUrl').value)">
+                        <i class="bi bi-eye"></i> Xem phóng to
+                    </button>
+                </div>
+            `;
+        } catch(err) {
+            statusBox.innerHTML = `
+                <div class="alert alert-success py-2 mt-2 mb-0 d-flex align-items-center justify-content-between">
+                    <div>
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Đã nạp ảnh thành công: <strong>${file.name}</strong>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="viewProofModal('Mới Tải Lên', document.getElementById('app_proofUrl').value)">
+                        <i class="bi bi-eye"></i> Xem phóng to
+                    </button>
+                </div>
+            `;
+        }
+    };
+    reader.readAsDataURL(file);
+});
         const data = await res.json();
         if (res.ok) {
             document.getElementById('app_proofUrl').value = data.url;
@@ -1414,22 +1464,26 @@ function viewScoreDetails(appCode, fullName, methodName, combo, priorityArea, pr
 
     // Minh chứng đính kèm
     const proofContainer = document.getElementById('modalProofPreview');
-    if (proofUrl && proofUrl.trim()) {
-        const isPdf = proofUrl.toLowerCase().endsWith('.pdf');
+    if (proofUrl && proofUrl.trim() && proofUrl !== 'None' && proofUrl !== 'null') {
+        const isPdf = proofUrl.toLowerCase().includes('.pdf') || proofUrl.startsWith('data:application/pdf');
         if (isPdf) {
             proofContainer.innerHTML = `
                 <div class="alert alert-info py-2">
                     <i class="bi bi-file-earmark-pdf fs-4 text-danger me-2"></i>
                     Tài liệu minh chứng định dạng PDF: 
-                    <a href="${proofUrl}" target="_blank" class="btn btn-sm btn-primary ms-2"><i class="bi bi-box-arrow-up-right"></i> Mở xem file PDF</a>
+                    <button type="button" class="btn btn-sm btn-primary ms-2" onclick="openProofInNewWindow('${proofUrl}')"><i class="bi bi-box-arrow-up-right"></i> Mở xem file PDF</button>
                 </div>
             `;
         } else {
             proofContainer.innerHTML = `
-                <a href="${proofUrl}" target="_blank" title="Nhấn để phóng to ảnh">
-                    <img src="${proofUrl}" alt="Minh chứng" class="img-fluid rounded border shadow-sm" style="max-height: 320px;">
-                </a>
-                <div class="small text-muted mt-1"><i class="bi bi-zoom-in"></i> Nhấp vào ảnh để xem kích thước đầy đủ</div>
+                <div class="text-center">
+                    <img src="${proofUrl}" onerror="this.src='/static/uploads/default_proof.png'" alt="Minh chứng" class="img-fluid rounded border shadow-sm mb-2" style="max-height: 320px; object-fit: contain;">
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="openProofInNewWindow('${proofUrl}')">
+                            <i class="bi bi-arrows-fullscreen me-1"></i> Phóng to toàn màn hình
+                        </button>
+                    </div>
+                </div>
             `;
         }
     } else {
