@@ -78,12 +78,22 @@
                     </div>
 
                     {% if my_applications|length == 0 %}
-                        <div class="alert alert-info py-4 text-center">
-                            <i class="bi bi-info-circle fs-3"></i>
-                            <p class="mt-2 mb-2">Bạn chưa nộp hồ sơ xét tuyển nào vào trường.</p>
-                            <button class="btn btn-primary btn-sm fw-bold" onclick="switchToApplyTab()">Nộp hồ sơ ngay bây giờ &raquo;</button>
+                    <div class="text-center py-5 px-4 my-2 rounded-4" style="background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); border: 1.5px dashed #cbd5e1;">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-3 shadow-xs" 
+                             style="width: 72px; height: 72px; background: rgba(37, 99, 235, 0.08); color: #1d4ed8;">
+                            <i class="bi bi-mortarboard-fill fs-2"></i>
                         </div>
-                    {% else %}
+                        <h5 class="fw-bold text-dark mb-2" style="font-family: 'Outfit', sans-serif;">Bạn Chưa Có Hồ Sơ Xét Tuyển Nào</h5>
+                        <p class="text-muted small mx-auto mb-4" style="max-width: 480px; line-height: 1.65;">
+                            Cổng tuyển sinh Khóa 68 đang mở tiếp nhận hồ sơ trực tuyến. Hãy bắt đầu tạo và nộp hồ sơ xét tuyển chỉ với 3 phút theo quy chế tuyển sinh Đại học Kinh tế Quốc dân.
+                        </p>
+                        <button type="button" class="btn btn-primary px-4 py-2.5 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center gap-2" onclick="switchToApplyTab()">
+                            <i class="bi bi-plus-circle-fill"></i>
+                            <span>Bắt Đầu Nộp Hồ Sơ Ngay</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                {% else %}
                         <div class="d-flex flex-column gap-3">
                             {% for app in my_applications %}
                             <div class="card card-custom p-4 border border-light-subtle shadow-sm">
@@ -1018,37 +1028,84 @@
 
 {% block scripts %}
 <script>
+
+// --- CHUYỂN ĐỔI TAB MƯỢT MÀ VÀ HỢP LÝ (100% FAIL-PROOF) ---
 function switchToApplyTab() {
-    const btn = document.getElementById('tab-apply');
-    bootstrap.Tab.getOrCreateInstance(btn).show();
+    // 1. Cập nhật trạng thái active trên danh mục Menu phân hệ bên trái
+    document.querySelectorAll('#v-pills-tab .nav-link').forEach(btn => btn.classList.remove('active'));
+    const applyTabBtn = document.getElementById('tab-apply');
+    if (applyTabBtn) applyTabBtn.classList.add('active');
+
+    // 2. Chuyển đổi nội dung phân hệ hiển thị ngay lập tức
+    document.querySelectorAll('#v-pills-tabContent .tab-pane').forEach(pane => {
+        pane.classList.remove('show', 'active');
+    });
+    const applyPane = document.getElementById('content-apply');
+    if (applyPane) {
+        applyPane.classList.add('show', 'active');
+        applyPane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // 3. Kích hoạt thông qua Bootstrap Tab Instance nếu có sẵn
+    if (applyTabBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+        try {
+            bootstrap.Tab.getOrCreateInstance(applyTabBtn).show();
+        } catch(e) {}
+    }
 }
 
 function switchToPay(appCode) {
-    document.getElementById('pay_appCode').value = appCode;
+    document.querySelectorAll('#v-pills-tab .nav-link').forEach(btn => btn.classList.remove('active'));
     const payTabBtn = document.getElementById('tab-pay');
-    bootstrap.Tab.getOrCreateInstance(payTabBtn).show();
-    handleFetchPayment();
+    if (payTabBtn) payTabBtn.classList.add('active');
+
+    document.querySelectorAll('#v-pills-tabContent .tab-pane').forEach(pane => {
+        pane.classList.remove('show', 'active');
+    });
+    const payPane = document.getElementById('content-pay');
+    if (payPane) {
+        payPane.classList.add('show', 'active');
+        payPane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    if (payTabBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+        try {
+            bootstrap.Tab.getOrCreateInstance(payTabBtn).show();
+        } catch(e) {}
+    }
+
+    if (appCode) {
+        const codeInput = document.getElementById('pay_appCode');
+        if (codeInput) {
+            codeInput.value = appCode;
+            handleFetchPayment();
+        }
+    }
 }
+
 // --- Upload ảnh học bạ thật từ máy tính/điện thoại (M02) ---
 async function uploadRealProof(fileInput) {
     const file = fileInput.files[0];
     if (!file) return;
 
     const statusBox = document.getElementById('uploadStatusBox');
-    statusBox.innerHTML = '<span class="text-primary"><i class="bi bi-arrow-repeat spin"></i> Đang nạp và xử lý file minh chứng...</span>';
+    if (statusBox) {
+        statusBox.innerHTML = '<span class="text-primary"><i class="bi bi-arrow-repeat spin"></i> Đang nạp và xử lý file minh chứng...</span>';
+    }
 
-    // 1. Dùng FileReader để lấy Base64 trực tiếp trên máy client (đảm bảo 100% không mất ảnh trên Vercel)
+    // 1. Dùng FileReader để lấy Base64 trực tiếp trên máy client (đảm bảo 100% không mất ảnh)
     const reader = new FileReader();
     reader.onload = async function(e) {
         const clientDataUrl = e.target.result;
-        document.getElementById('app_proofUrl').value = clientDataUrl;
+        const proofInput = document.getElementById('app_proofUrl');
+        if (proofInput) proofInput.value = clientDataUrl;
 
         const previewBox = document.getElementById('proofInstantPreview');
         if (previewBox) {
             previewBox.innerHTML = `
-                <div class="mt-2 p-2 border rounded bg-white shadow-sm text-center">
-                    <img src="${clientDataUrl}" class="img-fluid rounded border mb-2" style="max-height: 200px; object-fit: contain;">
-                    <div class="small text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Đã nạp file: ${file.name} (${(file.size / 1024).toFixed(1)} KB)</div>
+                <div class="mt-2 p-3 border rounded-3 bg-white shadow-xs text-center">
+                    <img src="${clientDataUrl}" class="img-fluid rounded border mb-2" style="max-height: 180px; object-fit: contain;">
+                    <div class="small text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Đã tải: ${file.name} (${(file.size / 1024).toFixed(1)} KB)</div>
                 </div>
             `;
             previewBox.style.display = 'block';
@@ -1065,53 +1122,38 @@ async function uploadRealProof(fileInput) {
             });
             const data = await res.json();
             if (res.ok && data.url) {
-                document.getElementById('app_proofUrl').value = data.url;
+                if (proofInput) proofInput.value = data.url;
             }
-            statusBox.innerHTML = `
-                <div class="alert alert-success py-2 mt-2 mb-0 d-flex align-items-center justify-content-between">
-                    <div>
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        Đã tải lên thành công: <strong>${file.name}</strong>
+            if (statusBox) {
+                statusBox.innerHTML = `
+                    <div class="alert alert-success py-2 mt-2 mb-0 d-flex align-items-center justify-content-between">
+                        <div>
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Đã tải lên thành công: <strong>${file.name}</strong>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill" onclick="viewProofModal('Mới Tải Lên', document.getElementById('app_proofUrl').value)">
+                            <i class="bi bi-eye"></i> Xem phóng to
+                        </button>
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline-success" onclick="viewProofModal('Mới Tải Lên', document.getElementById('app_proofUrl').value)">
-                        <i class="bi bi-eye"></i> Xem phóng to
-                    </button>
-                </div>
-            `;
+                `;
+            }
         } catch(err) {
-            statusBox.innerHTML = `
-                <div class="alert alert-success py-2 mt-2 mb-0 d-flex align-items-center justify-content-between">
-                    <div>
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        Đã nạp ảnh thành công: <strong>${file.name}</strong>
+            if (statusBox) {
+                statusBox.innerHTML = `
+                    <div class="alert alert-success py-2 mt-2 mb-0 d-flex align-items-center justify-content-between">
+                        <div>
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Đã nạp ảnh thành công: <strong>${file.name}</strong>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill" onclick="viewProofModal('Mới Tải Lên', document.getElementById('app_proofUrl').value)">
+                            <i class="bi bi-eye"></i> Xem phóng to
+                        </button>
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline-success" onclick="viewProofModal('Mới Tải Lên', document.getElementById('app_proofUrl').value)">
-                        <i class="bi bi-eye"></i> Xem phóng to
-                    </button>
-                </div>
-            `;
+                `;
+            }
         }
     };
     reader.readAsDataURL(file);
-});
-        const data = await res.json();
-        if (res.ok) {
-            document.getElementById('app_proofUrl').value = data.url;
-            statusBox.innerHTML = `
-                <div class="alert alert-success py-2 mt-2 mb-0 d-flex align-items-center justify-content-between">
-                    <div>
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        Đã tải lên thành công: <strong>${data.filename}</strong>
-                    </div>
-                    <a href="${data.url}" target="_blank" class="btn btn-sm btn-outline-success">Xem trước ảnh</a>
-                </div>
-            `;
-        } else {
-            statusBox.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> ${data.detail || 'Lỗi khi tải file!'}</span>`;
-        }
-    } catch(err) {
-        statusBox.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> Lỗi kết nối khi tải file!</span>`;
-    }
 }
 
 // --- CHUYỂN ĐỔI PHƯƠNG THỨC XÉT TUYỂN CHUẨN NEU ---
