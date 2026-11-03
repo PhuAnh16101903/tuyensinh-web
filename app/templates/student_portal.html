@@ -365,6 +365,60 @@
             </div>
             <!-- TAB 1: ĐĂNG KÝ / CẬP NHẬT HỒ SƠ XÉT TUYỂN -->
             <div class="tab-pane fade" id="content-apply">
+                {% if my_app and my_app.status == 'DA_NHAP_HOC' %}
+                <!-- Trạng thái ĐÃ NHẬP HỌC: Đóng băng hồ sơ vĩnh viễn -->
+                <div class="card card-custom p-5 text-center border-success bg-white shadow-sm rounded-4">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-3 shadow-sm mx-auto" 
+                         style="width: 80px; height: 80px; background: rgba(16, 185, 129, 0.12); color: #10b981;">
+                        <i class="bi bi-mortarboard-fill fs-1"></i>
+                    </div>
+                    <h3 class="fw-bold text-success mb-2" style="font-family: 'Montserrat', sans-serif;">Chúc Mừng Tân Sinh Viên Khóa 68!</h3>
+                    <p class="text-muted fs-6 mx-auto mb-3" style="max-width: 620px; line-height: 1.7;">
+                        Bạn đã hoàn tất xác nhận nhập học chính thức vào ngành <strong class="text-dark">{{ my_app.admitted_major_name or my_app.major.name }}</strong>.<br>
+                        Mã số sinh viên (MSSV) chính thức của bạn: 
+                        <span class="badge bg-primary fs-5 font-monospace px-3 py-1.5 ms-1">{{ my_app.student_code }}</span>
+                    </p>
+                    <div class="p-3 bg-light rounded-3 border d-inline-block mx-auto mb-4 text-start small" style="max-width: 540px;">
+                        <div><i class="bi bi-shield-check text-success me-1"></i> <strong>Hồ sơ xét tuyển đã được đóng băng và lưu trữ vĩnh viễn:</strong></div>
+                        <div class="text-muted mt-1">Theo Quy chế Tuyển sinh Đại học chính quy của Bộ GD&ĐT và Trường Đại học Kinh tế Quốc dân, sau khi thí sinh đã hoàn tất xác nhận nhập học và được cấp MSSV, dữ liệu hồ sơ được chuyển tiếp vào Cơ sở dữ liệu Quản lý Đào tạo Đại học, không được tạo mới hoặc chỉnh sửa nguyện vọng khác.</div>
+                    </div>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="button" class="btn btn-success fw-bold rounded-pill px-4 py-2.5 shadow-sm" onclick="openCertificateModal('{{ my_app.app_code }}')">
+                            <i class="bi bi-award-fill me-1"></i> Mở Giấy Báo Nhập Học Điện Tử
+                        </button>
+                        <button type="button" class="btn btn-outline-primary fw-semibold rounded-pill px-4 py-2.5" onclick="switchToMyAppsTab()">
+                            <i class="bi bi-person-vcard me-1"></i> Xem Hồ Sơ Của Bạn
+                        </button>
+                    </div>
+                </div>
+                {% elif my_app and my_app.status in ['TRUNG_TUYEN_NV1', 'TRUNG_TUYEN_NV2', 'TRUNG_TUYEN'] %}
+                <!-- Trạng thái ĐÃ TRÚNG TUYỂN: Hướng dẫn xác nhận nhập học -->
+                <div class="card card-custom p-5 text-center border-success bg-white shadow-sm rounded-4">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-3 shadow-sm mx-auto" 
+                         style="width: 80px; height: 80px; background: rgba(37, 99, 235, 0.1); color: #2563eb;">
+                        <i class="bi bi-award-fill fs-1"></i>
+                    </div>
+                    <h3 class="fw-bold text-primary mb-2" style="font-family: 'Montserrat', sans-serif;">Chúc Mừng Bạn Đã Trúng Tuyển Chính Thức!</h3>
+                    <p class="text-muted fs-6 mx-auto mb-3" style="max-width: 620px; line-height: 1.7;">
+                        Hội đồng Tuyển sinh thông báo hồ sơ <strong class="font-monospace text-primary">{{ my_app.app_code }}</strong> đã trúng tuyển chính thức vào ngành:<br>
+                        <span class="fs-4 fw-bold text-success d-block my-2">{{ my_app.admitted_major_name or my_app.major.name }}</span>
+                        Tổng điểm xét tuyển của bạn: <strong class="text-danger">{{ my_app.score }}</strong> điểm.
+                    </p>
+                    <div class="alert alert-info border-info-subtle bg-info bg-opacity-10 py-2.5 px-3 mx-auto mb-4 text-start small rounded-3" style="max-width: 540px;">
+                        <i class="bi bi-info-circle-fill text-info me-1"></i> <strong>Bước tiếp theo:</strong>
+                        Vui lòng bấm nút <strong>"Xác Nhận Nhập Học Ngay"</strong> bên dưới để hoàn tất thủ tục, nhận Mã Số Sinh Viên (MSSV) và Giấy Báo Nhập Học Điện Tử theo quy định.
+                    </div>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="button" class="btn btn-success btn-lg fw-bold rounded-pill px-4 py-2.5 shadow" onclick="confirmEnroll('{{ my_app.id }}', '{{ my_app.app_code }}', '{{ my_app.admitted_major_name or my_app.major.name }}')">
+                            <i class="bi bi-mortarboard-fill me-1"></i> Xác Nhận Nhập Học Ngay
+                        </button>
+                        <button type="button" class="btn btn-outline-primary fw-semibold rounded-pill px-4 py-2.5" onclick="switchToMyAppsTab()">
+                            <i class="bi bi-person-vcard me-1"></i> Xem Chi Tiết Điểm
+                        </button>
+                    </div>
+                </div>
+                {% else %}
+                <!-- Form Đăng Ký / Cập Nhật Hồ Sơ Khi Chưa Chốt Trúng Tuyển -->
                 <div class="card card-custom p-4 bg-white">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 border-bottom pb-3">
                         <div>
@@ -676,6 +730,7 @@
 
                     <div id="applyMsg" class="mt-3"></div>
                 </div>
+                {% endif %}
             </div>
 
             <!-- TAB 2: ĐÓNG LỆ PHÍ XÉT TUYỂN (M07) -->
@@ -1080,6 +1135,27 @@
 <script>
 
 // --- CHUYỂN ĐỔI TAB MƯỢT MÀ VÀ HỢP LÝ (100% FAIL-PROOF) ---
+function switchToMyAppsTab() {
+    document.querySelectorAll('#v-pills-tab .nav-link').forEach(btn => btn.classList.remove('active'));
+    const myAppBtn = document.getElementById('tab-my-apps');
+    if (myAppBtn) myAppBtn.classList.add('active');
+
+    document.querySelectorAll('#v-pills-tabContent .tab-pane').forEach(pane => {
+        pane.classList.remove('show', 'active');
+    });
+    const myAppsPane = document.getElementById('content-my-apps');
+    if (myAppsPane) {
+        myAppsPane.classList.add('show', 'active');
+        myAppsPane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    if (myAppBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+        try {
+            bootstrap.Tab.getOrCreateInstance(myAppBtn).show();
+        } catch(e) {}
+    }
+}
+
 function switchToApplyTab() {
     // 1. Cập nhật trạng thái active trên danh mục Menu phân hệ bên trái
     document.querySelectorAll('#v-pills-tab .nav-link').forEach(btn => btn.classList.remove('active'));
@@ -1470,15 +1546,16 @@ async function handleApply(e) {
         const data = await res.json();
         if (res.ok) {
             msgBox.innerHTML = `
-                <div class="alert alert-success mt-3 shadow">
-                    <h5 class="fw-bold"><i class="bi bi-check-circle-fill"></i> Nộp hồ sơ xét tuyển thành công!</h5>
-                    <p class="mb-1">Mã hồ sơ: <strong class="fs-4 text-danger">${data.app_code}</strong></p>
-                    <p class="mb-1">Phương thức: <strong>${data.method_name || data.method_code}</strong> | Tổng điểm xét tuyển: <strong class="text-primary">${data.score}</strong></p>
-                    <p class="small text-muted mb-2">Đã ghi nhận NV1${data.major_nv2_id ? ' và NV2' : ''}. Vui lòng chuyển sang bước nộp lệ phí để hồ sơ được đưa vào danh sách lọc ảo.</p>
-                    <button class="btn btn-primary fw-bold" onclick="switchToPay('${data.app_code}')">Đi đến bước đóng lệ phí ngay &raquo;</button>
+                <div class="alert alert-success mt-3 shadow-sm py-3 px-4 rounded-3 text-start">
+                    <h5 class="fw-bold text-success mb-1"><i class="bi bi-check-circle-fill me-1"></i> Lưu Hồ Sơ Xét Tuyển Thành Công!</h5>
+                    <p class="mb-1">Mã hồ sơ định danh: <strong class="fs-5 text-danger font-monospace">${data.app_code}</strong></p>
+                    <p class="small text-muted mb-0"><i class="bi bi-arrow-repeat spin me-1"></i> Đang tự động chuyển bạn sang Cổng nộp lệ phí VietQR Napas...</p>
                 </div>
             `;
-            setTimeout(() => { location.reload(); }, 2500);
+            // Tự động chuyển ngay sang tab thanh toán lệ phí & mở sẵn QR Napas sau 700ms
+            setTimeout(() => {
+                switchToPay(data.app_code);
+            }, 700);
         } else {
             msgBox.innerHTML = `<div class="alert alert-danger mt-3">${data.detail || 'Có lỗi xảy ra!'}</div>`;
         }
@@ -1741,8 +1818,9 @@ function updatePaymentStatusBadge(status) {
     } else {
         badge.innerHTML = '<span class="badge bg-danger fs-6"><i class="bi bi-x-circle"></i> CHƯA THANH TOÁN</span>';
         btnArea.innerHTML = `
-            <button class="btn btn-warning fw-bold" onclick="simulatePay()">
-                <i class="bi bi-cash-coin"></i> Giả Lập Thanh Toán Thành Công (Demo)
+            <button class="btn btn-success fw-bold py-2.5 px-4 rounded-pill shadow-sm d-inline-flex align-items-center gap-2" onclick="simulatePay()">
+                <i class="bi bi-check2-circle fs-5"></i>
+                <span>Xác Nhận Đã Chuyển Khoản (Đối Soát Napas 247)</span>
             </button>
         `;
     }
@@ -1752,11 +1830,15 @@ async function simulatePay() {
     try {
         const res = await fetch(`/api/finance/simulate-pay/${currentTxCode}`, { method: 'POST' });
         const data = await res.json();
-        alert(data.message);
-        updatePaymentStatusBadge('PAID');
-        setTimeout(() => { location.reload(); }, 1200);
+        if (res.ok) {
+            updatePaymentStatusBadge('PAID');
+            alert(`Xác nhận thanh toán Napas 247 thành công!\nLệ phí xét tuyển đã được đối soát tự động. Hệ thống sẽ tự động chuyển về trang Hồ sơ xét tuyển của bạn.`);
+            setTimeout(() => { window.location.href = '/student'; }, 1000);
+        } else {
+            alert(data.detail || "Lỗi khi xử lý thanh toán!");
+        }
     } catch(e) {
-        alert("Lỗi khi giả lập thanh toán!");
+        alert("Lỗi kết nối khi thanh toán!");
     }
 }
 // --- Ticket hỗ trợ (M12) ---

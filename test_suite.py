@@ -305,6 +305,16 @@ extra_apps = db_clean.query(AdmissionApplication).filter(~AdmissionApplication.a
 for ea in extra_apps:
     db_clean.query(PaymentTransaction).filter(PaymentTransaction.application_id == ea.id).delete()
     db_clean.delete(ea)
+
+# Đảm bảo thí sinh mẫu TS2026-100002 dừng ở mức ĐÃ TRÚNG TUYỂN để người dùng trải nghiệm nút Xác nhận nhập học
+app_student = db_clean.query(AdmissionApplication).filter(AdmissionApplication.app_code == 'TS2026-100002').first()
+if app_student:
+    app_student.status = 'TRUNG_TUYEN_NV1'
+    app_student.admitted_major_name = 'Công nghệ thông tin (Nguyện vọng 1)'
+    app_student.student_code = None
+    app_student.student_email = None
+    app_student.enrolled_at = None
+
 db_clean.commit()
 db_clean.close()
 

@@ -121,6 +121,17 @@ def submit_application(data: ApplicationCreate, db: Session = Depends(get_db)):
             AdmissionApplication.user_id == data.user_id
         ).first()
         if existing_user_app:
+            if existing_user_app.status == "DA_NHAP_HOC":
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Thí sinh đã hoàn tất xác nhận nhập học chính thức Khóa 68 (MSSV: {existing_user_app.student_code}). Toàn bộ hồ sơ đã được lưu trữ vĩnh viễn, không thể đăng ký thêm hoặc thay đổi nguyện vọng!"
+                )
+            if existing_user_app.status in ["TRUNG_TUYEN_NV1", "TRUNG_TUYEN_NV2", "TRUNG_TUYEN"]:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Hồ sơ của bạn đã có kết quả TRÚNG TUYỂN CHÍNH THỨC! Vui lòng thực hiện Xác Nhận Nhập Học hoặc liên hệ Hội đồng Tuyển sinh nếu cần hỗ trợ."
+                )
+
             existing_user_app.full_name = data.full_name
             existing_user_app.id_card = data.id_card
             existing_user_app.email = data.email

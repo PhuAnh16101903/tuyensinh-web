@@ -229,7 +229,9 @@ def seed_demo_data():
                     "score": 26.05,
                     "paid": True,
                     "uid": student_id,
-                    "officer_note": "Hồ sơ đầy đủ, đủ điều kiện tham gia xét tuyển."
+                    "status": "TRUNG_TUYEN_NV1",
+                    "admitted_major_name": "Công nghệ thông tin (Nguyện vọng 1)",
+                    "officer_note": "Hồ sơ xét tuyển đạt điểm chuẩn trúng tuyển Nguyện vọng 1."
                 },
                 {
                     "name": "Phạm Quang Cường",
@@ -329,7 +331,8 @@ def seed_demo_data():
                     major_nv2_id=se.id if se else None,
                     proof_url="/static/uploads/default_proof.png",
                     user_id=c["uid"],
-                    status="HOP_LE"
+                    status=c.get("status", "HOP_LE"),
+                    admitted_major_name=c.get("admitted_major_name", None)
                 )
                 db.add(candidate_app)
                 db.flush()
