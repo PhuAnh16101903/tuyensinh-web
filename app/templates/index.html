@@ -341,6 +341,20 @@
         </div>
         {% endfor %}
     </div>
+
+    <!-- Thanh Xem thêm / Thu gọn 40 ngành đào tạo thông minh -->
+    <div id="majorsShowMoreWrap" class="text-center mt-4 pt-2">
+        <div class="d-inline-flex flex-column align-items-center gap-2 p-3 px-4 rounded-4 bg-white border shadow-xs">
+            <span id="majorsShowingCounter" class="text-muted small fw-semibold">
+                Đang hiển thị <strong>9</strong> / <strong>{{ majors|length }}</strong> ngành đào tạo tiêu biểu
+            </span>
+            <button type="button" id="btnToggleAllMajors" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm d-inline-flex align-items-center gap-2" onclick="toggleShowAllMajors()">
+                <i class="bi bi-grid-3x3-gap-fill"></i>
+                <span>Xem Đầy Đủ Cả {{ majors|length }} Ngành Đào Tạo</span>
+                <i class="bi bi-chevron-down"></i>
+            </button>
+        </div>
+    </div>
 </div>
 
 <!-- Clean Tech 4-Step Admission Journey -->
@@ -452,6 +466,8 @@
 {% block scripts %}
 <script>
 let selectedCategory = 'ALL';
+let isAllMajorsExpanded = false;
+const INITIAL_MAJORS_LIMIT = 9;
 
 function selectCategory(cat, btn) {
     selectedCategory = cat;
@@ -462,9 +478,22 @@ function selectCategory(cat, btn) {
     filterMajors();
 }
 
+function toggleShowAllMajors() {
+    isAllMajorsExpanded = !isAllMajorsExpanded;
+    filterMajors();
+    if (!isAllMajorsExpanded) {
+        const listEl = document.getElementById('majors-list');
+        if (listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
 function filterMajors() {
     const keyword = document.getElementById('majorSearchInput').value.trim().toLowerCase();
     const cards = document.querySelectorAll('.major-card-item');
+    const isFiltering = (selectedCategory !== 'ALL' || keyword.length > 0);
+
+    let matchedCount = 0;
+    let visibleCount = 0;
 
     cards.forEach(card => {
         const cat = card.getAttribute('data-category');
@@ -475,12 +504,47 @@ function filterMajors() {
         const matchSearch = (!keyword || name.includes(keyword) || code.includes(keyword));
 
         if (matchCat && matchSearch) {
-            card.style.display = 'block';
+            matchedCount++;
+            if (isFiltering || isAllMajorsExpanded || matchedCount <= INITIAL_MAJORS_LIMIT) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
         } else {
             card.style.display = 'none';
         }
     });
+
+    const wrapEl = document.getElementById('majorsShowMoreWrap');
+    const counterEl = document.getElementById('majorsShowingCounter');
+    const btnEl = document.getElementById('btnToggleAllMajors');
+
+    if (wrapEl && counterEl && btnEl) {
+        if (isFiltering || matchedCount <= INITIAL_MAJORS_LIMIT) {
+            wrapEl.style.display = matchedCount === 0 ? 'none' : 'block';
+            btnEl.style.display = 'none';
+            counterEl.innerHTML = matchedCount > 0 
+                ? `Tìm thấy <strong>${matchedCount}</strong> ngành đào tạo phù hợp`
+                : `Không tìm thấy ngành đào tạo phù hợp`;
+        } else {
+            wrapEl.style.display = 'block';
+            btnEl.style.display = 'inline-flex';
+            counterEl.innerHTML = `Đang hiển thị <strong>${visibleCount}</strong> / <strong>${matchedCount}</strong> ngành đào tạo chính quy`;
+            if (isAllMajorsExpanded) {
+                btnEl.className = 'btn btn-outline-primary rounded-pill px-4 py-2 fw-bold shadow-xs d-inline-flex align-items-center gap-2';
+                btnEl.innerHTML = `<i class="bi bi-arrows-collapse"></i><span>Thu Gọn Danh Sách Ngành (Hiển thị 9 ngành)</span><i class="bi bi-chevron-up"></i>`;
+            } else {
+                btnEl.className = 'btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm d-inline-flex align-items-center gap-2';
+                btnEl.innerHTML = `<i class="bi bi-grid-3x3-gap-fill"></i><span>Xem Đầy Đủ Cả ${matchedCount} Ngành Đào Tạo</span><i class="bi bi-chevron-down"></i>`;
+            }
+        }
+    }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    filterMajors();
+});
 
 async function handleSecureLookup(e) {
     e.preventDefault();

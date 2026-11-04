@@ -1833,13 +1833,13 @@ async function simulatePay() {
         const data = await res.json();
         if (res.ok) {
             updatePaymentStatusBadge('PAID');
-            alert(`Xác nhận thanh toán Napas 247 thành công!\nLệ phí xét tuyển đã được đối soát tự động. Hệ thống sẽ tự động chuyển về trang Hồ sơ xét tuyển của bạn.`);
-            setTimeout(() => { window.location.href = '/student'; }, 1000);
+            try { sessionStorage.setItem('neu_active_tab_' + window.location.pathname, '#content-my-apps'); } catch(e) {}
+            reloadWithToast("Đối soát thanh toán Napas 247 thành công! Hồ sơ của bạn đã được gạch nợ tự động.", "success", "Đã nộp lệ phí VietQR");
         } else {
-            alert(data.detail || "Lỗi khi xử lý thanh toán!");
+            showToast(data.detail || "Lỗi khi xử lý thanh toán!", "danger");
         }
     } catch(e) {
-        alert("Lỗi kết nối khi thanh toán!");
+        showToast("Lỗi kết nối khi thanh toán!", "danger");
     }
 }
 // --- Ticket hỗ trợ (M12) ---
@@ -1868,7 +1868,7 @@ async function handleSendTicket(e) {
                     <i class="bi bi-check-circle"></i> Đã gửi phiếu hỗ trợ thành công (Mã: <strong>${data.ticket_code}</strong>)!
                 </div>
             `;
-            setTimeout(() => { location.reload(); }, 1500);
+            setTimeout(() => { reloadWithToast(`Đã gửi phiếu hỗ trợ ${data.ticket_code} tới Hội đồng tuyển sinh!`, "success"); }, 900);
         }
     } catch(e) {
         msgBox.innerHTML = `<div class="alert alert-danger">Lỗi khi gửi phiếu hỗ trợ!</div>`;
@@ -1909,28 +1909,32 @@ async function handleSaveEditApp(e) {
             msgBox.innerHTML = `<div class="alert alert-danger py-2 mt-2">${data.detail || 'Lỗi khi cập nhật!'}</div>`;
             return;
         }
-        msgBox.innerHTML = '<div class="alert alert-success py-2 mt-2">Đã cập nhật nguyện vọng thành công! Đang tải lại...</div>';
-        setTimeout(() => { location.reload(); }, 1000);
+        if (editModalObj) editModalObj.hide();
+        reloadWithToast("Đã cập nhật nguyện vọng xét tuyển thành công!", "success", "Cập nhật nguyện vọng");
     } catch(err) {
         msgBox.innerHTML = '<div class="alert alert-danger py-2 mt-2">Lỗi kết nối máy chủ!</div>';
     }
 }
 // --- Rút hồ sơ xét tuyển (Gói 1) ---
 async function confirmWithdraw(appId, appCode) {
-    if (!confirm(`Bạn có chắc chắn muốn rút hồ sơ [${appCode}] không? Thao tác này sẽ hủy tham gia xét tuyển.`)) {
-        return;
-    }
+    const ok = await customConfirm({
+        title: `Rút Hồ Sơ Xét Tuyển ${appCode}`,
+        message: `Bạn có chắc chắn muốn rút hồ sơ [${appCode}] không?\nThao tác này sẽ hủy tham gia xét tuyển đối với nguyện vọng trong hồ sơ này.`,
+        confirmText: 'Xác nhận rút hồ sơ',
+        color: 'danger',
+        icon: 'bi-exclamation-triangle-fill'
+    });
+    if (!ok) return;
     try {
         const res = await fetch(`/api/admissions/applications/${appId}/withdraw`, { method: 'POST' });
         const data = await res.json();
         if (!res.ok) {
-            alert(data.detail || 'Lỗi khi rút hồ sơ!');
+            showToast(data.detail || 'Lỗi khi rút hồ sơ!', 'danger');
             return;
         }
-        alert(data.message);
-        location.reload();
+        reloadWithToast(data.message || `Đã rút hồ sơ ${appCode} thành công.`, 'warning', 'Đã rút hồ sơ');
     } catch(e) {
-        alert('Lỗi kết nối khi rút hồ sơ!');
+        showToast('Lỗi kết nối khi rút hồ sơ!', 'danger');
     }
 }
 // --- Nộp đơn phúc khảo hồ sơ (Gói 1) ---
@@ -1961,38 +1965,43 @@ async function handleSaveAppeal(e) {
             msgBox.innerHTML = `<div class="alert alert-danger py-2 mt-2">${data.detail || 'Lỗi khi gửi đơn!'}</div>`;
             return;
         }
-        msgBox.innerHTML = `<div class="alert alert-success py-2 mt-2">${data.message}</div>`;
-        setTimeout(() => { location.reload(); }, 1200);
+        if (appealModalObj) appealModalObj.hide();
+        reloadWithToast(data.message || "Đã gửi đơn phúc khảo thành công!", "success", "Phúc khảo hồ sơ");
     } catch(err) {
         msgBox.innerHTML = '<div class="alert alert-danger py-2 mt-2">Lỗi kết nối máy chủ!</div>';
     }
 }
 // --- Hậu tuyển sinh: Xác nhận nhập học & Cấp MSSV (Gói 2) ---
 async function confirmEnroll(appId, appCode, majorName) {
-    if (!confirm(`XÁC NHẬN NHẬP HỌC TRỰC TUYẾN:\nBạn có chắc chắn muốn xác nhận nhập học chính thức vào ngành [${majorName}] không?\nHệ thống sẽ cấp Mã số Sinh viên (MSSV) và Email chính thức của trường.`)) {
-        return;
-    }
+    const ok = await customConfirm({
+        title: 'Xác Nhận Nhập Học Trực Tuyến K68',
+        message: `Bạn xác nhận nhập học chính thức vào ngành:\n[${majorName}]?\n\nHệ thống sẽ cấp Mã số Sinh viên (MSSV), Email sinh viên (@st.neu.edu.vn) và Giấy báo trúng tuyển điện tử.`,
+        confirmText: '🎓 Xác Nhận Nhập Học Ngay',
+        color: 'success',
+        icon: 'bi-mortarboard-fill'
+    });
+    if (!ok) return;
     try {
         const res = await fetch(`/api/admissions/applications/${appId}/enroll`, { method: 'POST' });
         const data = await res.json();
         if (!res.ok) {
-            alert(data.detail || 'Lỗi khi xác nhận nhập học!');
+            showToast(data.detail || 'Lỗi khi xác nhận nhập học!', 'danger');
             return;
         }
-        alert(`Chúc mừng! Bạn đã hoàn tất xác nhận nhập học trực tuyến!\nMSSV chính thức: ${data.student_code}\nEmail: ${data.student_email}`);
-        openCertificateModal(appCode);
+        showToast(`Chúc mừng Tân sinh viên! MSSV: ${data.student_code} | Email: ${data.student_email}`, 'success', 'Nhập học thành công 🎉');
+        openCertificateModal(appCode, true);
     } catch(e) {
-        alert('Lỗi kết nối khi xác nhận nhập học!');
+        showToast('Lỗi kết nối khi xác nhận nhập học!', 'danger');
     }
 }
 // --- Xem Giấy Báo Nhập Học Điện Tử NEU (Gói 2) ---
 let certModalObj = null;
-async function openCertificateModal(appCode) {
+async function openCertificateModal(appCode, reloadOnClose = false) {
     try {
         const res = await fetch(`/api/admissions/certificate/${encodeURIComponent(appCode)}`);
         const data = await res.json();
         if (!res.ok) {
-            alert(data.detail || 'Lỗi khi tải giấy báo trúng tuyển!');
+            showToast(data.detail || 'Lỗi khi tải giấy báo trúng tuyển!', 'danger');
             return;
         }
         document.getElementById('certFullName').textContent = data.full_name;
@@ -2006,10 +2015,14 @@ async function openCertificateModal(appCode) {
         document.getElementById('certEmail').textContent = data.student_email;
         document.getElementById('certQR').src = data.verification_qr;
 
-        certModalObj = new bootstrap.Modal(document.getElementById('certificateModal'));
+        const modalEl = document.getElementById('certificateModal');
+        certModalObj = new bootstrap.Modal(modalEl);
+        if (reloadOnClose) {
+            modalEl.addEventListener('hidden.bs.modal', () => location.reload(), { once: true });
+        }
         certModalObj.show();
     } catch(e) {
-        alert('Lỗi khi tải thông tin giấy báo nhập học!');
+        showToast('Lỗi khi tải thông tin giấy báo nhập học!', 'danger');
     }
 }
 function printCertificate() {

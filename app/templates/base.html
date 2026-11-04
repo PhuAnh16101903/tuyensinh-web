@@ -712,8 +712,190 @@
     }
     </script>
 
+    <!-- Global Toast Notification Container -->
+    <div id="globalToastContainer" class="position-fixed top-0 end-0 p-3 d-flex flex-column gap-2" style="z-index: 1095; max-width: 390px; width: 100%; pointer-events: none;"></div>
+
+    <!-- Global Academic Confirm Modal -->
+    <div class="modal fade" id="globalConfirmModal" tabindex="-1" style="z-index: 1085;">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-body p-4 text-center">
+                    <div id="gConfirmIconBox" class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; background: rgba(37, 99, 235, 0.1); color: #2563eb;">
+                        <i id="gConfirmIcon" class="bi bi-shield-check fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2" id="gConfirmTitle" style="font-family: 'Montserrat', sans-serif;">Xác nhận thao tác</h5>
+                    <p class="text-muted small mb-4" id="gConfirmMessage" style="line-height: 1.6; white-space: pre-line;"></p>
+                    <div id="gConfirmPromptWrap" class="mb-3 text-start d-none">
+                        <label class="form-label small fw-semibold text-secondary" id="gConfirmPromptLabel">Lý do / Ghi chú:</label>
+                        <textarea id="gConfirmPromptInput" class="form-control form-control-sm rounded-3" rows="2"></textarea>
+                    </div>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-light border fw-semibold rounded-pill px-4 py-2" id="gConfirmCancelBtn" data-bs-dismiss="modal">Hủy bỏ</button>
+                        <button type="button" class="btn btn-primary fw-bold rounded-pill px-4 py-2 shadow-sm" id="gConfirmOkBtn">Xác nhận</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    // --- HỆ THỐNG THÔNG BÁO TOAST & DIALOG HIỆN ĐẠI + LƯU VỊ TRÍ TAB ---
+    function showToast(message, type = 'success', title = '') {
+        const container = document.getElementById('globalToastContainer');
+        if (!container) return;
+
+        const config = {
+            success: { icon: 'bi-check-circle-fill', color: '#10b981', bg: '#ecfdf5', border: '#a7f3d0', defaultTitle: 'Thành công' },
+            danger:  { icon: 'bi-exclamation-triangle-fill', color: '#ef4444', bg: '#fef2f2', border: '#fecaca', defaultTitle: 'Thông báo lỗi' },
+            warning: { icon: 'bi-exclamation-circle-fill', color: '#f59e0b', bg: '#fffbeb', border: '#fde68a', defaultTitle: 'Lưu ý' },
+            info:    { icon: 'bi-info-circle-fill', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe', defaultTitle: 'Thông tin hệ thống' }
+        }[type] || { icon: 'bi-info-circle-fill', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe', defaultTitle: 'Thông báo' };
+
+        const toastEl = document.createElement('div');
+        toastEl.style.cssText = `
+            pointer-events: auto;
+            background: #ffffff;
+            border: 1px solid ${config.border};
+            border-left: 5px solid ${config.color};
+            border-radius: 14px;
+            box-shadow: 0 12px 30px -5px rgba(15, 23, 42, 0.15);
+            padding: 14px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+        `;
+        toastEl.innerHTML = `
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; background: ${config.bg}; color: ${config.color};">
+                <i class="bi ${config.icon} fs-5"></i>
+            </div>
+            <div class="flex-grow-1" style="min-width: 0;">
+                <div class="fw-bold text-dark small" style="font-family: 'Montserrat', sans-serif;">${title || config.defaultTitle}</div>
+                <div class="text-secondary small mt-0.5" style="line-height: 1.45; word-wrap: break-word;">${message}</div>
+            </div>
+            <button type="button" class="btn-close btn-sm ms-1" style="font-size: 0.65rem;" onclick="this.parentElement.remove()"></button>
+        `;
+        container.appendChild(toastEl);
+        requestAnimationFrame(() => {
+            toastEl.style.transform = 'translateX(0)';
+        });
+        setTimeout(() => {
+            toastEl.style.opacity = '0';
+            toastEl.style.transform = 'translateX(120%)';
+            setTimeout(() => toastEl.remove(), 300);
+        }, 4200);
+    }
+
+    function reloadWithToast(message, type = 'success', title = '') {
+        try {
+            sessionStorage.setItem('neu_pending_toast', JSON.stringify({ message, type, title }));
+        } catch(e) {}
+        location.reload();
+    }
+
+    function customConfirm({ title = 'Xác nhận thao tác', message = '', confirmText = 'Xác nhận', color = 'primary', icon = 'bi-shield-check', withPrompt = false, promptDefault = '', promptLabel = 'Lý do / Ghi chú:' }) {
+        return new Promise((resolve) => {
+            const modalEl = document.getElementById('globalConfirmModal');
+            if (!modalEl) {
+                resolve(withPrompt ? prompt(message, promptDefault) : confirm(message));
+                return;
+            }
+            const colorMap = {
+                primary: { bg: 'rgba(37, 99, 235, 0.1)', text: '#2563eb', btn: 'btn-primary' },
+                success: { bg: 'rgba(16, 185, 129, 0.12)', text: '#10b981', btn: 'btn-success' },
+                danger:  { bg: 'rgba(239, 68, 68, 0.12)', text: '#ef4444', btn: 'btn-danger' },
+                warning: { bg: 'rgba(245, 158, 11, 0.15)', text: '#d97706', btn: 'btn-warning text-dark' }
+            }[color] || { bg: 'rgba(37, 99, 235, 0.1)', text: '#2563eb', btn: 'btn-primary' };
+
+            const iconBox = document.getElementById('gConfirmIconBox');
+            iconBox.style.background = colorMap.bg;
+            iconBox.style.color = colorMap.text;
+            document.getElementById('gConfirmIcon').className = `bi ${icon} fs-2`;
+            document.getElementById('gConfirmTitle').textContent = title;
+            document.getElementById('gConfirmMessage').textContent = message;
+
+            const promptWrap = document.getElementById('gConfirmPromptWrap');
+            const promptInput = document.getElementById('gConfirmPromptInput');
+            if (withPrompt) {
+                promptWrap.classList.remove('d-none');
+                document.getElementById('gConfirmPromptLabel').textContent = promptLabel;
+                promptInput.value = promptDefault;
+            } else {
+                promptWrap.classList.add('d-none');
+            }
+
+            const okBtn = document.getElementById('gConfirmOkBtn');
+            okBtn.className = `btn ${colorMap.btn} fw-bold rounded-pill px-4 py-2 shadow-sm`;
+            okBtn.textContent = confirmText;
+
+            const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            let resolved = false;
+
+            const onOk = () => {
+                resolved = true;
+                bsModal.hide();
+                resolve(withPrompt ? promptInput.value : true);
+            };
+            const onHidden = () => {
+                okBtn.removeEventListener('click', onOk);
+                modalEl.removeEventListener('hidden.bs.modal', onHidden);
+                if (!resolved) resolve(withPrompt ? null : false);
+            };
+
+            okBtn.addEventListener('click', onOk);
+            modalEl.addEventListener('hidden.bs.modal', onHidden);
+            bsModal.show();
+        });
+    }
+
+    // Tự động ghi nhớ Tab đang mở & hiển thị Toast sau khi reload
+    document.addEventListener('DOMContentLoaded', () => {
+        const storageKey = 'neu_active_tab_' + window.location.pathname;
+
+        // 1. Khôi phục Tab trước khi reload
+        const savedTarget = sessionStorage.getItem(storageKey);
+        if (savedTarget) {
+            const tabBtn = document.querySelector(`[data-bs-target="${savedTarget}"], [href="${savedTarget}"]`);
+            if (tabBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+                try {
+                    bootstrap.Tab.getOrCreateInstance(tabBtn).show();
+                } catch(e) {}
+            }
+        }
+
+        // 2. Lắng nghe sự kiện đổi Tab để lưu vào sessionStorage
+        document.querySelectorAll('[data-bs-toggle="tab"], [data-bs-toggle="pill"]').forEach(btn => {
+            btn.addEventListener('shown.bs.tab', (e) => {
+                const target = e.target.getAttribute('data-bs-target') || e.target.getAttribute('href');
+                if (target) {
+                    try { sessionStorage.setItem(storageKey, target); } catch(err) {}
+                }
+            });
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-bs-target') || btn.getAttribute('href');
+                if (target) {
+                    try { sessionStorage.setItem(storageKey, target); } catch(err) {}
+                }
+            });
+        });
+
+        // 3. Hiển thị Toast nếu vừa reload sau thao tác
+        try {
+            const rawToast = sessionStorage.getItem('neu_pending_toast');
+            if (rawToast) {
+                sessionStorage.removeItem('neu_pending_toast');
+                const t = JSON.parse(rawToast);
+                if (t && t.message) {
+                    setTimeout(() => showToast(t.message, t.type || 'success', t.title || ''), 150);
+                }
+            }
+        } catch(e) {}
+    });
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

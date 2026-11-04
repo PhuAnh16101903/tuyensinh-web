@@ -935,14 +935,13 @@ async function submitQuotaUpdate() {
         });
         if (res.ok) {
             quotaModalObj.hide();
-            alert("Cập nhật chỉ tiêu & điểm chuẩn ngành thành công!");
-            location.reload();
+            reloadWithToast("Cập nhật chỉ tiêu & điểm chuẩn ngành thành công!", "success", "Đã lưu cấu hình ngành");
         } else {
             const data = await res.json();
-            alert(data.detail || "Lỗi khi cập nhật!");
+            showToast(data.detail || "Lỗi khi cập nhật!", "danger");
         }
     } catch(err) {
-        alert("Lỗi kết nối máy chủ!");
+        showToast("Lỗi kết nối máy chủ!", "danger");
     }
 }
 
@@ -969,14 +968,13 @@ async function submitFeeUpdate() {
         });
         if (res.ok) {
             feeModalObj.hide();
-            alert("Cập nhật biểu phí xét tuyển thành công!");
-            location.reload();
+            reloadWithToast("Cập nhật biểu phí xét tuyển thành công!", "success", "Đã cập nhật biểu phí");
         } else {
             const data = await res.json();
-            alert(data.detail || "Lỗi khi cập nhật biểu phí!");
+            showToast(data.detail || "Lỗi khi cập nhật biểu phí!", "danger");
         }
     } catch(err) {
-        alert("Lỗi kết nối máy chủ!");
+        showToast("Lỗi kết nối máy chủ!", "danger");
     }
 }
 // --- Thẩm định & Duyệt hồ sơ kèm điểm chi tiết ---
@@ -1181,19 +1179,24 @@ async function submitAdminReview() {
         });
         if (res.ok) {
             adminReviewModalObj.hide();
-            alert("Lưu kết quả thẩm định hồ sơ thành công!");
-            location.reload();
+            reloadWithToast(`Đã cập nhật trạng thái hồ sơ sang [${status}] thành công!`, "success", "Hoàn tất thẩm định");
         } else {
             const data = await res.json();
-            alert(data.detail || "Lỗi khi lưu kết quả thẩm định!");
+            showToast(data.detail || "Lỗi khi lưu kết quả thẩm định!", "danger");
         }
     } catch(e) {
-        alert("Lỗi kết nối máy chủ!");
+        showToast("Lỗi kết nối máy chủ!", "danger");
     }
 }
 // Duyệt nhanh
 async function reviewApp(appId, status) {
-    if (!confirm(`Bạn có chắc chắn muốn duyệt hồ sơ này là [${status}]?`)) return;
+    const ok = await customConfirm({
+        title: 'Xác nhận cập nhật trạng thái',
+        message: `Bạn có chắc chắn muốn chuyển trạng thái hồ sơ sang [${status}]?`,
+        confirmText: 'Xác nhận duyệt',
+        color: 'primary'
+    });
+    if (!ok) return;
     try {
         const res = await fetch(`/api/admissions/applications/${appId}/status`, {
             method: 'PATCH',
@@ -1201,20 +1204,25 @@ async function reviewApp(appId, status) {
             body: JSON.stringify({status: status})
         });
         if (res.ok) {
-            location.reload();
+            reloadWithToast(`Đã chuyển trạng thái hồ sơ sang [${status}]!`, "success");
         } else {
-            alert("Lỗi khi duyệt hồ sơ!");
+            showToast("Lỗi khi duyệt hồ sơ!", "danger");
         }
     } catch(e) {
-        alert("Lỗi kết nối!");
+        showToast("Lỗi kết nối!", "danger");
     }
 }
 
 // 1-Click Duyệt Hợp Lệ trực tiếp trên hàng danh sách
 async function quickApproveValid(appId, appCode) {
-    if (!confirm(`Xác nhận DUYỆT HỢP LỆ cho hồ sơ [${appCode}]?\nHồ sơ sẽ được công nhận đủ điều kiện tham gia quy trình xét tuyển & lọc ảo NEU 2026.`)) {
-        return;
-    }
+    const ok = await customConfirm({
+        title: `Duyệt Hợp Lệ Hồ Sơ ${appCode}`,
+        message: `Xác nhận công nhận hồ sơ [${appCode}] HỢP LỆ?\nHồ sơ sẽ đủ điều kiện tham gia quy trình xét tuyển & lọc ảo NEU 2026.`,
+        confirmText: '✓ Duyệt Hợp Lệ Ngay',
+        color: 'success',
+        icon: 'bi-patch-check-fill'
+    });
+    if (!ok) return;
     try {
         const res = await fetch(`/api/admissions/applications/${appId}/status`, {
             method: 'PATCH',
@@ -1225,19 +1233,28 @@ async function quickApproveValid(appId, appCode) {
             })
         });
         if (res.ok) {
-            location.reload();
+            reloadWithToast(`Hồ sơ ${appCode} đã được duyệt HỢP LỆ!`, "success", "Duyệt hồ sơ thành công");
         } else {
             const data = await res.json();
-            alert(data.detail || 'Lỗi khi duyệt hồ sơ!');
+            showToast(data.detail || 'Lỗi khi duyệt hồ sơ!', "danger");
         }
     } catch(e) {
-        alert('Lỗi kết nối máy chủ!');
+        showToast('Lỗi kết nối máy chủ!', "danger");
     }
 }
 
 // 1-Click Từ Chối hồ sơ trực tiếp
 async function quickReject(appId, appCode) {
-    const reason = prompt(`Nhập lý do TỪ CHỐI hồ sơ [${appCode}]:`, 'Bản scan minh chứng chưa rõ nét hoặc điểm khai báo sai lệch so với minh chứng.');
+    const reason = await customConfirm({
+        title: `Từ Chối Hồ Sơ ${appCode}`,
+        message: `Vui lòng xác nhận lý do từ chối để thông báo tới thí sinh sở hữu hồ sơ [${appCode}]:`,
+        confirmText: '✕ Xác Nhận Từ Chối',
+        color: 'danger',
+        icon: 'bi-x-octagon-fill',
+        withPrompt: true,
+        promptLabel: 'Lý do từ chối gửi thí sinh:',
+        promptDefault: 'Bản scan minh chứng chưa rõ nét hoặc điểm khai báo sai lệch so với minh chứng.'
+    });
     if (reason === null) return;
     try {
         const res = await fetch(`/api/admissions/applications/${appId}/status`, {
@@ -1249,13 +1266,13 @@ async function quickReject(appId, appCode) {
             })
         });
         if (res.ok) {
-            location.reload();
+            reloadWithToast(`Đã từ chối hồ sơ ${appCode} và gửi phản hồi cho thí sinh.`, "warning", "Đã từ chối hồ sơ");
         } else {
             const data = await res.json();
-            alert(data.detail || 'Lỗi khi từ chối hồ sơ!');
+            showToast(data.detail || 'Lỗi khi từ chối hồ sơ!', "danger");
         }
     } catch(e) {
-        alert('Lỗi kết nối máy chủ!');
+        showToast('Lỗi kết nối máy chủ!', "danger");
     }
 }
 
@@ -1276,12 +1293,17 @@ async function batchApproveAllPending() {
     if (typeof APPLICATIONS_DATA === 'undefined') return;
     const pendingApps = Object.values(APPLICATIONS_DATA).filter(a => a.status === 'CHO_DUYET');
     if (pendingApps.length === 0) {
-        alert("Hiện tại không có hồ sơ nào ở trạng thái 'Chờ duyệt'!");
+        showToast("Hiện tại không có hồ sơ nào ở trạng thái 'Chờ duyệt'!", "info", "Không có hồ sơ chờ");
         return;
     }
-    if (!confirm(`Hội đồng tuyển sinh xác nhận duyệt HỢP LỆ đồng loạt cho ${pendingApps.length} hồ sơ đang ở trạng thái Chờ Duyệt?`)) {
-        return;
-    }
+    const ok = await customConfirm({
+        title: 'Duyệt Hàng Loạt Hồ Sơ Chờ',
+        message: `Hội đồng tuyển sinh xác nhận duyệt HỢP LỆ đồng loạt cho ${pendingApps.length} hồ sơ đang ở trạng thái Chờ Duyệt?`,
+        confirmText: `✓ Duyệt Cả ${pendingApps.length} Hồ Sơ`,
+        color: 'success',
+        icon: 'bi-check-all'
+    });
+    if (!ok) return;
     let successCount = 0;
     for (const app of pendingApps) {
         try {
@@ -1296,14 +1318,20 @@ async function batchApproveAllPending() {
             if (res.ok) successCount++;
         } catch(e) {}
     }
-    alert(`Đã hoàn tất duyệt HỢP LỆ cho ${successCount}/${pendingApps.length} hồ sơ!`);
-    location.reload();
+    reloadWithToast(`Đã hoàn tất duyệt HỢP LỆ cho ${successCount}/${pendingApps.length} hồ sơ!`, "success", "Duyệt hàng loạt hoàn tất");
 }
 
 // --- Kế toán & Quản lý Lệ Phí (M07) ---
 async function togglePaymentStatus(txCode, newStatus) {
     const actionText = newStatus === 'PAID' ? 'ĐÃ THANH TOÁN' : 'CHƯA NỘP (HỦY)';
-    if (!confirm(`Bạn có chắc chắn muốn chuyển trạng thái giao dịch ${txCode} sang [${actionText}]?`)) return;
+    const ok = await customConfirm({
+        title: 'Đối soát trạng thái giao dịch',
+        message: `Bạn có chắc chắn muốn chuyển trạng thái giao dịch ${txCode} sang [${actionText}]?`,
+        confirmText: 'Xác nhận',
+        color: newStatus === 'PAID' ? 'success' : 'danger',
+        icon: 'bi-wallet2'
+    });
+    if (!ok) return;
     try {
         const res = await fetch(`/api/finance/transactions/${txCode}/status`, {
             method: 'PATCH',
@@ -1312,31 +1340,36 @@ async function togglePaymentStatus(txCode, newStatus) {
         });
         const data = await res.json();
         if (res.ok) {
-            alert(data.message || "Cập nhật thành công!");
-            location.reload();
+            reloadWithToast(data.message || "Cập nhật trạng thái giao dịch thành công!", "success", "Kế toán M07");
         } else {
-            alert(data.detail || "Lỗi khi cập nhật trạng thái!");
+            showToast(data.detail || "Lỗi khi cập nhật trạng thái!", "danger");
         }
     } catch(e) {
-        alert("Lỗi kết nối máy chủ!");
+        showToast("Lỗi kết nối máy chủ!", "danger");
     }
 }
 
 async function quickMarkPaid(appCode) {
-    if (!confirm(`Xác nhận đã thu lệ phí xét tuyển cho hồ sơ [${appCode}]?`)) return;
+    const ok = await customConfirm({
+        title: `Xác nhận thu lệ phí ${appCode}`,
+        message: `Xác nhận thí sinh sở hữu hồ sơ [${appCode}] đã hoàn tất nộp lệ phí xét tuyển (50,000 VNĐ)?`,
+        confirmText: '✓ Xác Nhận Đã Thu Phí',
+        color: 'success',
+        icon: 'bi-cash-coin'
+    });
+    if (!ok) return;
     try {
         const res = await fetch(`/api/finance/pay-by-app-code/${appCode}`, {
             method: 'POST'
         });
         const data = await res.json();
         if (res.ok) {
-            alert(data.message || "Đã xác nhận thu lệ phí thành công!");
-            location.reload();
+            reloadWithToast(data.message || `Đã xác nhận thu lệ phí cho hồ sơ ${appCode}!`, "success", "Gạch nợ thành công");
         } else {
-            alert(data.detail || "Lỗi khi xác nhận thu phí!");
+            showToast(data.detail || "Lỗi khi xác nhận thu phí!", "danger");
         }
     } catch(e) {
-        alert("Lỗi kết nối máy chủ!");
+        showToast("Lỗi kết nối máy chủ!", "danger");
     }
 }
 
@@ -1364,14 +1397,19 @@ async function triggerVirtualFilter() {
                 <div>- Số thí sinh trúng tuyển (theo chỉ tiêu ${data.quota}): <strong>${data.passed_count}</strong></div>
                 <div>- Điểm chuẩn trúng tuyển xác định: <strong class="text-danger fs-5">${data.benchmark_score}</strong></div>
             `;
-            setTimeout(() => { location.reload(); }, 2500);
+            showToast(`Lọc ảo thành công! Điểm chuẩn: ${data.benchmark_score} (${data.passed_count} thí sinh đỗ)`, "success", "Hoàn tất Lọc Ảo");
+            setTimeout(() => {
+                reloadWithToast(`Đã công bố kết quả lọc ảo (Điểm chuẩn: ${data.benchmark_score})!`, "success", "Lọc ảo M02");
+            }, 2200);
         } else {
             alertBox.className = "alert alert-danger mt-3";
             alertBox.textContent = data.detail || "Lỗi khi chạy lọc ảo!";
+            showToast(data.detail || "Lỗi khi chạy lọc ảo!", "danger");
         }
     } catch(e) {
         alertBox.className = "alert alert-danger mt-3";
         alertBox.textContent = "Lỗi kết nối máy chủ!";
+        showToast("Lỗi kết nối máy chủ!", "danger");
     }
 }
 // --- Trả lời Ticket (M12) ---
@@ -1390,7 +1428,7 @@ function openReplyModal(id, code, msg) {
 async function submitReply() {
     const replyText = document.getElementById('modalReplyText').value.trim();
     if (!replyText) {
-        alert("Vui lòng nhập nội dung giải đáp!");
+        showToast("Vui lòng nhập nội dung giải đáp!", "warning");
         return;
     }
     try {
@@ -1401,16 +1439,15 @@ async function submitReply() {
         });
         if (res.ok) {
             replyModalObj.hide();
-            alert("Đã gửi phản hồi cho thí sinh!");
-            location.reload();
+            reloadWithToast("Đã gửi phản hồi giải đáp cho thí sinh!", "success", "Hỗ trợ M12");
         } else {
-            alert("Lỗi khi phản hồi ticket!");
+            showToast("Lỗi khi phản hồi ticket!", "danger");
         }
     } catch(e) {
-        alert("Lỗi kết nối!");
+        showToast("Lỗi kết nối!", "danger");
     }
 }
-// Chuyển đổi phân hệ Quản trị từ thanh header
+// Chuyển đổi phân hệ Quản trị từ thanh header (có lưu trạng thái Tab khi reload)
 function switchAdminTab(paneId, btnEl) {
     document.querySelectorAll('#adminTabsContent .tab-pane').forEach(el => {
         el.classList.remove('show', 'active');
@@ -1419,13 +1456,27 @@ function switchAdminTab(paneId, btnEl) {
     if (target) {
         target.classList.add('show', 'active');
     }
-    // Cập nhật trạng thái active trên thanh header
     document.querySelectorAll('.navbar-nav .nav-link').forEach(btn => {
         btn.classList.remove('active');
     });
     if (btnEl) {
         btnEl.classList.add('active');
+    } else {
+        const autoBtn = document.querySelector(`[onclick*="'${paneId}'"]`);
+        if (autoBtn) autoBtn.classList.add('active');
     }
+    try {
+        sessionStorage.setItem('neu_admin_active_pane', paneId);
+    } catch(e) {}
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        const savedPane = sessionStorage.getItem('neu_admin_active_pane');
+        if (savedPane && document.getElementById(savedPane)) {
+            switchAdminTab(savedPane);
+        }
+    } catch(e) {}
+});
 </script>
 {% endblock %}
