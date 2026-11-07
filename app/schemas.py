@@ -247,3 +247,35 @@ class AIChatQuery(BaseModel):
     score: Optional[float] = None
     combination: Optional[str] = None # Tổ hợp môn (A00, A01, D01, B00...)
     history: Optional[List[dict]] = None # Lịch sử chat [{role: 'user'|'model', text: '...'}]
+
+class ScoreCalculateRequest(BaseModel):
+    method: str = "THPT" # THPT, IELTS_COMBINED, DGNL_HSA, DGNL_TSA, DGNL_APT
+    m1_score: Optional[float] = 0.0 # Toán
+    m2_score: Optional[float] = 0.0 # Môn 2 (Lý / Hóa / Văn)
+    m3_score: Optional[float] = 0.0 # Môn 3 (Anh / Hóa / Lý)
+    ielts_band: Optional[float] = None # 5.5, 6.0, 6.5, 7.0, 7.5+
+    dgnl_score: Optional[float] = None # HSA (150), TSA (100), APT (1200)
+    priority_area: Optional[str] = "KV3" # KV1 (0.75), KV2_NT (0.5), KV2 (0.25), KV3 (0.0)
+    priority_target: Optional[str] = "NONE" # UT1 (2.0), UT2 (1.0), NONE (0.0)
+
+class RecommendedMajorItem(BaseModel):
+    id: int
+    code: str
+    name: str
+    category: str
+    quota: int
+    benchmark_score: float
+    predicted_score: float
+    tier: str # target, safe, reach
+    chance_percent: int
+
+class ScoreCalculateOut(BaseModel):
+    method: str
+    raw_base_score: float
+    ielts_converted_score: Optional[float] = None
+    priority_score: float
+    final_score: float
+    priority_note: str
+    safe_majors: List[RecommendedMajorItem]
+    target_majors: List[RecommendedMajorItem]
+    reach_majors: List[RecommendedMajorItem]

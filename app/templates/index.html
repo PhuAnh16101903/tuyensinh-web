@@ -271,6 +271,434 @@
 </div>
 
 <!-- Danh mục 40 ngành tuyển sinh (M02) -->
+
+<!-- ========================================== -->
+<!-- 1. CÔNG CỤ TÍNH ĐIỂM XÉT TUYỂN & GỢI Ý NGUYỆN VỌNG NEU K69 -->
+<!-- ========================================== -->
+<div class="card card-modern border-0 shadow-sm p-4 p-md-5 mb-5" id="admission-calculator" style="background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%); border-left: 6px solid #10b981 !important;">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+            <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-success bg-opacity-10 text-success fw-bold small text-uppercase mb-2">
+                <i class="bi bi-calculator-fill"></i> Công Cụ Tuyển Sinh Chính Thức
+            </div>
+            <h3 class="fw-bold text-dark mb-1" style="font-family: 'Outfit', sans-serif;">Công Cụ Tính Điểm Xét Tuyển & Phân Tích Cơ Hội Đỗ K69</h3>
+            <p class="text-muted small mb-0">Tự động quy đổi điểm IELTS theo chuẩn NEU, chuẩn hóa điểm thi ĐGNL và áp dụng công thức giảm dần điểm ưu tiên của Bộ GD&ĐT.</p>
+        </div>
+        <div>
+            <span class="badge bg-white border text-secondary px-3 py-2 rounded-pill shadow-xs">
+                <i class="bi bi-shield-check text-success me-1"></i> Đối sánh dữ liệu 88 ngành NEU
+            </span>
+        </div>
+    </div>
+
+    <!-- Chọn Phương Thức -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="form-check p-3 rounded-3 border bg-white shadow-2xs h-100 calc-method-box" style="cursor: pointer;" onclick="switchCalcMethod('THPT')">
+                <input class="form-check-input ms-0 me-2" type="radio" name="calcMethod" id="calcMethodTHPT" value="THPT" checked>
+                <label class="form-check-label fw-bold text-dark" for="calcMethodTHPT" style="cursor: pointer;">
+                    <i class="bi bi-mortarboard text-primary me-1"></i> PT 1: Điểm Thi THPT
+                </label>
+                <div class="text-muted small mt-1">4 Tổ hợp chuẩn: A00, A01, D01, D07</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-check p-3 rounded-3 border bg-white shadow-2xs h-100 calc-method-box" style="cursor: pointer;" onclick="switchCalcMethod('IELTS')">
+                <input class="form-check-input ms-0 me-2" type="radio" name="calcMethod" id="calcMethodIELTS" value="IELTS">
+                <label class="form-check-label fw-bold text-dark" for="calcMethodIELTS" style="cursor: pointer;">
+                    <i class="bi bi-award text-success me-1"></i> PT 2: Kết Hợp IELTS + THPT
+                </label>
+                <div class="text-muted small mt-1">IELTS 5.5 - 9.0 đổi ra thang điểm 10</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-check p-3 rounded-3 border bg-white shadow-2xs h-100 calc-method-box" style="cursor: pointer;" onclick="switchCalcMethod('DGNL')">
+                <input class="form-check-input ms-0 me-2" type="radio" name="calcMethod" id="calcMethodDGNL" value="DGNL">
+                <label class="form-check-label fw-bold text-dark" for="calcMethodDGNL" style="cursor: pointer;">
+                    <i class="bi bi-lightning-charge text-warning me-1"></i> PT 3: Đánh Giá Năng Lực (ĐGNL)
+                </label>
+                <div class="text-muted small mt-1">HSA (150), TSA (100), APT (1200)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Khối Nhập Điểm Theo Phương Thức -->
+    <div class="p-3.5 p-md-4 rounded-4 bg-white border shadow-xs mb-4">
+        <!-- Khối THPT -->
+        <div id="calcInputsTHPT" class="calc-section-group">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-secondary">Tổ hợp môn</label>
+                    <select id="calcComboTHPT" class="form-select" onchange="updateTHPTLabels()">
+                        <option value="A00">A00 (Toán, Vật lý, Hóa học)</option>
+                        <option value="A01" selected>A01 (Toán, Vật lý, Tiếng Anh)</option>
+                        <option value="D01">D01 (Toán, Ngữ văn, Tiếng Anh)</option>
+                        <option value="D07">D07 (Toán, Hóa học, Tiếng Anh)</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label id="lblM1" class="form-label small fw-bold text-secondary">Môn 1 (Toán)</label>
+                    <input type="number" id="calcM1" class="form-control" placeholder="0 - 10" min="0" max="10" step="0.1" value="8.6">
+                </div>
+                <div class="col-md-3">
+                    <label id="lblM2" class="form-label small fw-bold text-secondary">Môn 2 (Vật lý)</label>
+                    <input type="number" id="calcM2" class="form-control" placeholder="0 - 10" min="0" max="10" step="0.1" value="8.4">
+                </div>
+                <div class="col-md-3">
+                    <label id="lblM3" class="form-label small fw-bold text-secondary">Môn 3 (Tiếng Anh)</label>
+                    <input type="number" id="calcM3" class="form-control" placeholder="0 - 10" min="0" max="10" step="0.1" value="9.0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Khối IELTS -->
+        <div id="calcInputsIELTS" class="calc-section-group d-none">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-secondary">Chứng chỉ IELTS (Academic)</label>
+                    <select id="calcIeltsBand" class="form-select" onchange="updateIeltsConvertedBadge()">
+                        <option value="5.5">IELTS 5.5 (Quy đổi: 8.0 điểm)</option>
+                        <option value="6.0">IELTS 6.0 (Quy đổi: 8.5 điểm)</option>
+                        <option value="6.5" selected>IELTS 6.5 (Quy đổi: 9.0 điểm)</option>
+                        <option value="7.0">IELTS 7.0 (Quy đổi: 9.5 điểm)</option>
+                        <option value="7.5">IELTS 7.5 - 9.0 (Quy đổi: 10.0 điểm)</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-secondary">Điểm quy đổi NEU</label>
+                    <div id="calcIeltsConvertedBadge" class="p-2 rounded-3 text-center fw-bold bg-success bg-opacity-10 text-success border border-success border-opacity-25 fs-5">
+                        9.0 đ
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-secondary">Môn Toán THPT</label>
+                    <input type="number" id="calcIeltsM1" class="form-control" placeholder="0 - 10" min="0" max="10" step="0.1" value="9.0">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-secondary">Môn tự chọn THPT (Lý/Hóa/Văn)</label>
+                    <input type="number" id="calcIeltsM2" class="form-control" placeholder="0 - 10" min="0" max="10" step="0.1" value="8.5">
+                </div>
+            </div>
+        </div>
+
+        <!-- Khối ĐGNL -->
+        <div id="calcInputsDGNL" class="calc-section-group d-none">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-secondary">Kỳ thi Đánh giá năng lực / ĐGTD</label>
+                    <select id="calcDgnlType" class="form-select" onchange="updateDgnlPlaceholders()">
+                        <option value="HSA" selected>HSA - ĐHQG Hà Nội (Thang 150)</option>
+                        <option value="TSA">TSA - ĐH Bách Khoa Hà Nội (Thang 100)</option>
+                        <option value="APT">APT - ĐHQG TP.HCM (Thang 1200)</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label id="lblDgnlScore" class="form-label small fw-bold text-secondary">Điểm bài thi thực tế</label>
+                    <input type="number" id="calcDgnlScore" class="form-control" placeholder="VD: 110 / 150" value="115">
+                </div>
+                <div class="col-md-4">
+                    <div class="small text-muted mb-1"><i class="bi bi-info-circle"></i> Công thức chuẩn hóa:</div>
+                    <div id="lblDgnlFormula" class="small fw-semibold text-primary font-monospace bg-light p-2 rounded border">
+                        Điểm ĐXT = (Điểm HSA / 150) * 30
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ưu tiên khu vực & đối tượng (Quy chế Bộ GD&ĐT) -->
+        <hr class="my-3 text-muted opacity-25">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label small fw-bold text-secondary"><i class="bi bi-geo-alt me-1"></i>Khu vực ưu tiên</label>
+                <select id="calcPriorityArea" class="form-select form-select-sm">
+                    <option value="KV3" selected>Khu vực 3 (KV3 - Không được cộng điểm)</option>
+                    <option value="KV2">Khu vực 2 (KV2 - Cộng 0.25 điểm)</option>
+                    <option value="KV2_NT">Khu vực 2 Nông thôn (KV2-NT - Cộng 0.50 điểm)</option>
+                    <option value="KV1">Khu vực 1 (KV1 - Cộng 0.75 điểm)</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small fw-bold text-secondary"><i class="bi bi-people me-1"></i>Đối tượng chính sách ưu tiên</label>
+                <select id="calcPriorityTarget" class="form-select form-select-sm">
+                    <option value="NONE" selected>Không thuộc diện chính sách (0.0 điểm)</option>
+                    <option value="UT2">Ưu tiên 2 (Con thương binh, liệt sĩ... - Cộng 1.0 điểm)</option>
+                    <option value="UT1">Ưu tiên 1 (Dân tộc thiểu số, vùng đặc biệt khó khăn... - Cộng 2.0 điểm)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nút Tính Điểm -->
+    <div class="text-center mb-3">
+        <button type="button" class="btn btn-success btn-lg px-5 py-2.5 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center gap-2" onclick="runAdmissionCalculator()">
+            <i class="bi bi-cpu-fill"></i>
+            <span>Tính Điểm & Phân Tích Cơ Hội Đỗ 88 Ngành</span>
+            <i class="bi bi-arrow-right-short fs-4"></i>
+        </button>
+    </div>
+
+    <!-- Kết Quả Phân Tích -->
+    <div id="calcResultContainer" class="d-none mt-4 pt-3 border-top">
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="p-3.5 rounded-4 bg-white border text-center shadow-xs">
+                    <div class="small text-muted text-uppercase fw-semibold mb-1">Điểm Thành Phần</div>
+                    <div id="resRawScore" class="display-6 fw-bold text-secondary font-monospace">26.00</div>
+                    <div id="resRawDesc" class="small text-muted mt-1">Chưa tính điểm ưu tiên</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3.5 rounded-4 bg-white border text-center shadow-xs">
+                    <div class="small text-muted text-uppercase fw-semibold mb-1">Điểm Ưu Tiên Áp Dụng</div>
+                    <div id="resPriorityScore" class="display-6 fw-bold text-warning font-monospace">+0.33</div>
+                    <div id="resPriorityNote" class="small text-muted mt-1">Theo công thức giảm dần Bộ GD&ĐT</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3.5 rounded-4 text-white text-center shadow-sm" style="background: linear-gradient(135deg, #059669, #0d9488);">
+                    <div class="small text-white-50 text-uppercase fw-semibold mb-1">Tổng Điểm Xét Tuyển (ĐXT)</div>
+                    <div id="resFinalScore" class="display-6 fw-extrabold font-monospace text-white">26.33</div>
+                    <div class="small text-white-75 mt-1">Thang điểm 30 chuẩn NEU</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 Tầng Ngành Gợi Ý -->
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-stars text-warning me-2"></i>Kết Quả Phân Tích Cơ Hội Trúng Tuyển Khóa 69 (K69):</h5>
+        <div class="row g-3">
+            <!-- Nhóm Vừa Sức -->
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-2xs rounded-4 p-3 bg-white" style="border-top: 4px solid #10b981 !important;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1">🟢 VỪA SỨC (75% - 85%)</span>
+                        <span id="badgeTargetCount" class="small text-muted fw-bold">0 ngành</span>
+                    </div>
+                    <p class="small text-muted mb-2">Điểm xét tuyển tiệm cận rất sát điểm chuẩn K68/K69. Rất thích hợp đặt làm <strong>Nguyện vọng 1 (NV1)</strong>.</p>
+                    <div id="listTargetMajors" class="d-flex flex-column gap-2" style="max-height: 380px; overflow-y: auto;"></div>
+                </div>
+            </div>
+
+            <!-- Nhóm An Toàn -->
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-2xs rounded-4 p-3 bg-white" style="border-top: 4px solid #3b82f6 !important;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-2 py-1">🛡️ AN TOÀN (> 90%)</span>
+                        <span id="badgeSafeCount" class="small text-muted fw-bold">0 ngành</span>
+                    </div>
+                    <p class="small text-muted mb-2">Điểm xét tuyển vượt trội hơn điểm chuẩn. Đây là phương án chốt đỗ lý tưởng làm <strong>Nguyện vọng 2 (NV2)</strong>.</p>
+                    <div id="listSafeMajors" class="d-flex flex-column gap-2" style="max-height: 380px; overflow-y: auto;"></div>
+                </div>
+            </div>
+
+            <!-- Nhóm Thử Thách -->
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-2xs rounded-4 p-3 bg-white" style="border-top: 4px solid #ef4444 !important;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge bg-danger bg-opacity-10 text-danger fw-bold px-2 py-1">⚡ THỬ THÁCH (NV MƠ ƯỚC)</span>
+                        <span id="badgeReachCount" class="small text-muted fw-bold">0 ngành</span>
+                    </div>
+                    <p class="small text-muted mb-2">Điểm chuẩn cao hơn điểm xét tuyển từ 0.5 - 1.5đ. Bạn có thể đặt làm NV1 để thử vận may nếu thực sự đam mê.</p>
+                    <div id="listReachMajors" class="d-flex flex-column gap-2" style="max-height: 380px; overflow-y: auto;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 2. TRUNG TÂM QUY CHẾ TUYỂN SINH & HỌC PHÍ NEU K69 -->
+<!-- ========================================== -->
+<div class="card card-modern border-0 shadow-sm p-4 p-md-5 mb-5" id="admission-regulations-hub">
+    <div class="text-center max-w-700 mx-auto mb-4">
+        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-1 rounded-pill fw-bold small text-uppercase mb-2">
+            Thông Tin Chính Thống
+        </span>
+        <h3 class="fw-bold text-dark mb-1" style="font-family: 'Outfit', sans-serif;">Đề Án Tuyển Sinh, Tổ Hợp Xét Tuyển & Biểu Phí NEU Khóa 69</h3>
+        <p class="text-muted small">Cập nhật toàn diện các quy chế xét tuyển của Bộ GD&ĐT và Trường Đại học Kinh tế Quốc dân (NEU)</p>
+    </div>
+
+    <!-- Tabs chuyển đổi -->
+    <ul class="nav nav-pills justify-content-center gap-2 mb-4" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill px-3 py-2 fw-semibold" id="tab-pt-btn" data-bs-toggle="pill" data-bs-target="#tab-pt" type="button" role="tab">
+                <i class="bi bi-compass me-1"></i> 4 Phương Thức Tuyển Sinh
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-3 py-2 fw-semibold" id="tab-tohop-btn" data-bs-toggle="pill" data-bs-target="#tab-tohop" type="button" role="tab">
+                <i class="bi bi-journal-check me-1"></i> 4 Tổ Hợp Chuẩn (A00, A01, D01, D07)
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-3 py-2 fw-semibold" id="tab-ielts-btn" data-bs-toggle="pill" data-bs-target="#tab-ielts" type="button" role="tab">
+                <i class="bi bi-award me-1"></i> Bảng Quy Đổi IELTS Chuẩn NEU
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-3 py-2 fw-semibold" id="tab-hocphi-btn" data-bs-toggle="pill" data-bs-target="#tab-hocphi" type="button" role="tab">
+                <i class="bi bi-wallet2 me-1"></i> Biểu Phí & Khung Học Phí 88 Ngành
+            </button>
+        </li>
+    </ul>
+
+    <!-- Nội dung Tabs -->
+    <div class="tab-content" id="pills-tabContent">
+        <!-- Tab 1: 4 Phương thức -->
+        <div class="tab-pane fade show active" id="tab-pt" role="tabpanel">
+            <div class="row g-3">
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3.5 rounded-4 bg-light border h-100">
+                        <div class="badge bg-primary px-2.5 py-1 mb-2">PT 1 • 3% Chỉ tiêu</div>
+                        <h6 class="fw-bold text-dark mb-2">Xét Tuyển Thẳng</h6>
+                        <p class="small text-muted mb-0">Học sinh giỏi Quốc gia, Quốc tế (Nhất, Nhì, Ba môn Toán, Lý, Hóa, Tin, Anh...) và giải KHKT theo quy chế Bộ GD&ĐT.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3.5 rounded-4 bg-light border h-100">
+                        <div class="badge bg-success px-2.5 py-1 mb-2">PT 2 • 18-20% Chỉ tiêu</div>
+                        <h6 class="fw-bold text-dark mb-2">Điểm Thi THPT 2026</h6>
+                        <p class="small text-muted mb-0">Xét theo 4 tổ hợp truyền thống A00, A01, D01, D07. Điểm chuẩn không chênh lệch giữa các tổ hợp trong cùng ngành.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3.5 rounded-4 bg-light border h-100">
+                        <div class="badge bg-warning text-dark px-2.5 py-1 mb-2">PT 3 • Chủ đạo ~75%</div>
+                        <h6 class="fw-bold text-dark mb-2">Xét Tuyển Kết Hợp</h6>
+                        <p class="small text-muted mb-0">Chứng chỉ quốc tế SAT >= 1200, ACT >= 26, hoặc kết hợp IELTS >= 5.5 với điểm thi tốt nghiệp môn Toán + môn tự chọn.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3.5 rounded-4 bg-light border h-100">
+                        <div class="badge bg-info text-dark px-2.5 py-1 mb-2">PT 4 • Xu hướng K69</div>
+                        <h6 class="fw-bold text-dark mb-2">ĐGNL / ĐGTD Độc Lập</h6>
+                        <p class="small text-muted mb-0">Áp dụng kết quả thi HSA (ĐHQGHN >= 85), APT (ĐHQG-HCM >= 700), TSA (ĐH Bách Khoa >= 60) và bổ sung SPT (ĐH Sư Phạm).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: 4 Tổ hợp chuẩn -->
+        <div class="tab-pane fade" id="tab-tohop" role="tabpanel">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle mb-0 bg-white">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center" style="width: 15%;">Mã Tổ Hợp</th>
+                            <th style="width: 40%;">Môn Xét Tuyển</th>
+                            <th>Đặc Điểm & Phạm Vi Áp Dụng Tại NEU</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center font-monospace fw-bold text-primary fs-6">A00</td>
+                            <td><strong>Toán</strong>, <strong>Vật lý</strong>, <strong>Hóa học</strong></td>
+                            <td>Tổ hợp tự nhiên truyền thống thế mạnh cho khối Công nghệ & Số, Kinh tế lượng, Toán kinh tế.</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center font-monospace fw-bold text-primary fs-6">A01</td>
+                            <td><strong>Toán</strong>, <strong>Vật lý</strong>, <strong>Tiếng Anh</strong></td>
+                            <td>Tổ hợp được nhiều thí sinh đăng ký nhất vào các ngành Kiểm toán, Logistics, Fintech, AI và EP.</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center font-monospace fw-bold text-primary fs-6">D01</td>
+                            <td><strong>Toán</strong>, <strong>Ngữ văn</strong>, <strong>Tiếng Anh</strong></td>
+                            <td>Tổ hợp xã hội - kinh tế tiêu chuẩn cho Marketing, Truyền thông, Quan hệ công chúng, Luật kinh tế.</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center font-monospace fw-bold text-primary fs-6">D07</td>
+                            <td><strong>Toán</strong>, <strong>Hóa học</strong>, <strong>Tiếng Anh</strong></td>
+                            <td>Tổ hợp năng động áp dụng đồng bộ cho toàn bộ 88 ngành học với điểm chuẩn công bằng như A00/A01/D01.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 3: Bảng quy đổi IELTS -->
+        <div class="tab-pane fade" id="tab-ielts" role="tabpanel">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-6">
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle mb-0 bg-white text-center">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Band Điểm IELTS</th>
+                                    <th>Điểm Quy Đổi NEU (Thang 10)</th>
+                                    <th>Trạng Thái Áp Dụng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-light text-dark border">5.5</span></td>
+                                    <td class="fw-bold text-primary fs-5">8.0 đ</td>
+                                    <td><span class="badge bg-secondary-subtle text-secondary">Ngưỡng nộp hồ sơ tối thiểu</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-light text-dark border">6.0</span></td>
+                                    <td class="fw-bold text-primary fs-5">8.5 đ</td>
+                                    <td><span class="badge bg-info-subtle text-info">Điểm xét tuyển khá</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-light text-dark border">6.5</span></td>
+                                    <td class="fw-bold text-primary fs-5">9.0 đ</td>
+                                    <td><span class="badge bg-primary-subtle text-primary">Điểm xét tuyển cao</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-light text-dark border">7.0</span></td>
+                                    <td class="fw-bold text-success fs-5">9.5 đ</td>
+                                    <td><span class="badge bg-success-subtle text-success">Ưu thế lớn vào ngành Top</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-warning text-dark">7.5 – 9.0</span></td>
+                                    <td class="fw-bold text-danger fs-5">10.0 đ</td>
+                                    <td><span class="badge bg-danger-subtle text-danger">Điểm tuyệt đối Ngoại ngữ</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="p-4 rounded-4 bg-light border">
+                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Quy định nộp chứng chỉ Tiếng Anh:</h6>
+                        <ul class="small text-muted mb-0 ps-3" style="line-height: 1.8;">
+                            <li>Chứng chỉ IELTS Academic (hoặc TOEFL iBT >= 46) phải còn thời hạn <strong>tối thiểu 02 năm</strong> tính đến ngày kết thúc nộp hồ sơ.</li>
+                            <li>Điểm môn Toán và môn thứ 3 lấy từ kỳ thi tốt nghiệp THPT năm 2026.</li>
+                            <li><strong>Miễn thi tốt nghiệp môn Tiếng Anh:</strong> Thí sinh có chứng chỉ IELTS >= 4.0 được miễn thi tốt nghiệp THPT môn Ngoại ngữ (tính 10 điểm tốt nghiệp, nhưng xét tuyển NEU phải từ 5.5 trở lên theo bảng trên).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Học phí & Biểu phí -->
+        <div class="tab-pane fade" id="tab-hocphi" role="tabpanel">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-4 rounded-4 bg-white border h-100 shadow-2xs">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-dark mb-0">Hệ Chuẩn (40 Mã Ngành Truyền Thống)</h6>
+                            <span class="badge bg-primary-subtle text-primary">Chính quy</span>
+                        </div>
+                        <div class="display-6 fw-bold text-primary mb-2" style="font-size: 1.8rem;">20 – 28 Triệu <span class="fs-6 text-muted fw-normal">/ năm học</span></div>
+                        <p class="small text-muted mb-3">Học phí tính theo số tín chỉ tích lũy (khoảng 650.000đ - 780.000đ / tín chỉ). Các ngành Kế toán, Kiểm toán, TMĐT, Tài chính ở mức cận trên.</p>
+                        <div class="small fw-semibold text-secondary"><i class="bi bi-check-circle-fill text-success me-1"></i>Học bổng khuyến khích: 35+ Tỷ đồng tài trợ tân sinh viên K69</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-4 rounded-4 bg-white border h-100 shadow-2xs">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-dark mb-0">Hệ Tiên Tiến (EP), POHE & CLC</h6>
+                            <span class="badge bg-warning-subtle text-warning text-dark">Tiếng Anh & Thực hành</span>
+                        </div>
+                        <div class="display-6 fw-bold text-warning text-dark mb-2" style="font-size: 1.8rem;">45 – 70 Triệu <span class="fs-6 text-muted fw-normal">/ năm học</span></div>
+                        <p class="small text-muted mb-3">Chương trình đào tạo bằng tiếng Anh chất lượng cao, tích hợp chứng chỉ nghề nghiệp quốc tế (ACCA, ICAEW CFAB, LSIC, ANZIIF) và giảng viên quốc tế.</p>
+                        <div class="small fw-semibold text-secondary"><i class="bi bi-check-circle-fill text-success me-1"></i>Cam kết thực tập doanh nghiệp & kiểm định ACBSP/AUN-QA</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="mb-5" id="majors-list">
     <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
         <div>
@@ -549,6 +977,171 @@ function filterMajors() {
 document.addEventListener('DOMContentLoaded', () => {
     filterMajors();
 });
+
+
+// --- ADMISSION SCORE CALCULATOR JS ENGINE ---
+let currentCalcMethod = 'THPT';
+
+function switchCalcMethod(method) {
+    currentCalcMethod = method;
+    document.getElementById('calcInputsTHPT').classList.add('d-none');
+    document.getElementById('calcInputsIELTS').classList.add('d-none');
+    document.getElementById('calcInputsDGNL').classList.add('d-none');
+
+    if (method === 'THPT') {
+        document.getElementById('calcInputsTHPT').classList.remove('d-none');
+        document.getElementById('calcMethodTHPT').checked = true;
+    } else if (method === 'IELTS') {
+        document.getElementById('calcInputsIELTS').classList.remove('d-none');
+        document.getElementById('calcMethodIELTS').checked = true;
+    } else if (method === 'DGNL') {
+        document.getElementById('calcInputsDGNL').classList.remove('d-none');
+        document.getElementById('calcMethodDGNL').checked = true;
+    }
+}
+
+function updateTHPTLabels() {
+    const combo = document.getElementById('calcComboTHPT').value;
+    const lblM2 = document.getElementById('lblM2');
+    const lblM3 = document.getElementById('lblM3');
+    if (combo === 'A00') {
+        lblM2.textContent = 'Môn 2 (Vật lý)';
+        lblM3.textContent = 'Môn 3 (Hóa học)';
+    } else if (combo === 'A01') {
+        lblM2.textContent = 'Môn 2 (Vật lý)';
+        lblM3.textContent = 'Môn 3 (Tiếng Anh)';
+    } else if (combo === 'D01') {
+        lblM2.textContent = 'Môn 2 (Ngữ văn)';
+        lblM3.textContent = 'Môn 3 (Tiếng Anh)';
+    } else if (combo === 'D07') {
+        lblM2.textContent = 'Môn 2 (Hóa học)';
+        lblM3.textContent = 'Môn 3 (Tiếng Anh)';
+    }
+}
+
+function updateIeltsConvertedBadge() {
+    const band = parseFloat(document.getElementById('calcIeltsBand').value);
+    let conv = 8.0;
+    if (band >= 7.5) conv = 10.0;
+    else if (band >= 7.0) conv = 9.5;
+    else if (band >= 6.5) conv = 9.0;
+    else if (band >= 6.0) conv = 8.5;
+    else if (band >= 5.5) conv = 8.0;
+    document.getElementById('calcIeltsConvertedBadge').textContent = conv.toFixed(1) + ' đ';
+}
+
+function updateDgnlPlaceholders() {
+    const type = document.getElementById('calcDgnlType').value;
+    const input = document.getElementById('calcDgnlScore');
+    const formula = document.getElementById('lblDgnlFormula');
+    if (type === 'HSA') {
+        input.placeholder = 'VD: 115 / 150';
+        formula.textContent = 'Điểm ĐXT = (Điểm HSA / 150) * 30';
+    } else if (type === 'TSA') {
+        input.placeholder = 'VD: 75 / 100';
+        formula.textContent = 'Điểm ĐXT = (Điểm TSA / 100) * 30';
+    } else if (type === 'APT') {
+        input.placeholder = 'VD: 950 / 1200';
+        formula.textContent = 'Điểm ĐXT = (Điểm APT / 1200) * 30';
+    }
+}
+
+async function runAdmissionCalculator() {
+    let payload = {
+        priority_area: document.getElementById('calcPriorityArea').value,
+        priority_target: document.getElementById('calcPriorityTarget').value
+    };
+
+    if (currentCalcMethod === 'THPT') {
+        payload.method = 'THPT';
+        payload.m1_score = parseFloat(document.getElementById('calcM1').value) || 0;
+        payload.m2_score = parseFloat(document.getElementById('calcM2').value) || 0;
+        payload.m3_score = parseFloat(document.getElementById('calcM3').value) || 0;
+    } else if (currentCalcMethod === 'IELTS') {
+        payload.method = 'IELTS_COMBINED';
+        payload.ielts_band = parseFloat(document.getElementById('calcIeltsBand').value) || 6.5;
+        payload.m1_score = parseFloat(document.getElementById('calcIeltsM1').value) || 0;
+        payload.m2_score = parseFloat(document.getElementById('calcIeltsM2').value) || 0;
+    } else if (currentCalcMethod === 'DGNL') {
+        const dgnlType = document.getElementById('calcDgnlType').value;
+        payload.method = 'DGNL_' + dgnlType;
+        payload.dgnl_score = parseFloat(document.getElementById('calcDgnlScore').value) || 0;
+    }
+
+    try {
+        const res = await fetch('/api/admissions/calculate-score', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        renderCalculatorResult(data);
+    } catch (err) {
+        console.error('Lỗi tính điểm:', err);
+    }
+}
+
+function renderCalculatorResult(data) {
+    document.getElementById('calcResultContainer').classList.remove('d-none');
+    document.getElementById('resRawScore').textContent = data.raw_base_score.toFixed(2);
+    document.getElementById('resPriorityScore').textContent = '+' + data.priority_score.toFixed(2);
+    document.getElementById('resPriorityNote').textContent = data.priority_note;
+    document.getElementById('resFinalScore').textContent = data.final_score.toFixed(2);
+
+    // Render Target Majors
+    const targetWrap = document.getElementById('listTargetMajors');
+    document.getElementById('badgeTargetCount').textContent = data.target_majors.length + ' ngành';
+    targetWrap.innerHTML = data.target_majors.length ? data.target_majors.map(m => `
+        <div class="p-2.5 rounded-3 bg-light border border-success-subtle">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="badge bg-success bg-opacity-10 text-success font-monospace fw-bold">${m.code}</span>
+                <span class="badge bg-success text-white">${m.chance_percent}% đỗ</span>
+            </div>
+            <div class="fw-bold text-dark small mb-1">${m.name}</div>
+            <div class="d-flex justify-content-between align-items-center small text-muted">
+                <span>K68: <code>${m.benchmark_score}</code> ➜ K69: <strong class="text-danger">${m.predicted_score}</strong></span>
+                <a href="/majors/${m.id}" class="text-primary text-decoration-none fw-semibold">Chi tiết &raquo;</a>
+            </div>
+        </div>
+    `).join('') : '<div class="text-muted small p-3 text-center">Không có ngành nào trong nhóm này.</div>';
+
+    // Render Safe Majors
+    const safeWrap = document.getElementById('listSafeMajors');
+    document.getElementById('badgeSafeCount').textContent = data.safe_majors.length + ' ngành';
+    safeWrap.innerHTML = data.safe_majors.length ? data.safe_majors.map(m => `
+        <div class="p-2.5 rounded-3 bg-light border border-primary-subtle">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="badge bg-primary bg-opacity-10 text-primary font-monospace fw-bold">${m.code}</span>
+                <span class="badge bg-primary text-white">An tâm (>90%)</span>
+            </div>
+            <div class="fw-bold text-dark small mb-1">${m.name}</div>
+            <div class="d-flex justify-content-between align-items-center small text-muted">
+                <span>K68: <code>${m.benchmark_score}</code> ➜ K69: <strong class="text-danger">${m.predicted_score}</strong></span>
+                <a href="/majors/${m.id}" class="text-primary text-decoration-none fw-semibold">Chi tiết &raquo;</a>
+            </div>
+        </div>
+    `).join('') : '<div class="text-muted small p-3 text-center">Không có ngành nào trong nhóm này.</div>';
+
+    // Render Reach Majors
+    const reachWrap = document.getElementById('listReachMajors');
+    document.getElementById('badgeReachCount').textContent = data.reach_majors.length + ' ngành';
+    reachWrap.innerHTML = data.reach_majors.length ? data.reach_majors.map(m => `
+        <div class="p-2.5 rounded-3 bg-light border border-danger-subtle">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="badge bg-danger bg-opacity-10 text-danger font-monospace fw-bold">${m.code}</span>
+                <span class="badge bg-danger text-white">NV1 thử thách</span>
+            </div>
+            <div class="fw-bold text-dark small mb-1">${m.name}</div>
+            <div class="d-flex justify-content-between align-items-center small text-muted">
+                <span>K68: <code>${m.benchmark_score}</code> ➜ K69: <strong class="text-danger">${m.predicted_score}</strong></span>
+                <a href="/majors/${m.id}" class="text-primary text-decoration-none fw-semibold">Chi tiết &raquo;</a>
+            </div>
+        </div>
+    `).join('') : '<div class="text-muted small p-3 text-center">Không có ngành nào trong nhóm này.</div>';
+
+    // Smooth scroll to result
+    document.getElementById('calcResultContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
 async function handleSecureLookup(e) {
     e.preventDefault();

@@ -301,6 +301,38 @@ class StandaloneAIAdvisor:
                 "type": "k69_prediction_overview"
             }
 
+        # 3c. HỎI VỀ BẢNG QUY ĐỔI ĐIỂM IELTS / CHỨNG CHỈ TIẾNG ANH TẠI NEU
+        if any(k in norm_q for k in ["quy doi ielts", "doi diem ielts", "ielts 5.5", "ielts 6.0", "ielts 6.5", "ielts 7.0", "ielts 7.5", "ielts 8.0", "ielts duoc bao nhieu"]):
+            return {
+                "reply": (
+                    f"🏅 <strong>BẢNG QUY ĐỔI ĐIỂM CHỨNG CHỈ IELTS CHÍNH THỨC CỦA NEU (THANG ĐIỂM 10):</strong><br><br>"
+                    f"Trường Đại học Kinh tế Quốc dân áp dụng quy đổi chứng chỉ tiếng Anh quốc tế sang điểm môn Ngoại ngữ để xét tuyển theo công thức:<br><br>"
+                    f"• <strong>IELTS 5.5</strong> ➜ Quy đổi thành: <strong class='text-primary fs-5'>8.0 điểm</strong> (Ngưỡng tối thiểu nộp hồ sơ)<br>"
+                    f"• <strong>IELTS 6.0</strong> ➜ Quy đổi thành: <strong class='text-primary fs-5'>8.5 điểm</strong><br>"
+                    f"• <strong>IELTS 6.5</strong> ➜ Quy đổi thành: <strong class='text-primary fs-5'>9.0 điểm</strong><br>"
+                    f"• <strong>IELTS 7.0</strong> ➜ Quy đổi thành: <strong class='text-primary fs-5'>9.5 điểm</strong><br>"
+                    f"• <strong>IELTS 7.5 - 9.0</strong> ➜ Quy đổi thành: <strong class='text-success fs-5'>10.0 điểm</strong> (Điểm tối đa)<br><br>"
+                    f"📝 <strong>Công thức tính Điểm Xét Tuyển (ĐXT) kết hợp IELTS:</strong><br>"
+                    f"<code>ĐXT = Điểm quy đổi IELTS + Điểm Toán + Điểm môn thứ 3 (Lý/Hóa/Văn) + Điểm ưu tiên</code><br><br>"
+                    f"👉 Bạn có thể sử dụng <strong>Công cụ Tính điểm NEU</strong> trên trang chủ để tính ngay điểm xét tuyển của mình!"
+                ),
+                "type": "ielts_conversion_guide"
+            }
+
+        # 3d. HỎI VỀ ĐIỂM ƯU TIÊN VÀ CÔNG THỨC GIẢM DẦN BỘ GD&ĐT
+        if any(k in norm_q for k in ["diem uu tien", "giam dan", "khu vuc 1", "khu vuc 2", "uu tien giam"]):
+            return {
+                "reply": (
+                    f"📊 <strong>QUY TẮC TÍNH ĐIỂM ƯU TIÊN THEO QUY CHẾ BỘ GD&ĐT (ÁP DỤNG TẠI NEU):</strong><br><br>"
+                    f"1️⃣ <strong>Mức điểm ưu tiên mặc định:</strong><br>"
+                    f"• Khu vực 1 (KV1): <strong>+0.75 điểm</strong> | KV2 Nông thôn: <strong>+0.5 điểm</strong> | KV2: <strong>+0.25 điểm</strong> | KV3: <strong>0 điểm</strong>.<br>"
+                    f"• Ưu tiên đối tượng 1: <strong>+2.0 điểm</strong> | Đối tượng 2: <strong>+1.0 điểm</strong>.<br><br>"
+                    f"2️⃣ <strong>Công thức giảm dần (Khi tổng điểm >= 22.5):</strong><br>"
+                    f"<code>Điểm ưu tiên thực tế = [ (30 - Tổng điểm đạt được) / 7.5 ] * Mức điểm ưu tiên mặc định</code><br>"
+                    f"<em>* Ví dụ: Thí sinh đạt 27.5 điểm thi, thuộc KV2-NT (mặc định +0.5đ): Điểm ưu tiên = [ (30 - 27.5) / 7.5 ] * 0.5 = <strong>+0.17 điểm</strong>.</em>"
+                ),
+                "type": "priority_formula_guide"
+            }
         # 3. HỎI VỀ 4 PHƯƠNG THỨC XÉT TUYỂN (Admission Methods)
 
         if any(k in norm_q for k in ["phuong thuc", "cach xet", "xet tuyen nhu the nao", "xet hoc ba", "ielts", "sat", "dgnl", "danh gia nang luc", "hsa", "tsa", "tuyen thang"]):
@@ -347,11 +379,11 @@ class StandaloneAIAdvisor:
                 "reply": (
                     f"💰 <strong>CHÍNH SÁCH HỌC PHÍ & HỌC BỔNG NĂM HỌC 2026 - 2027:</strong><br><br>"
                     f"• <strong>Chương trình chuẩn (Chính quy):</strong><br>"
-                    f"Dự kiến khoảng <strong>22.000.000đ - 28.000.000đ / năm học</strong> (tương đương khoảng 650.000đ - 780.000đ / tín chỉ tùy ngành).<br><br>"
+                    f"Từ <strong>20.000.000đ - 28.000.000đ / năm học</strong> (Chương trình Chuẩn - 40 mã ngành) (tương đương khoảng 650.000đ - 780.000đ / tín chỉ tùy ngành).<br><br>"
                     f"• <strong>Chương trình Tiên tiến & Chất lượng cao (Dạy bằng Tiếng Anh):</strong><br>"
-                    f"Khoảng <strong>45.000.000đ - 65.000.000đ / năm học</strong>.<br><br>"
+                    f"Từ <strong>45.000.000đ - 70.000.000đ / năm học</strong> (Chương trình Tiên tiến EP01-EP32, POHE1-POHE7, CLC1-CLC3 dạy bằng tiếng Anh).<br><br>"
                     f"• <strong>Chính sách Học bổng Khuyến khích Tài năng:</strong><br>"
-                    f"Nhà trường dành hơn 30 tỷ đồng cấp học bổng cho tân sinh viên Khóa 68:<br>"
+                    f"Nhà trường dành hơn 35 tỷ đồng cấp học bổng cho tân sinh viên Khóa 69 (K69):<br>"
                     f"- Học bổng Thủ khoa / Á khoa: Tài trợ <strong>100% học phí toàn khóa</strong>.<br>"
                     f"- Học bổng Xuất sắc: Miễn giảm 50% - 100% học phí năm học đầu tiên.<br>"
                     f"- Học bổng doanh nghiệp đối tác đồng hành tài trợ hàng năm."

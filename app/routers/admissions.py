@@ -9,6 +9,7 @@ from typing import List, Optional
 from ..database import get_db
 from ..models import Major, AdmissionApplication, PaymentTransaction, Subject, User
 from ..schemas import (
+    ScoreCalculateRequest, ScoreCalculateOut, RecommendedMajorItem,
     MajorOut, MajorDetailOut, MajorUpdateQuota,
     ApplicationCreate, ApplicationOut, ApplicationStatusUpdate,
     PublicVerifyLookupRequest, PublicVerifyLookupOut,
@@ -628,3 +629,96 @@ def get_admission_certificate(app_code: str, db: Session = Depends(get_db)):
         "verification_url": verify_url,
         "verification_qr": verify_qr
     }
+
+def convert_ielts_to_score(band: float) -> float:
+    if band >= 7.5: return 10.0
+    if band >= 7.0: return 9.5
+    if band >= 6.5: return 9.0
+    if band >= 6.0: return 8.5
+    if band >= 5.5: return 8.0
+    return 0.0
+
+@router.post("/calculate-score", response_model=ScoreCalculateOut)
+def calculate_admission_score(payload: ScoreCalculateRequest, db: Session = Depends(get_db)):
+    """Tính điểm xét tuyển thông minh theo chuẩn quy chế Bộ GD&ĐT và Đề án NEU Khóa 69"""
+    method = payload.method
+    raw_base = 0.0
+    ielts_conv = None
+
+    if method == "THPT":
+        raw_base = round((payload.m1_score or 0.0) + (payload.m2_score or 0.0) + (payload.m3_score or 0.0), 2)
+    elif method == "IELTS_COMBINED":
+        ielts_band = payload.ielts_band or 0.0
+        ielts_conv = convert_ielts_to_score(ielts_band)
+        raw_base = round((payload.m1_score or 0.0) + (payload.m2_score or 0.0) + ielts_conv, 2)
+    elif method == "DGNL_HSA":
+        hsa = payload.dgnl_score or 0.0
+        raw_base = round((hsa / 150.0) * 30.0, 2)
+    elif method == "DGNL_TSA":
+        tsa = payload.dgnl_score or 0.0
+        raw_base = round((tsa / 100.0) * 30.0, 2)
+    elif method == "DGNL_APT":
+        apt = payload.dgnl_score or 0.0
+        raw_base = round((apt / 1200.0) * 30.0, 2)
+    else:
+        raw_base = round((payload.m1_score or 0.0) + (payload.m2_score or 0.0) + (payload.m3_score or 0.0), 2)
+
+    # Tính điểm ưu tiên theo công thức giảm dần của Bộ GD&ĐT
+    area_map = {"KV1": 0.75, "KV2_NT": 0.5, "KV2": 0.25, "KV3": 0.0}
+    target_map = {"UT1": 2.0, "UT2": 1.0, "NONE": 0.0}
+    default_priority = area_map.get(payload.priority_area, 0.0) + target_map.get(payload.priority_target, 0.0)
+
+    if raw_base >= 22.5 and default_priority > 0:
+        actual_priority = round(((30.0 - raw_base) / 7.5) * default_priority, 2)
+        priority_note = f"Công thức giảm dần Bộ GD&ĐT: [(30 - {raw_base}) / 7.5] * {default_priority} = {actual_priority} điểm"
+    else:
+        actual_priority = default_priority
+        priority_note = f"Điểm ưu tiên quy định: {actual_priority} điểm ({payload.priority_area}, {payload.priority_target})"
+
+    actual_priority = max(0.0, actual_priority)
+    final_score = min(30.0, round(raw_base + actual_priority, 2))
+
+    # Đối sánh với toàn bộ 88 ngành / chương trình NEU
+    all_majors = db.query(Major).all()
+    safe = []
+    target = []
+    reach = []
+
+    for m in all_majors:
+        pred = getattr(m, 'predicted_score', 0.0) or m.benchmark_score
+        diff = round(final_score - pred, 2)
+        if diff >= 0.75:
+            safe.append(RecommendedMajorItem(
+                id=m.id, code=m.code, name=m.name, category=m.category,
+                quota=m.quota, benchmark_score=m.benchmark_score, predicted_score=pred,
+                tier="safe", chance_percent=95
+            ))
+        elif -0.5 <= diff < 0.75:
+            chance = int(75 + max(0, diff * 15))
+            target.append(RecommendedMajorItem(
+                id=m.id, code=m.code, name=m.name, category=m.category,
+                quota=m.quota, benchmark_score=m.benchmark_score, predicted_score=pred,
+                tier="target", chance_percent=min(88, chance)
+            ))
+        elif -1.5 <= diff < -0.5:
+            reach.append(RecommendedMajorItem(
+                id=m.id, code=m.code, name=m.name, category=m.category,
+                quota=m.quota, benchmark_score=m.benchmark_score, predicted_score=pred,
+                tier="reach", chance_percent=50
+            ))
+
+    safe.sort(key=lambda x: x.predicted_score, reverse=True)
+    target.sort(key=lambda x: x.predicted_score, reverse=True)
+    reach.sort(key=lambda x: x.predicted_score, reverse=True)
+
+    return ScoreCalculateOut(
+        method=method,
+        raw_base_score=raw_base,
+        ielts_converted_score=ielts_conv,
+        priority_score=actual_priority,
+        final_score=final_score,
+        priority_note=priority_note,
+        safe_majors=safe[:8],
+        target_majors=target[:8],
+        reach_majors=reach[:6]
+    )
