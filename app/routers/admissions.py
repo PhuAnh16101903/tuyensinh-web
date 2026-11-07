@@ -678,7 +678,7 @@ def calculate_admission_score(payload: ScoreCalculateRequest, db: Session = Depe
     actual_priority = max(0.0, actual_priority)
     final_score = min(30.0, round(raw_base + actual_priority, 2))
 
-    # Đối sánh với toàn bộ 88 ngành / chương trình NEU
+    # Đối sánh toàn bộ 88/88 ngành & chương trình NEU (Không giới hạn slice để hiển thị trọn vẹn)
     all_majors = db.query(Major).all()
     safe = []
     target = []
@@ -687,26 +687,32 @@ def calculate_admission_score(payload: ScoreCalculateRequest, db: Session = Depe
     for m in all_majors:
         pred = getattr(m, 'predicted_score', 0.0) or m.benchmark_score
         diff = round(final_score - pred, 2)
-        if diff >= 0.75:
+        if diff >= 0.5:
+            # Nhóm An Toàn (Cơ hội đỗ > 90%)
+            chance = min(99, int(90 + min(9, diff * 4)))
             safe.append(RecommendedMajorItem(
                 id=m.id, code=m.code, name=m.name, category=m.category,
                 quota=m.quota, benchmark_score=m.benchmark_score, predicted_score=pred,
-                tier="safe", chance_percent=95
+                tier="safe", chance_percent=chance
             ))
-        elif -0.5 <= diff < 0.75:
-            chance = int(75 + max(0, diff * 15))
+        elif -0.5 <= diff < 0.5:
+            # Nhóm Vừa Sức (Cơ hội đỗ 75% - 85%)
+            chance = int(75 + (diff + 0.5) * 14)
             target.append(RecommendedMajorItem(
                 id=m.id, code=m.code, name=m.name, category=m.category,
                 quota=m.quota, benchmark_score=m.benchmark_score, predicted_score=pred,
-                tier="target", chance_percent=min(88, chance)
+                tier="target", chance_percent=max(70, min(89, chance))
             ))
-        elif -1.5 <= diff < -0.5:
+        else:
+            # Nhóm Thử Thách (NV Mơ ước)
+            chance = max(20, int(50 + diff * 12))
             reach.append(RecommendedMajorItem(
                 id=m.id, code=m.code, name=m.name, category=m.category,
                 quota=m.quota, benchmark_score=m.benchmark_score, predicted_score=pred,
-                tier="reach", chance_percent=50
+                tier="reach", chance_percent=chance
             ))
 
+    # Sắp xếp theo điểm chuẩn dự đoán giảm dần
     safe.sort(key=lambda x: x.predicted_score, reverse=True)
     target.sort(key=lambda x: x.predicted_score, reverse=True)
     reach.sort(key=lambda x: x.predicted_score, reverse=True)
@@ -718,7 +724,7 @@ def calculate_admission_score(payload: ScoreCalculateRequest, db: Session = Depe
         priority_score=actual_priority,
         final_score=final_score,
         priority_note=priority_note,
-        safe_majors=safe[:8],
-        target_majors=target[:8],
-        reach_majors=reach[:6]
+        safe_majors=safe,
+        target_majors=target,
+        reach_majors=reach
     )

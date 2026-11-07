@@ -437,7 +437,8 @@
         </button>
     </div>
 
-    <!-- Kết Quả Phân Tích -->
+    
+    <!-- Kết Quả Phân Tích Toàn Diện 88 Ngành -->
     <div id="calcResultContainer" class="d-none mt-4 pt-3 border-top">
         <div class="row g-4 mb-4">
             <div class="col-md-4">
@@ -463,47 +464,97 @@
             </div>
         </div>
 
-        <!-- 3 Tầng Ngành Gợi Ý -->
-        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-stars text-warning me-2"></i>Kết Quả Phân Tích Cơ Hội Trúng Tuyển Khóa 69 (K69):</h5>
-        <div class="row g-3">
-            <!-- Nhóm Vừa Sức -->
-            <div class="col-lg-4">
-                <div class="card h-100 border-0 shadow-2xs rounded-4 p-3 bg-white" style="border-top: 4px solid #10b981 !important;">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1">🟢 VỪA SỨC (75% - 85%)</span>
-                        <span id="badgeTargetCount" class="small text-muted fw-bold">0 ngành</span>
-                    </div>
-                    <p class="small text-muted mb-2">Điểm xét tuyển tiệm cận rất sát điểm chuẩn K68/K69. Rất thích hợp đặt làm <strong>Nguyện vọng 1 (NV1)</strong>.</p>
-                    <div id="listTargetMajors" class="d-flex flex-column gap-2" style="max-height: 380px; overflow-y: auto;"></div>
-                </div>
+        <!-- Banner tổng kết 88/88 ngành & bộ điều khiển -->
+        <div class="alert alert-success d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-4 mb-3 shadow-xs border-success border-opacity-25">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <i class="bi bi-patch-check-fill text-success fs-5"></i>
+                <span class="fw-bold text-dark">Đã phân tích toàn bộ 88/88 ngành & chương trình đào tạo NEU:</span>
+                <span class="badge bg-success py-1.5 px-2.5">🟢 Vừa sức: <span id="badgeTargetSummary">0</span> ngành</span>
+                <span class="badge bg-primary py-1.5 px-2.5">🛡️ An toàn: <span id="badgeSafeSummary">0</span> ngành</span>
+                <span class="badge bg-danger py-1.5 px-2.5">⚡ Thử thách: <span id="badgeReachSummary">0</span> ngành</span>
             </div>
-
-            <!-- Nhóm An Toàn -->
-            <div class="col-lg-4">
-                <div class="card h-100 border-0 shadow-2xs rounded-4 p-3 bg-white" style="border-top: 4px solid #3b82f6 !important;">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-2 py-1">🛡️ AN TOÀN (> 90%)</span>
-                        <span id="badgeSafeCount" class="small text-muted fw-bold">0 ngành</span>
-                    </div>
-                    <p class="small text-muted mb-2">Điểm xét tuyển vượt trội hơn điểm chuẩn. Đây là phương án chốt đỗ lý tưởng làm <strong>Nguyện vọng 2 (NV2)</strong>.</p>
-                    <div id="listSafeMajors" class="d-flex flex-column gap-2" style="max-height: 380px; overflow-y: auto;"></div>
-                </div>
-            </div>
-
-            <!-- Nhóm Thử Thách -->
-            <div class="col-lg-4">
-                <div class="card h-100 border-0 shadow-2xs rounded-4 p-3 bg-white" style="border-top: 4px solid #ef4444 !important;">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="badge bg-danger bg-opacity-10 text-danger fw-bold px-2 py-1">⚡ THỬ THÁCH (NV MƠ ƯỚC)</span>
-                        <span id="badgeReachCount" class="small text-muted fw-bold">0 ngành</span>
-                    </div>
-                    <p class="small text-muted mb-2">Điểm chuẩn cao hơn điểm xét tuyển từ 0.5 - 1.5đ. Bạn có thể đặt làm NV1 để thử vận may nếu thực sự đam mê.</p>
-                    <div id="listReachMajors" class="d-flex flex-column gap-2" style="max-height: 380px; overflow-y: auto;"></div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-success active" id="btnViewCols" onclick="toggleCalcView('columns')">
+                        <i class="bi bi-columns-gap me-1"></i>Xem 3 Cột
+                    </button>
+                    <button type="button" class="btn btn-outline-success" id="btnViewTbl" onclick="toggleCalcView('table')">
+                        <i class="bi bi-table me-1"></i>Bảng Chi Tiết 88 Ngành
+                    </button>
                 </div>
             </div>
         </div>
+
+        <!-- Ô tìm kiếm nhanh trong kết quả -->
+        <div class="mb-3">
+            <div class="input-group input-group-sm border rounded-pill overflow-hidden bg-white shadow-2xs">
+                <span class="input-group-text bg-white border-0 text-muted ps-3"><i class="bi bi-search"></i></span>
+                <input type="text" id="calcFilterInput" class="form-control border-0 ps-1" placeholder="🔍 Lọc nhanh theo tên ngành hoặc mã ngành trong 88 ngành (VD: EP06, Kiểm toán, TMĐT, 7340302...)" onkeyup="filterCalcResultsLive()">
+                <button class="btn btn-sm btn-link text-muted pe-3 text-decoration-none" type="button" onclick="document.getElementById('calcFilterInput').value=''; filterCalcResultsLive();">Xóa lọc</button>
+            </div>
+        </div>
+
+        <!-- VIEW 1: 3 CỘT PHÂN LOẠI -->
+        <div id="calcColumnsView">
+            <div class="row g-3">
+                <!-- Nhóm Vừa Sức -->
+                <div class="col-lg-4">
+                    <div class="card h-100 border-0 shadow-2xs rounded-4 p-3 bg-white" style="border-top: 4px solid #10b981 !important;">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1">🟢 VỪA SỨC (75% - 85%)</span>
+                            <span id="badgeTargetCount" class="small text-muted fw-bold">0 ngành</span>
+                        </div>
+                        <p class="small text-muted mb-2">Điểm xét tuyển tiệm cận sát điểm K68/K69 (±0.5đ). Rất thích hợp đặt làm <strong>Nguyện vọng 1 (NV1)</strong>.</p>
+                        <div id="listTargetMajors" class="d-flex flex-column gap-2 calc-scroll-box" style="max-height: 480px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+
+                <!-- Nhóm An Toàn -->
+                <div class="col-lg-4">
+                    <div class="card h-100 border-0 shadow-2xs rounded-4 p-3 bg-white" style="border-top: 4px solid #3b82f6 !important;">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-2 py-1">🛡️ AN TOÀN (> 90%)</span>
+                            <span id="badgeSafeCount" class="small text-muted fw-bold">0 ngành</span>
+                        </div>
+                        <p class="small text-muted mb-2">Điểm xét tuyển cao hơn điểm K68/K69 từ +0.5đ trở lên. Chắc chắn đỗ, thích hợp làm <strong>Nguyện vọng 2 (NV2)</strong>.</p>
+                        <div id="listSafeMajors" class="d-flex flex-column gap-2 calc-scroll-box" style="max-height: 480px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+
+                <!-- Nhóm Thử Thách -->
+                <div class="col-lg-4">
+                    <div class="card h-100 border-0 shadow-2xs rounded-4 p-3 bg-white" style="border-top: 4px solid #ef4444 !important;">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="badge bg-danger bg-opacity-10 text-danger fw-bold px-2 py-1">⚡ THỬ THÁCH (NV MƠ ƯỚC)</span>
+                            <span id="badgeReachCount" class="small text-muted fw-bold">0 ngành</span>
+                        </div>
+                        <p class="small text-muted mb-2">Điểm chuẩn cao hơn điểm xét tuyển. Bạn có thể chọn ngành này ở NV1 để thử bứt phá nếu đam mê.</p>
+                        <div id="listReachMajors" class="d-flex flex-column gap-2 calc-scroll-box" style="max-height: 480px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: BẢNG TOÀN DIỆN CẢ 88 NGÀNH -->
+        <div id="calcTableView" class="d-none">
+            <div class="table-responsive rounded-4 border bg-white shadow-2xs" style="max-height: 520px; overflow-y: auto;">
+                <table class="table table-hover align-middle mb-0 text-center" id="tblAll88Results">
+                    <thead class="table-light sticky-top">
+                        <tr>
+                            <th style="width: 10%;">Mã Tuyển Sinh</th>
+                            <th class="text-start" style="width: 32%;">Tên Ngành / Chương Trình Đào Tạo</th>
+                            <th style="width: 18%;">Khối Ngành</th>
+                            <th style="width: 10%;">K68 Gốc</th>
+                            <th style="width: 10%;">K69 Dự Đoán</th>
+                            <th style="width: 12%;">Đánh Giá Cơ Hội</th>
+                            <th style="width: 8%;">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblAll88Body"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</div>
 
 <!-- ========================================== -->
 <!-- 2. TRUNG TÂM QUY CHẾ TUYỂN SINH & HỌC PHÍ NEU K69 -->
@@ -979,8 +1030,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// --- ADMISSION SCORE CALCULATOR JS ENGINE ---
+
+// --- ADMISSION SCORE CALCULATOR JS ENGINE (FULL 88 MAJORS) ---
 let currentCalcMethod = 'THPT';
+let lastCalcData = null;
 
 function switchCalcMethod(method) {
     currentCalcMethod = method;
@@ -1046,6 +1099,25 @@ function updateDgnlPlaceholders() {
     }
 }
 
+function toggleCalcView(view) {
+    const colsView = document.getElementById('calcColumnsView');
+    const tblView = document.getElementById('calcTableView');
+    const btnCols = document.getElementById('btnViewCols');
+    const btnTbl = document.getElementById('btnViewTbl');
+
+    if (view === 'columns') {
+        colsView.classList.remove('d-none');
+        tblView.classList.add('d-none');
+        btnCols.classList.add('active');
+        btnTbl.classList.remove('active');
+    } else {
+        colsView.classList.add('d-none');
+        tblView.classList.remove('d-none');
+        btnCols.classList.remove('active');
+        btnTbl.classList.add('active');
+    }
+}
+
 async function runAdmissionCalculator() {
     let payload = {
         priority_area: document.getElementById('calcPriorityArea').value,
@@ -1075,6 +1147,7 @@ async function runAdmissionCalculator() {
             body: JSON.stringify(payload)
         });
         const data = await res.json();
+        lastCalcData = data;
         renderCalculatorResult(data);
     } catch (err) {
         console.error('Lỗi tính điểm:', err);
@@ -1088,48 +1161,21 @@ function renderCalculatorResult(data) {
     document.getElementById('resPriorityNote').textContent = data.priority_note;
     document.getElementById('resFinalScore').textContent = data.final_score.toFixed(2);
 
-    // Render Target Majors
-    const targetWrap = document.getElementById('listTargetMajors');
+    // Summary counts
+    document.getElementById('badgeTargetSummary').textContent = data.target_majors.length;
+    document.getElementById('badgeSafeSummary').textContent = data.safe_majors.length;
+    document.getElementById('badgeReachSummary').textContent = data.reach_majors.length;
+
     document.getElementById('badgeTargetCount').textContent = data.target_majors.length + ' ngành';
-    targetWrap.innerHTML = data.target_majors.length ? data.target_majors.map(m => `
-        <div class="p-2.5 rounded-3 bg-light border border-success-subtle">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="badge bg-success bg-opacity-10 text-success font-monospace fw-bold">${m.code}</span>
-                <span class="badge bg-success text-white">${m.chance_percent}% đỗ</span>
-            </div>
-            <div class="fw-bold text-dark small mb-1">${m.name}</div>
-            <div class="d-flex justify-content-between align-items-center small text-muted">
-                <span>K68: <code>${m.benchmark_score}</code> ➜ K69: <strong class="text-danger">${m.predicted_score}</strong></span>
-                <a href="/majors/${m.id}" class="text-primary text-decoration-none fw-semibold">Chi tiết &raquo;</a>
-            </div>
-        </div>
-    `).join('') : '<div class="text-muted small p-3 text-center">Không có ngành nào trong nhóm này.</div>';
-
-    // Render Safe Majors
-    const safeWrap = document.getElementById('listSafeMajors');
     document.getElementById('badgeSafeCount').textContent = data.safe_majors.length + ' ngành';
-    safeWrap.innerHTML = data.safe_majors.length ? data.safe_majors.map(m => `
-        <div class="p-2.5 rounded-3 bg-light border border-primary-subtle">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="badge bg-primary bg-opacity-10 text-primary font-monospace fw-bold">${m.code}</span>
-                <span class="badge bg-primary text-white">An tâm (>90%)</span>
-            </div>
-            <div class="fw-bold text-dark small mb-1">${m.name}</div>
-            <div class="d-flex justify-content-between align-items-center small text-muted">
-                <span>K68: <code>${m.benchmark_score}</code> ➜ K69: <strong class="text-danger">${m.predicted_score}</strong></span>
-                <a href="/majors/${m.id}" class="text-primary text-decoration-none fw-semibold">Chi tiết &raquo;</a>
-            </div>
-        </div>
-    `).join('') : '<div class="text-muted small p-3 text-center">Không có ngành nào trong nhóm này.</div>';
-
-    // Render Reach Majors
-    const reachWrap = document.getElementById('listReachMajors');
     document.getElementById('badgeReachCount').textContent = data.reach_majors.length + ' ngành';
-    reachWrap.innerHTML = data.reach_majors.length ? data.reach_majors.map(m => `
-        <div class="p-2.5 rounded-3 bg-light border border-danger-subtle">
+
+    // Render Cards in Columns
+    const renderCard = (m, tierClass, badgeText) => `
+        <div class="p-2.5 rounded-3 bg-light border ${tierClass} calc-major-card" data-code="${m.code.toLowerCase()}" data-name="${m.name.toLowerCase()}">
             <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="badge bg-danger bg-opacity-10 text-danger font-monospace fw-bold">${m.code}</span>
-                <span class="badge bg-danger text-white">NV1 thử thách</span>
+                <span class="badge bg-white border font-monospace fw-bold text-dark">${m.code}</span>
+                <span class="badge ${badgeText.badge}">${badgeText.text}</span>
             </div>
             <div class="fw-bold text-dark small mb-1">${m.name}</div>
             <div class="d-flex justify-content-between align-items-center small text-muted">
@@ -1137,10 +1183,68 @@ function renderCalculatorResult(data) {
                 <a href="/majors/${m.id}" class="text-primary text-decoration-none fw-semibold">Chi tiết &raquo;</a>
             </div>
         </div>
-    `).join('') : '<div class="text-muted small p-3 text-center">Không có ngành nào trong nhóm này.</div>';
+    `;
+
+    document.getElementById('listTargetMajors').innerHTML = data.target_majors.map(m => 
+        renderCard(m, 'border-success-subtle', {badge: 'bg-success text-white', text: m.chance_percent + '% đỗ'})
+    ).join('') || '<div class="text-muted small p-3 text-center">Không có ngành nào trong nhóm này.</div>';
+
+    document.getElementById('listSafeMajors').innerHTML = data.safe_majors.map(m => 
+        renderCard(m, 'border-primary-subtle', {badge: 'bg-primary text-white', text: 'An tâm (>90%)'})
+    ).join('') || '<div class="text-muted small p-3 text-center">Không có ngành nào trong nhóm này.</div>';
+
+    document.getElementById('listReachMajors').innerHTML = data.reach_majors.map(m => 
+        renderCard(m, 'border-danger-subtle', {badge: 'bg-danger text-white', text: 'NV mơ ước'})
+    ).join('') || '<div class="text-muted small p-3 text-center">Không có ngành nào trong nhóm này.</div>';
+
+    // Render 88 Majors Table View
+    const allList = [
+        ...data.target_majors.map(m => ({...m, tierLabel: '<span class="badge bg-success">🟢 Vừa sức (' + m.chance_percent + '%)</span>'})),
+        ...data.safe_majors.map(m => ({...m, tierLabel: '<span class="badge bg-primary">🛡️ An toàn (>90%)</span>'})),
+        ...data.reach_majors.map(m => ({...m, tierLabel: '<span class="badge bg-danger">⚡ Thử thách</span>'}))
+    ];
+    allList.sort((a, b) => b.predicted_score - a.predicted_score);
+
+    document.getElementById('tblAll88Body').innerHTML = allList.map((m, idx) => `
+        <tr class="calc-tbl-row" data-code="${m.code.toLowerCase()}" data-name="${m.name.toLowerCase()}">
+            <td><span class="badge bg-light text-dark font-monospace fw-bold border">${m.code}</span></td>
+            <td class="text-start fw-semibold text-dark">${m.name}</td>
+            <td><span class="badge bg-light text-muted border small">${m.category}</span></td>
+            <td><span class="font-monospace fw-bold text-secondary">${m.benchmark_score}</span></td>
+            <td><strong class="font-monospace text-danger">${m.predicted_score}</strong></td>
+            <td>${m.tierLabel}</td>
+            <td><a href="/majors/${m.id}" class="btn btn-xs btn-outline-primary py-0.5 px-2 rounded-pill small">Xem</a></td>
+        </tr>
+    `).join('');
 
     // Smooth scroll to result
     document.getElementById('calcResultContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function filterCalcResultsLive() {
+    const kw = (document.getElementById('calcFilterInput').value || '').trim().toLowerCase();
+    
+    // Filter cards
+    document.querySelectorAll('.calc-major-card').forEach(card => {
+        const code = card.getAttribute('data-code') || '';
+        const name = card.getAttribute('data-name') || '';
+        if (!kw || code.includes(kw) || name.includes(kw)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Filter table rows
+    document.querySelectorAll('.calc-tbl-row').forEach(row => {
+        const code = row.getAttribute('data-code') || '';
+        const name = row.getAttribute('data-name') || '';
+        if (!kw || code.includes(kw) || name.includes(kw)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
 }
 
 async function handleSecureLookup(e) {
