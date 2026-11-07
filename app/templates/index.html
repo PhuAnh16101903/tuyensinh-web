@@ -18,7 +18,7 @@
             <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-3" 
                  style="background: rgba(255,255,255,0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.22);">
                 <i class="bi bi-mortarboard-fill text-warning fs-6"></i>
-                <span class="badge bg-warning text-dark rounded-pill fw-bold px-2 py-0.5">K68 TUYỂN SINH</span>
+                <span class="badge bg-warning text-dark rounded-pill fw-bold px-2 py-0.5">K69 TUYỂN SINH</span>
                 <span class="small fw-semibold text-white">Đại Học Kinh Tế Quốc Dân (NEU)</span>
             </div>
             
@@ -30,7 +30,7 @@
             </h1>
             
             <p class="fs-6 mb-4" style="line-height: 1.75; font-weight: 400; color: #e2e8f0;">
-                Chào đón thế hệ tân sinh viên Khóa 68! Cổng thông tin tiếp nhận hồ sơ xét tuyển chính thức của 
+                Chào đón thế hệ tân sinh viên Khóa 69 (K69)! Cổng thông tin tiếp nhận hồ sơ xét tuyển chính thức của 
                 <strong class="text-white">Trường Đại học Kinh tế Quốc dân</strong>. Hệ thống tích hợp <strong class="text-white">40 ngành đào tạo tiên phong</strong>, 
                 áp dụng <strong class="text-white">5 phương thức xét tuyển thông minh</strong> (IELTS, SAT, HSA/TSA, THPT), thanh toán lệ phí 
                 <strong class="text-white">VietQR Napas 24/7</strong> và tư vấn chọn ngành cùng <strong class="text-white">Trợ lý Tuyển sinh AI</strong>.
@@ -47,7 +47,7 @@
                 <div class="col-6 col-sm-3">
                     <div class="p-2.5 rounded-3 text-center" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.18);">
                         <div class="fs-5 fw-bold mb-0" style="font-family: 'Outfit', sans-serif; color: #fde047;">6.200+</div>
-                        <div style="font-size: 0.78rem; color: #cbd5e1; font-weight: 500;">Chỉ tiêu K68</div>
+                        <div style="font-size: 0.78rem; color: #cbd5e1; font-weight: 500;">Chỉ tiêu K69</div>
                     </div>
                 </div>
                 <div class="col-6 col-sm-3">
@@ -320,14 +320,18 @@
                     <h5 class="card-title fw-bold text-dark mb-2" style="font-size: 1.1rem;">{{ m.name }}</h5>
                     <p class="text-muted small flex-grow-1 mb-3" style="min-height: 44px; line-height: 1.5;">{{ m.description }}</p>
                     
-                    <div class="p-2 rounded-3 bg-light mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="text-muted small">Chỉ tiêu xét tuyển:</span>
+                    <div class="p-2.5 rounded-3 bg-light border border-light-subtle mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1.5">
+                            <span class="text-muted small"><i class="bi bi-people-fill text-secondary me-1"></i>Chỉ tiêu K69:</span>
                             <span class="fw-bold text-primary">{{ m.quota }} sinh viên</span>
                         </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small"><i class="bi bi-award-fill text-danger me-1"></i>Điểm chuẩn K68 (Gốc):</span>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace fw-bold">{{ m.benchmark_score if m.benchmark_score > 0 else '---' }}</span>
+                        </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted small">Điểm chuẩn tham khảo:</span>
-                            <span class="fw-bold text-danger">{{ m.benchmark_score if m.benchmark_score > 0 else 'Đang cập nhật' }}</span>
+                            <span class="text-muted small"><i class="bi bi-graph-up-arrow text-primary me-1"></i>Dự đoán K69:</span>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace fw-bold">{{ m.predicted_score if (m.predicted_score and m.predicted_score > 0) else m.benchmark_score }}</span>
                         </div>
                     </div>
 

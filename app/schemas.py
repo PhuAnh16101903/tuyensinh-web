@@ -46,6 +46,7 @@ class MajorOut(BaseModel):
     description: Optional[str]
     quota: int
     benchmark_score: float
+    predicted_score: Optional[float] = 0.0
 
     class Config:
         from_attributes = True
@@ -53,6 +54,7 @@ class MajorOut(BaseModel):
 class MajorUpdateQuota(BaseModel):
     quota: int
     benchmark_score: Optional[float] = None
+    predicted_score: Optional[float] = None
 
 class MajorDetailOut(MajorOut):
     subjects: List[SubjectOut] = []

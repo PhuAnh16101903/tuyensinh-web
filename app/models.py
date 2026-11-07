@@ -32,7 +32,8 @@ class Major(Base):
     category = Column(String(100), default="Công nghệ & Kỹ thuật")     # Khối ngành
     description = Column(Text, nullable=True)                          # Giới thiệu ngành học & chuẩn đầu ra
     quota = Column(Integer, default=50)                               # Chỉ tiêu tuyển sinh
-    benchmark_score = Column(Float, default=0.0)                      # Điểm chuẩn trúng tuyển (sau lọc ảo)
+    benchmark_score = Column(Float, default=0.0)                      # Điểm chuẩn K68 chính thức
+    predicted_score = Column(Float, default=0.0)                      # Điểm chuẩn dự đoán K69                      # Điểm chuẩn trúng tuyển (sau lọc ảo)
     applications = relationship("AdmissionApplication", back_populates="major", foreign_keys="[AdmissionApplication.major_id]")
     applications_nv2 = relationship("AdmissionApplication", back_populates="major_nv2", foreign_keys="[AdmissionApplication.major_nv2_id]")
     subjects = relationship("Subject", back_populates="major", cascade="all, delete-orphan")

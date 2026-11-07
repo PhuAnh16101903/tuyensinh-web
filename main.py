@@ -132,6 +132,7 @@ def seed_demo_data():
                     category=m_item["category"],
                     quota=m_item["quota"],
                     benchmark_score=m_item["benchmark_score"],
+                    predicted_score=m_item.get("predicted_score", 0.0),
                     description=m_item["description"]
                 )
                 db.add(major_obj)

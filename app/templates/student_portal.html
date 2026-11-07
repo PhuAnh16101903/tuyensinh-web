@@ -39,15 +39,15 @@
                     <h4 class="fw-bold mb-0 text-dark" style="font-family: 'Montserrat', sans-serif;">Xin chào, {{ user.full_name }}</h4>
                     {% if enrolled_app %}
                     <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1 small fw-bold">
-                        <i class="bi bi-mortarboard-fill me-1"></i>Tân Sinh Viên K68
+                        <i class="bi bi-mortarboard-fill me-1"></i>Tân Sinh Viên K69
                     </span>
                     {% elif my_applications|length > 0 %}
                     <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-2.5 py-1 small fw-semibold">
-                        <i class="bi bi-mortarboard me-1"></i>Thí Sinh K68 ({{ my_applications|length }} Hồ sơ)
+                        <i class="bi bi-mortarboard me-1"></i>Thí Sinh K69 ({{ my_applications|length }} Hồ sơ)
                     </span>
                     {% else %}
                     <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-2.5 py-1 small fw-semibold">
-                        <i class="bi bi-mortarboard me-1"></i>Thí Sinh K68
+                        <i class="bi bi-mortarboard me-1"></i>Thí Sinh K69
                     </span>
                     {% endif %}
                 </div>
@@ -124,7 +124,7 @@
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 pb-2 border-bottom">
                         <div>
                             <h4 class="fw-bold text-primary mb-1"><i class="bi bi-person-vcard-fill me-1"></i> Hồ Sơ Xét Tuyển Của Bạn</h4>
-                            <p class="text-muted small mb-0">Theo dõi trạng thái xét tuyển, nộp lệ phí VietQR và tiến trình nhập học chính thức Khóa 68.</p>
+                            <p class="text-muted small mb-0">Theo dõi trạng thái xét tuyển, nộp lệ phí VietQR và tiến trình nhập học chính thức Khóa 69.</p>
                         </div>
                         {% if not enrolled_app and my_applications|length > 0 %}
                         <button class="btn btn-sm btn-primary fw-semibold rounded-pill px-3" onclick="switchToApplyTab()">
@@ -386,7 +386,7 @@
                          style="width: 80px; height: 80px; background: rgba(16, 185, 129, 0.12); color: #10b981;">
                         <i class="bi bi-mortarboard-fill fs-1"></i>
                     </div>
-                    <h3 class="fw-bold text-success mb-2" style="font-family: 'Montserrat', sans-serif;">Chúc Mừng Tân Sinh Viên Khóa 68!</h3>
+                    <h3 class="fw-bold text-success mb-2" style="font-family: 'Montserrat', sans-serif;">Chúc Mừng Tân Sinh Viên Khóa 69!</h3>
                     <p class="text-muted fs-6 mx-auto mb-3" style="max-width: 620px; line-height: 1.7;">
                         Bạn đã hoàn tất xác nhận nhập học chính thức vào ngành <strong class="text-dark">{{ enrolled_app.admitted_major_name or enrolled_app.major.name }}</strong>.<br>
                         Mã số sinh viên (MSSV) chính thức của bạn: 
@@ -410,7 +410,7 @@
                 <div class="card card-custom p-4 bg-white">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 border-bottom pb-3">
                         <div>
-                            <h4 class="fw-bold text-primary mb-1"><i class="bi bi-mortarboard-fill"></i> {% if my_applications|length > 0 %}Đăng Ký Thêm Hồ Sơ / Nguyện Vọng Xét Tuyển{% else %}Đăng Ký Xét Tuyển Đại Học Khóa 68 (Năm 2026){% endif %}</h4>
+                            <h4 class="fw-bold text-primary mb-1"><i class="bi bi-mortarboard-fill"></i> {% if my_applications|length > 0 %}Đăng Ký Thêm Hồ Sơ / Nguyện Vọng Xét Tuyển{% else %}Đăng Ký Xét Tuyển Đại Học Khóa 69 (Năm 2026){% endif %}</h4>
                             <p class="text-muted mb-0 small">Hệ thống xét tuyển tích hợp 5 phương thức chuẩn Đại học Kinh tế Quốc dân (NEU), tự động quy đổi chứng chỉ Quốc tế và tính điểm ưu tiên.</p>
                         </div>
                         <span class="badge bg-danger fs-6 px-3 py-2"><i class="bi bi-lightning-charge-fill"></i> Tự Động Quy Đổi Điểm Real-Time</span>
@@ -1053,14 +1053,14 @@
                     </div>
                     <div class="mt-4">
                         <h4 class="fw-bold text-success text-uppercase mb-1" style="font-family: 'Montserrat', sans-serif;">GIẤY BÁO TRÚNG TUYỂN & NHẬP HỌC ĐẠI HỌC</h4>
-                        <div class="text-muted fw-semibold">HỆ ĐẠI HỌC CHÍNH QUY - NIÊN KHÓA 2026 - 2030 (KHÓA 68)</div>
+                        <div class="text-muted fw-semibold">HỆ ĐẠI HỌC CHÍNH QUY - NIÊN KHÓA 2026 - 2030 (KHÓA 69)</div>
                     </div>
                 </div>
 
                 <!-- Thông tin thí sinh trúng tuyển -->
                 <div class="alert alert-success py-2 mb-3 d-flex justify-content-between align-items-center">
                     <span><i class="bi bi-check-circle-fill me-1"></i> Trạng thái: <strong>ĐÃ HOÀN TẤT XÁC NHẬN NHẬP HỌC TRỰC TUYẾN</strong></span>
-                    <span id="certCohortBadge" class="badge bg-success fs-6">K68 NEU</span>
+                    <span id="certCohortBadge" class="badge bg-success fs-6">K69 NEU</span>
                 </div>
 
                 <div class="row g-3 mb-4">
@@ -1977,7 +1977,7 @@ async function handleSaveAppeal(e) {
 // --- Hậu tuyển sinh: Xác nhận nhập học & Cấp MSSV (Gói 2) ---
 async function confirmEnroll(appId, appCode, majorName) {
     const ok = await customConfirm({
-        title: 'Xác Nhận Nhập Học Trực Tuyến K68',
+        title: 'Xác Nhận Nhập Học Trực Tuyến K69',
         message: `Bạn xác nhận nhập học chính thức vào ngành:\n[${majorName}]?\n\nHệ thống sẽ cấp Mã số Sinh viên (MSSV), Email sinh viên (@st.neu.edu.vn) và Giấy báo trúng tuyển điện tử.`,
         confirmText: '🎓 Xác Nhận Nhập Học Ngay',
         color: 'success',

@@ -30,7 +30,7 @@
                         <div class="d-inline-flex p-2 rounded-circle bg-primary bg-opacity-10 text-primary mb-2 mx-auto">
                             <i class="bi bi-people-fill fs-4"></i>
                         </div>
-                        <div class="small text-muted text-uppercase fw-semibold mb-1">Chỉ tiêu 2026</div>
+                        <div class="small text-muted text-uppercase fw-semibold mb-1">Chỉ tiêu K69</div>
                         <div class="display-6 fw-bold text-primary mb-0">{{ major.quota }}</div>
                         <div class="small text-muted">Sinh viên chính quy</div>
                     </div>
@@ -40,9 +40,9 @@
                         <div class="d-inline-flex p-2 rounded-circle bg-danger bg-opacity-10 text-danger mb-2 mx-auto">
                             <i class="bi bi-trophy-fill fs-4"></i>
                         </div>
-                        <div class="small text-muted text-uppercase fw-semibold mb-1">Điểm chuẩn tham khảo</div>
-                        <div class="display-6 fw-bold text-danger mb-0">{{ major.benchmark_score if major.benchmark_score > 0 else '24.5' }}</div>
-                        <div class="small text-muted">Thang điểm 30</div>
+                        <div class="small text-muted text-uppercase fw-semibold mb-1">Điểm chuẩn K68 / K69</div>
+                        <div class="fs-4 fw-bold text-danger mb-0">{{ major.benchmark_score }} <span class="fs-6 text-muted font-monospace">➜ {{ major.predicted_score if (major.predicted_score and major.predicted_score > 0) else major.benchmark_score }}</span></div>
+                        <div class="small text-muted"><span class="badge bg-danger-subtle text-danger">K68 Gốc</span> ➜ <span class="badge bg-primary-subtle text-primary">K69 Dự đoán</span></div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">

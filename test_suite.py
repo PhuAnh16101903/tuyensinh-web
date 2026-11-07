@@ -297,7 +297,7 @@ print("\n🎉 TẤT CẢ 17 BÀI KIỂM THỬ TOÀN DIỆN (MBBANK QR, JWT SECUR
 # Dọn dẹp toàn bộ dữ liệu tạm sinh ra trong quá trình chạy Test để DB luôn sạch 100% (1 Sinh viên = 1 Hồ sơ = 1 MSSV)
 import os
 from app.database import SessionLocal
-from app.models import AdmissionApplication, PaymentTransaction
+from app.models import AdmissionApplication, PaymentTransaction, Major
 
 db_clean = SessionLocal()
 core_codes = ['TS2026-100001', 'TS2026-100002', 'TS2026-100003', 'TS2026-100004', 'TS2026-100005']
@@ -305,6 +305,11 @@ extra_apps = db_clean.query(AdmissionApplication).filter(~AdmissionApplication.a
 for ea in extra_apps:
     db_clean.query(PaymentTransaction).filter(PaymentTransaction.application_id == ea.id).delete()
     db_clean.delete(ea)
+
+# Khôi phục điểm chuẩn chính thức của Kiểm toán sau test lọc ảo
+m1 = db_clean.query(Major).filter(Major.id == 1).first()
+if m1:
+    m1.benchmark_score = 28.84
 
 # Đảm bảo thí sinh mẫu TS2026-100002 là hồ sơ độc lập, không gán cho tài khoản student@gmail.com để sinh viên tự tạo hồ sơ mới
 app_student = db_clean.query(AdmissionApplication).filter(AdmissionApplication.app_code == 'TS2026-100002').first()

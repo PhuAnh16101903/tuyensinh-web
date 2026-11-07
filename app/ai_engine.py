@@ -276,12 +276,37 @@ class StandaloneAIAdvisor:
                 "type": "major_detail"
             }
 
+        # 2b. HỎI VỀ DỰ ĐOÁN ĐIỂM CHUẨN K69 / SO SÁNH K68 & K69
+        if any(k in norm_q for k in ["k69", "k68", "du doan", "du bao", "bien dong diem", "tang hay giam", "du doan diem"]):
+            top_majors = db.query(Major).order_by(Major.benchmark_score.desc()).limit(8).all()
+            lines = []
+            for m in top_majors:
+                pred = getattr(m, 'predicted_score', 0.0) or m.benchmark_score
+                diff = round(pred - m.benchmark_score, 2)
+                trend_icon = "📈 +" if diff > 0 else ("📉 " if diff < 0 else "⚖️ ")
+                diff_str = f"{trend_icon}{abs(diff):.2f}" if diff != 0 else "Ổn định"
+                lines.append(f"• <strong>{m.name}</strong> ({m.code}): Điểm chuẩn K68: <code>{m.benchmark_score}</code> ➜ K69 dự đoán: <strong class='text-danger'>{pred}</strong> ({diff_str})")
+            
+            top_txt = "<br>".join(lines)
+            return {
+                "reply": (
+                    f"🔮 <strong>MÔ HÌNH DỰ ĐOÁN ĐIỂM CHUẨN KHÓA 69 (K69) SO VỚI BASELINE K68:</strong><br><br>"
+                    f"Trợ lý AI Nova tổng hợp số liệu dựa trên phổ điểm thi, xu hướng thị trường lao động và chỉ tiêu 40 ngành đào tạo NEU:<br><br>"
+                    f"{top_txt}<br><br>"
+                    f"📊 <strong>Nhận định xu hướng tuyển sinh K69:</strong><br>"
+                    f"- Nhóm ngành hot & công nghệ cao (Kiểm toán, TMĐT, Logistics, AI, Fintech, KDQT) dự kiến tăng nhẹ từ <strong>+0.05 đến +0.25 điểm</strong> do lượng thí sinh đăng ký cao.<br>"
+                    f"- Nhóm ngành kinh tế truyền thống và khoa học xã hội dự kiến giữ ổn định (±0.05 điểm).<br><br>"
+                    f"👉 Bạn hãy nhập điểm thi của mình (VD: <em>'Em thi được 28 điểm đỗ ngành nào?'</em>) để Nova phân tích xác suất trúng tuyển K69 nhé!"
+                ),
+                "type": "k69_prediction_overview"
+            }
+
         # 3. HỎI VỀ 4 PHƯƠNG THỨC XÉT TUYỂN (Admission Methods)
 
         if any(k in norm_q for k in ["phuong thuc", "cach xet", "xet tuyen nhu the nao", "xet hoc ba", "ielts", "sat", "dgnl", "danh gia nang luc", "hsa", "tsa", "tuyen thang"]):
             return {
                 "reply": (
-                    f"📋 <strong>4 PHƯƠNG THỨC XÉT TUYỂN CHÍNH THỨC NĂM 2026 (KHÓA 68):</strong><br><br>"
+                    f"📋 <strong>4 PHƯƠNG THỨC XÉT TUYỂN CHÍNH THỨC NĂM 2026 (KHÓA 69):</strong><br><br>"
                     f"1️⃣ <strong>Phương thức 1 (PT1) - Điểm thi Tốt nghiệp THPT 2026:</strong><br>"
                     f"Xét theo tổng điểm 3 môn trong tổ hợp xét tuyển (A00, A01, D01, D07, B00...) cộng điểm ưu tiên khu vực/đối tượng.<br><br>"
                     f"2️⃣ <strong>Phương thức 2 (PT2) - Đánh giá năng lực (ĐGNL & ĐGTD):</strong><br>"
@@ -394,21 +419,24 @@ class StandaloneAIAdvisor:
             ]
 
             if analysis["target"]:
-                reply_parts.append("🟢 <strong>Nhóm Vừa Sức (Cơ hội trúng tuyển 75% - 85%):</strong>")
+                reply_parts.append("🟢 <strong>Nhóm Vừa Sức K69 (Cơ hội trúng tuyển 75% - 85%):</strong>")
                 for m in analysis["target"]:
-                    reply_parts.append(f"• <strong>{m.name} ({m.code})</strong> - Điểm chuẩn: <span class='badge bg-primary'>{m.benchmark_score}</span> (Chỉ tiêu: {m.quota})")
+                    pred_s = getattr(m, 'predicted_score', 0.0) or m.benchmark_score
+                    reply_parts.append(f"• <strong>{m.name} ({m.code})</strong> - Điểm chuẩn K68: <span class='badge bg-primary'>{m.benchmark_score}</span> | Dự đoán K69: <span class='badge bg-warning text-dark'>{pred_s}</span> (Chỉ tiêu: {m.quota})")
                 reply_parts.append("")
 
             if analysis["safe"]:
-                reply_parts.append("🛡️ <strong>Nhóm An Toàn (Cơ hội trúng tuyển > 90% - Rất an tâm):</strong>")
+                reply_parts.append("🛡️ <strong>Nhóm An Toàn K69 (Cơ hội trúng tuyển > 90% - Rất an tâm):</strong>")
                 for m in analysis["safe"][:3]:
-                    reply_parts.append(f"• <strong>{m.name} ({m.code})</strong> - Điểm chuẩn: <span class='badge bg-success'>{m.benchmark_score}</span>")
+                    pred_s = getattr(m, 'predicted_score', 0.0) or m.benchmark_score
+                    reply_parts.append(f"• <strong>{m.name} ({m.code})</strong> - Điểm chuẩn K68: <span class='badge bg-success'>{m.benchmark_score}</span> | Dự đoán K69: <span class='badge bg-warning text-dark'>{pred_s}</span>")
                 reply_parts.append("")
 
             if analysis["reach"]:
-                reply_parts.append("⚡ <strong>Nhóm Thử Thách (Cần bứt phá hoặc làm NV1 mơ ước):</strong>")
+                reply_parts.append("⚡ <strong>Nhóm Thử Thách K69 (Cần bứt phá hoặc làm NV1 mơ ước):</strong>")
                 for m in analysis["reach"][:2]:
-                    reply_parts.append(f"• <strong>{m.name} ({m.code})</strong> - Điểm chuẩn: <span class='badge bg-danger'>{m.benchmark_score}</span>")
+                    pred_s = getattr(m, 'predicted_score', 0.0) or m.benchmark_score
+                    reply_parts.append(f"• <strong>{m.name} ({m.code})</strong> - Điểm chuẩn K68: <span class='badge bg-danger'>{m.benchmark_score}</span> | Dự đoán K69: <span class='badge bg-warning text-dark'>{pred_s}</span>")
                 reply_parts.append("")
 
             nv1_rec = analysis["target"][0] if analysis["target"] else (analysis["reach"][0] if analysis["reach"] else None)
@@ -455,7 +483,7 @@ class StandaloneAIAdvisor:
 
         return {
             "reply": (
-                f"Xin chào bạn! 👋 Tôi là <strong>Trợ Lý AI Tư Vấn Tuyển Sinh 2026</strong>.<br><br>"
+                f"Xin chào bạn! 👋 Tôi là <strong>Nova - Trợ Lý AI Tuyển Sinh K69 (Đại học Kinh tế Quốc dân)</strong>.<br><br>"
                 f"Tôi có thể hỗ trợ giải đáp nhanh và chính xác các thông tin tuyển sinh sau:<br>"
                 f"• 🔍 <strong>Tra cứu ngành học & điểm chuẩn:</strong> Nhập tên ngành (VD: <em>'Điểm chuẩn ngành Luật'</em>, <em>'Chỉ tiêu ngành CNTT'</em>, <em>'Ngành Marketing'</em>...)<br>"
                 f"• 🎯 <strong>Tính xác suất đỗ:</strong> Nhập điểm thi của bạn (VD: <em>'Em thi được 25.5 điểm đỗ ngành nào?'</em>)<br>"
@@ -471,7 +499,7 @@ class StandaloneAIAdvisor:
 def process_ai_admission_chat(query: str, user_score: Optional[float], combination: Optional[str], history: Optional[List[dict]], db: Session) -> Dict:
     """Xử lý hội thoại AI: Ưu tiên Gemini LLM (nếu có key), fallback Engine AI tự chủ"""
     system_prompt = (
-        "Bạn là Trợ lý AI Tư vấn Tuyển sinh Đại học chính quy 2026 của trường Đại học Kinh tế Quốc dân (NEU). "
+        "Bạn là Nova - Trợ lý AI Tuyển sinh Khóa 69 (K69) của Đại học Kinh tế Quốc dân (NEU) (học hỏi từ ai.neu.edu.vn). Dựa trên dữ liệu điểm chuẩn chính thức K68 (25.10 - 28.84) và mô hình dự đoán K69 (25.15 - 28.90). "
         "Trường có 40 ngành đào tạo chính quy thuộc 4 khối: Công nghệ & Kỹ thuật, Kinh tế & Quản lý, Ngoại ngữ & Xã hội, Y Dược - Sinh học - Kiến trúc. "
         "Lệ phí xét tuyển là 50.000 VNĐ nộp qua VietQR MBBank. Có 4 phương thức xét tuyển: PT1 (Điểm thi THPT), PT2 (ĐGNL HSA/TSA), PT3 (IELTS/SAT kết hợp), PT4 (Tuyển thẳng). "
         "Thí sinh được đăng ký 2 nguyện vọng NV1 và NV2 với thuật toán lọc ảo tự động. "
