@@ -65,6 +65,59 @@ def home_page(request: Request, db: Session = Depends(get_db)):
         "faqs": faqs,
         "total_subjects": total_subjects
     })
+
+# --- CHUYÊN TRANG TÍNH ĐIỂM, ĐỀ ÁN, NGÀNH ĐÀO TẠO & TRA CỨU KẾT QUẢ ---
+@router.get("/calculator")
+def calculator_page(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    majors = db.query(Major).all()
+    return render_template(request, "calculator.html", {
+        "user": user,
+        "majors": majors
+    })
+
+@router.get("/tinh-diem")
+def tinh_diem_alias(request: Request, db: Session = Depends(get_db)):
+    return calculator_page(request, db)
+
+@router.get("/quy-che")
+def regulations_page(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    fees = db.query(FeeConfig).all()
+    return render_template(request, "regulations.html", {
+        "user": user,
+        "fees": fees
+    })
+
+@router.get("/de-an")
+def de_an_alias(request: Request, db: Session = Depends(get_db)):
+    return regulations_page(request, db)
+
+@router.get("/majors")
+def majors_catalog_page(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    majors = db.query(Major).all()
+    total_subjects = db.query(Subject).count()
+    return render_template(request, "majors_catalog.html", {
+        "user": user,
+        "majors": majors,
+        "total_subjects": total_subjects
+    })
+
+@router.get("/nganh-dao-tao")
+def nganh_dao_tao_alias(request: Request, db: Session = Depends(get_db)):
+    return majors_catalog_page(request, db)
+
+@router.get("/lookup")
+def lookup_page(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    return render_template(request, "lookup.html", {
+        "user": user
+    })
+
+@router.get("/tra-cuu")
+def tra_cuu_alias(request: Request, db: Session = Depends(get_db)):
+    return lookup_page(request, db)
 @router.get("/majors/{major_id}")
 def major_detail_page(major_id: int, request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)

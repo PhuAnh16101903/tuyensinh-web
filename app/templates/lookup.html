@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Tra Cứu Hồ Sơ & Kết Quả Xét Tuyển 2FA - Đại Học Kinh Tế Quốc Dân (NEU){% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i> Trang Chủ</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/calculator"><i class="bi bi-calculator-fill text-warning me-1"></i> Tính Điểm K69</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/quy-che"><i class="bi bi-file-earmark-text text-info me-1"></i> Đề Án & Học Phí</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/majors"><i class="bi bi-mortarboard me-1"></i> 88 Ngành Đào Tạo</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="/lookup"><i class="bi bi-search me-1"></i> Tra Cứu Kết Quả</a>
+</li>
+{% if user and user.role == 'STUDENT' %}
+<li class="nav-item">
+    <a class="nav-link text-warning fw-semibold" href="/student"><i class="bi bi-person-badge me-1"></i> Hồ Sơ Của Tôi</a>
+</li>
+{% elif user and user.role in ['ADMIN', 'OFFICER'] %}
+<li class="nav-item">
+    <a class="nav-link text-warning fw-semibold" href="/admin"><i class="bi bi-shield-lock me-1"></i> Quản Trị Tuyển Sinh</a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb & Header -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang Chủ</a></li>
+            <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">Tra Cứu Kết Quả Xét Tuyển 2FA</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-modern p-4 p-md-5 border-0 shadow-sm bg-white" id="lookup-section">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex p-3 rounded-circle bg-primary bg-opacity-10 text-primary mb-3">
+                        <i class="bi bi-shield-lock-fill fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-1" style="font-family: 'Montserrat', sans-serif;">
+                        Tra Cứu Kết Quả Xét Tuyển & Hồ Sơ K69
+                    </h3>
+                    <p class="text-muted small mb-0" style="max-width: 550px; margin: 0 auto;">
+                        Hệ thống bảo mật 2 lớp (2FA) bảo vệ tuyệt đối thông tin cá nhân của thí sinh. Vui lòng nhập đúng <strong>Mã hồ sơ</strong> và <strong>4 số cuối của CCCD</strong> để tra cứu kết quả.
+                    </p>
+                </div>
+
+                <form onsubmit="handleSecureLookup(event)" class="row g-3 justify-content-center">
+                    <div class="col-md-7">
+                        <label class="form-label small fw-semibold text-secondary">
+                            <i class="bi bi-qr-code-scan me-1 text-primary"></i> Mã hồ sơ xét tuyển
+                        </label>
+                        <input type="text" id="lookupAppCode" class="form-control form-control-lg font-monospace text-uppercase" placeholder="VD: TS2026-100001" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label small fw-semibold text-secondary">
+                            <i class="bi bi-key-fill me-1 text-primary"></i> 4 số cuối CCCD (Xác thực 2FA)
+                        </label>
+                        <input type="password" id="lookupIdLast4" maxlength="4" class="form-control form-control-lg text-center font-monospace" placeholder="••••" required>
+                    </div>
+                    <div class="col-12 text-center mt-3">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 py-2.5 rounded-pill fw-bold shadow-sm">
+                            <i class="bi bi-search me-1"></i> Tra Cứu Kết Quả Chính Xác
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Box kết quả tra cứu -->
+                <div id="lookupResult" class="d-none mt-4"></div>
+
+                <!-- Gợi ý hỗ trợ -->
+                <div class="p-3 rounded-4 bg-light bg-opacity-50 border mt-4 small text-muted">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-info-circle-fill text-primary"></i>
+                        <strong class="text-dark">Lưu ý khi tra cứu:</strong>
+                    </div>
+                    <ul class="mb-0 ps-3">
+                        <li>Mã hồ sơ được cấp sau khi bạn hoàn tất đăng ký xét tuyển tại Cổng thí sinh (có dạng <code>TS2026-XXXXXX</code>).</li>
+                        <li>Nếu đã đăng ký tài khoản thí sinh, bạn có thể <a href="/login" class="text-primary fw-semibold">Đăng nhập tài khoản</a> để quản lý đầy đủ các nguyện vọng, theo dõi tiến trình thanh toán và in giấy báo nhập học.</li>
+                        <li>Trường hợp quên mã hồ sơ, vui lòng liên hệ Tổng đài Tuyển sinh NEU: <strong>024.36.280.280</strong> để được hỗ trợ.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function handleSecureLookup(e) {
+    e.preventDefault();
+    const appCode = document.getElementById('lookupAppCode').value.trim();
+    const idLast4 = document.getElementById('lookupIdLast4').value.trim();
+    const resBox = document.getElementById('lookupResult');
+
+    resBox.className = "alert alert-info mt-4 rounded-4";
+    resBox.innerHTML = '<i class="bi bi-arrow-repeat spin me-2"></i> Đang xác minh danh tính và tra cứu dữ liệu...';
+    resBox.classList.remove('d-none');
+
+    try {
+        const res = await fetch('/api/admissions/public-verify-lookup', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ app_code: appCode, id_card_last4: idLast4 })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            resBox.className = "alert alert-warning mt-4 rounded-4";
+            resBox.innerHTML = `<i class="bi bi-shield-x text-danger me-2"></i><strong>Xác minh thất bại:</strong> ${data.detail || 'Không tìm thấy hồ sơ hoặc sai 4 số cuối CCCD.'}`;
+            return;
+        }
+
+        let statusBadge = '<span class="badge bg-secondary">Chờ xét duyệt</span>';
+        if (data.status === 'HOP_LE') statusBadge = '<span class="badge bg-primary">Hồ sơ Hợp Lệ</span>';
+        else if (data.status === 'TRUNG_TUYEN_NV1') statusBadge = '<span class="badge bg-success fw-bold">TRÚNG TUYỂN NV1 🎉</span>';
+        else if (data.status === 'TRUNG_TUYEN_NV2') statusBadge = '<span class="badge bg-info text-dark fw-bold">TRÚNG TUYỂN NV2 🎉</span>';
+        else if (data.status === 'KHONG_TRUNG_TUYEN') statusBadge = '<span class="badge bg-danger">Không trúng tuyển</span>';
+
+        let payBadge = data.payment_status === 'PAID' 
+            ? '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Đã Nộp Lệ Phí</span>' 
+            : '<span class="badge bg-danger"><i class="bi bi-exclamation-circle"></i> Chưa Nộp Tiền</span>';
+
+        resBox.className = "alert alert-light border shadow-sm mt-4 rounded-4 p-4";
+        resBox.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                <h5 class="fw-bold text-primary mb-0"><i class="bi bi-patch-check-fill text-success me-1"></i> Kết Quả Tra Cứu: ${data.app_code}</h5>
+                <span class="small text-muted"><i class="bi bi-shield-lock text-success me-1"></i> Đã xác thực danh tính 2FA</span>
+            </div>
+            <div class="row g-2 mb-3">
+                <div class="col-md-6"><strong>Họ và tên thí sinh:</strong> ${data.full_name}</div>
+                <div class="col-md-6"><strong>Số CCCD (bảo mật):</strong> <span class="font-monospace">${data.id_card_masked}</span></div>
+                <div class="col-md-6"><strong>Nguyện vọng 1:</strong> ${data.major_name} (${data.major_code})</div>
+                <div class="col-md-6"><strong>Nguyện vọng 2:</strong> ${data.major_nv2_name || '<em class="text-muted">Không đăng ký</em>'}</div>
+                <div class="col-md-6"><strong>Điểm xét tuyển:</strong> <span class="badge bg-warning text-dark fs-6">${data.score}</span></div>
+                <div class="col-md-6"><strong>Trạng thái hồ sơ:</strong> ${statusBadge}</div>
+                <div class="col-md-6"><strong>Tình trạng lệ phí:</strong> ${payBadge}</div>
+                <div class="col-md-6"><strong>Kết quả chốt:</strong> ${data.admitted_major_name ? '<strong class="text-success">' + data.admitted_major_name + '</strong>' : '<span class="text-muted">Đang trong thời gian xét tuyển</span>'}</div>
+            </div>
+            <div class="pt-3 border-top small text-muted d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span><i class="bi bi-shield-shaded text-success me-1"></i> Minh chứng học bạ và thông tin liên lạc được ẩn để bảo vệ quyền riêng tư.</span>
+                <a href="/login" class="btn btn-sm btn-outline-primary rounded-pill">Đăng nhập tài khoản &raquo;</a>
+            </div>
+        `;
+    } catch(err) {
+        resBox.className = "alert alert-danger mt-4 rounded-4";
+        resBox.innerHTML = "Lỗi kết nối máy chủ!";
+    }
+}
+</script>
+{% endblock %}

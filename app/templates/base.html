@@ -358,33 +358,27 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i> Trang Chủ</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/calculator"><i class="bi bi-calculator-fill text-warning me-1"></i> Tính Điểm K69</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/quy-che"><i class="bi bi-file-earmark-text text-info me-1"></i> Đề Án & Học Phí</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/majors"><i class="bi bi-mortarboard me-1"></i> 88 Ngành Đào Tạo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/lookup"><i class="bi bi-search me-1"></i> Tra Cứu Kết Quả</a>
+                    </li>
                     {% if user and user.role in ['ADMIN', 'OFFICER'] %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin"><i class="bi bi-shield-lock me-1"></i> Trung Tâm Quản Trị</a>
+                        <a class="nav-link text-warning fw-semibold" href="/admin"><i class="bi bi-shield-lock me-1"></i> Trung Tâm Quản Trị</a>
                     </li>
                     {% elif user and user.role == 'STUDENT' %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/student"><i class="bi bi-person-badge me-1"></i> Hồ Sơ Của Tôi</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/#majors-list"><i class="bi bi-mortarboard me-1"></i> Ngành Đào Tạo</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/#lookup-section"><i class="bi bi-search me-1"></i> Tra Cứu Kết Quả</a>
+                        <a class="nav-link text-warning fw-semibold" href="/student"><i class="bi bi-person-badge me-1"></i> Hồ Sơ Của Tôi</a>
                     </li>
                     {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/#admission-calculator"><i class="bi bi-calculator-fill text-warning me-1"></i> Tính Điểm K69</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/#admission-regulations-hub"><i class="bi bi-file-earmark-text text-info me-1"></i> Đề Án & Học Phí</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/#majors-list"><i class="bi bi-mortarboard me-1"></i> 88 Ngành Đào Tạo</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/#lookup-section"><i class="bi bi-search me-1"></i> Tra Cứu Hồ Sơ</a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/student"><i class="bi bi-person-badge me-1"></i> Cổng Thí Sinh</a>
                     </li>
@@ -452,7 +446,7 @@
                         {% else %}
                         <li><a href="/student" class="text-decoration-none text-muted hover-link"><i class="bi bi-chevron-right me-1 text-primary"></i>Cổng Thí Sinh (Hồ Sơ Cá Nhân)</a></li>
                         {% endif %}
-                        <li><a href="/#majors-list" class="text-decoration-none text-muted hover-link"><i class="bi bi-chevron-right me-1 text-primary"></i>Danh mục 40 Ngành Đào tạo 2026</a></li>
+                        <li><a href="/majors" class="text-decoration-none text-muted hover-link"><i class="bi bi-chevron-right me-1 text-primary"></i>Danh mục 88 Ngành & CTĐT Tuyển Sinh 2026</a></li>
                         <li><a href="/#lookup-section" class="text-decoration-none text-muted hover-link"><i class="bi bi-chevron-right me-1 text-primary"></i>Tra cứu hồ sơ xét tuyển (2FA)</a></li>
                         {% if not user %}
                         <li><a href="/admin/login" class="text-decoration-none text-muted hover-link"><i class="bi bi-chevron-right me-1 text-secondary"></i>Dành cho Hội đồng / Cán bộ</a></li>

@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Đề Án Tuyển Sinh, Phương Thức Xét Tuyển & Biểu Phí K69 - Đại Học Kinh Tế Quốc Dân (NEU){% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i> Trang Chủ</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/calculator"><i class="bi bi-calculator-fill text-warning me-1"></i> Tính Điểm K69</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="/quy-che"><i class="bi bi-file-earmark-text text-info me-1"></i> Đề Án & Học Phí</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/majors"><i class="bi bi-mortarboard me-1"></i> 88 Ngành Đào Tạo</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/lookup"><i class="bi bi-search me-1"></i> Tra Cứu Kết Quả</a>
+</li>
+{% if user and user.role == 'STUDENT' %}
+<li class="nav-item">
+    <a class="nav-link text-warning fw-semibold" href="/student"><i class="bi bi-person-badge me-1"></i> Hồ Sơ Của Tôi</a>
+</li>
+{% elif user and user.role in ['ADMIN', 'OFFICER'] %}
+<li class="nav-item">
+    <a class="nav-link text-warning fw-semibold" href="/admin"><i class="bi bi-shield-lock me-1"></i> Quản Trị Tuyển Sinh</a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb & Header -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang Chủ</a></li>
+            <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">Đề Án Tuyển Sinh & Biểu Phí K69</li>
+        </ol>
+    </nav>
+
+    <div class="card card-modern border-0 shadow-sm p-4 p-md-5 mb-5" id="admission-regulations-hub">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+            <div>
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-info bg-opacity-10 border border-info border-opacity-25 text-info-emphasis small fw-bold mb-2">
+                    <i class="bi bi-patch-check-fill text-info"></i> THÔNG TIN CHÍNH THỐNG TỪ BỘ GD&ĐT & HỘI ĐỒNG TUYỂN SINH NEU
+                </div>
+                <h2 class="fw-bold text-dark mb-1" style="font-family: 'Montserrat', sans-serif;">
+                    <i class="bi bi-journal-bookmark-fill text-primary me-2"></i> Đề Án Tuyển Sinh, Tổ Hợp Xét Tuyển & Biểu Phí NEU Khóa 69
+                </h2>
+                <p class="text-muted mb-0">Hệ thống hóa toàn diện 4 phương thức tuyển sinh chủ đạo, bảng quy đổi chứng chỉ ngoại ngữ quốc tế, các tổ hợp xét tuyển và khung học phí niêm yết năm 2026.</p>
+            </div>
+            <div class="text-end d-none d-md-block">
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 fw-semibold">
+                    <i class="bi bi-cash-stack me-1"></i> Quỹ Học Bổng 35+ Tỷ VNĐ
+                </span>
+            </div>
+        </div>
+
+        <!-- 4 Phương thức tuyển sinh Card Grid -->
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-diagram-3-fill text-primary me-2"></i> 1. Các Phương Thức Xét Tuyển Chủ Đạo (Khóa K69 - Năm 2026)</h5>
+        <div class="row g-3 mb-4">
+            <!-- Phương thức 1 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 p-3.5 border rounded-4 bg-white shadow-xs">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge bg-primary rounded-pill px-2.5 py-1">Phương thức 1</span>
+                        <span class="small text-muted fw-bold">18% Chỉ tiêu</span>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-2">Xét Tuyển Thẳng & Ưu Tiên</h6>
+                    <p class="text-muted small mb-0" style="line-height: 1.55;">
+                        Dành cho học sinh đạt giải Nhất, Nhì, Ba trong kỳ thi chọn Học sinh giỏi Quốc gia hoặc Cuộc thi KHKT cấp Quốc gia do Bộ GD&ĐT tổ chức.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Phương thức 2 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 p-3.5 border rounded-4 bg-white shadow-xs border-primary-subtle">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge bg-success rounded-pill px-2.5 py-1">Phương thức 2</span>
+                        <span class="small text-muted fw-bold">80% Chỉ tiêu</span>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-2">Xét Tuyển Kết Hợp (XTHB)</h6>
+                    <p class="text-muted small mb-0" style="line-height: 1.55;">
+                        Chiếm tỷ trọng lớn nhất với 3 nhóm đối tượng: Chứng chỉ quốc tế SAT/ACT, Điểm thi ĐGNL/ĐGTD (HSA, TSA, APT) và Chứng chỉ Tiếng Anh IELTS/TOEFL kết hợp điểm thi tốt nghiệp THPT.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Phương thức 3 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 p-3.5 border rounded-4 bg-white shadow-xs">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1">Phương thức 3</span>
+                        <span class="small text-muted fw-bold">2% Chỉ tiêu</span>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-2">Điểm Thi Tốt Nghiệp THPT</h6>
+                    <p class="text-muted small mb-0" style="line-height: 1.55;">
+                        Dựa trên kết quả kỳ thi tốt nghiệp THPT năm 2026 theo các tổ hợp truyền thống A00, A01, D01, D07. Ngưỡng sàn xét tuyển chung toàn trường dự kiến từ 20.00 điểm.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Phương thức 4 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 p-3.5 border rounded-4 bg-white shadow-xs">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge bg-info text-dark rounded-pill px-2.5 py-1">Phương thức 4</span>
+                        <span class="small text-muted fw-bold">Chỉ tiêu riêng</span>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-2">Cử Tuyển & Dự Bị Đại Học</h6>
+                    <p class="text-muted small mb-0" style="line-height: 1.55;">
+                        Xét tuyển thí sinh diện cử tuyển theo quy định của Chính phủ và học sinh hệ Dự bị Đại học dân tộc hoàn thành chương trình bồi dưỡng dự bị.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bảng Tổ hợp xét tuyển & Bảng quy đổi chứng chỉ ngoại ngữ -->
+        <div class="row g-4 mb-4">
+            <!-- Cột trái: Tổ hợp xét tuyển -->
+            <div class="col-lg-6">
+                <div class="card border rounded-4 p-3.5 bg-light bg-opacity-50 h-100 shadow-xs">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-collection-fill text-primary me-2"></i> 2. Các Tổ Hợp Môn Xét Tuyển Chủ Yếu</h5>
+                    <div class="table-responsive bg-white rounded-3 border">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 25%;">Mã Tổ Hợp</th>
+                                    <th style="width: 40%;">Môn Xét Tuyển</th>
+                                    <th>Ngành Áp Dụng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 font-monospace fw-bold">A00</span></td>
+                                    <td><strong>Toán, Vật lý, Hóa học</strong></td>
+                                    <td><span class="small text-muted">CNTT, Khoa học dữ liệu, AI, Bất động sản, Thống kê</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 font-monospace fw-bold">A01</span></td>
+                                    <td><strong>Toán, Vật lý, Tiếng Anh</strong></td>
+                                    <td><span class="small text-muted">Toàn bộ 88 ngành (Khối Kinh tế, Kinh doanh, Công nghệ)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 font-monospace fw-bold">D01</span></td>
+                                    <td><strong>Toán, Ngữ văn, Tiếng Anh</strong></td>
+                                    <td><span class="small text-muted">Toàn bộ 88 ngành (Marketing, QTKD, Logistics, Tài chính)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 font-monospace fw-bold">D07</span></td>
+                                    <td><strong>Toán, Hóa học, Tiếng Anh</strong></td>
+                                    <td><span class="small text-muted">Kinh tế đầu tư, Kế toán, Kiểm toán, Công nghệ môi trường</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-text small text-muted mt-2">
+                        <i class="bi bi-info-circle me-1"></i> Điểm các tổ hợp xét tuyển trong cùng một ngành được xét bình đẳng, không có điểm chênh lệch giữa các tổ hợp.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột phải: Bảng quy đổi IELTS sang điểm 10 -->
+            <div class="col-lg-6">
+                <div class="card border rounded-4 p-3.5 bg-light bg-opacity-50 h-100 shadow-xs">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-translate text-success me-2"></i> 3. Bảng Quy Đổi Điểm Chứng Chỉ IELTS Sang Thang Điểm 10</h5>
+                    <div class="table-responsive bg-white rounded-3 border">
+                        <table class="table table-sm table-hover align-middle mb-0 text-center">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Chứng Chỉ IELTS</th>
+                                    <th>TOEFL iBT</th>
+                                    <th>Điểm Quy Đổi NEU</th>
+                                    <th>Đánh Giá Cơ Hội</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-success font-monospace fs-6">7.5 – 9.0</span></td>
+                                    <td>102 – 120</td>
+                                    <td><strong class="text-danger fs-5">10.0 đ</strong></td>
+                                    <td><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Ưu thế tuyệt đối</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary font-monospace fs-6">7.0</span></td>
+                                    <td>94 – 101</td>
+                                    <td><strong class="text-primary fs-6">9.5 đ</strong></td>
+                                    <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">Rất cao</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-info text-dark font-monospace fs-6">6.5</span></td>
+                                    <td>79 – 93</td>
+                                    <td><strong class="text-dark fs-6">9.0 đ</strong></td>
+                                    <td><span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">Chuẩn phổ biến</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-secondary font-monospace fs-6">6.0</span></td>
+                                    <td>60 – 78</td>
+                                    <td><strong class="text-secondary fs-6">8.5 đ</strong></td>
+                                    <td><span class="badge bg-secondary bg-opacity-10 text-secondary border">Tương đối</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-light text-dark font-monospace fs-6 border">5.5</span></td>
+                                    <td>46 – 59</td>
+                                    <td><strong class="text-secondary fs-6">8.0 đ</strong></td>
+                                    <td><span class="badge bg-light text-muted border">Ngưỡng nộp tối thiểu</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-text small text-muted mt-2">
+                        <i class="bi bi-check-circle-fill text-success me-1"></i> Chứng chỉ phải còn hạn sử dụng tối thiểu 02 năm tính đến ngày nộp hồ sơ xét tuyển trực tuyến.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu phí học phí & Chính sách học bổng K69 -->
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-wallet2 text-primary me-2"></i> 4. Khung Học Phí Niêm Yết & Quỹ Học Bổng Khóa K69 (Năm Học 2026 – 2027)</h5>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card p-4 border rounded-4 bg-white shadow-xs h-100">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="p-2 rounded-3 bg-primary bg-opacity-10 text-primary"><i class="bi bi-mortarboard fs-5"></i></div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Hệ Chuẩn (40 Ngành Đại Trà)</h6>
+                            <span class="small text-muted">Chương trình đại học tiêu chuẩn</span>
+                        </div>
+                    </div>
+                    <div class="display-6 fw-bold text-primary my-2">20 – 28 <span class="fs-6 text-muted fw-normal">Triệu VNĐ/Năm</span></div>
+                    <p class="small text-muted mb-0">Học phí thu theo số tín chỉ thực tế sinh viên đăng ký trong từng học kỳ. Lộ trình tăng học phí tối đa 10%/năm theo Nghị định 81/CP.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card p-4 border rounded-4 bg-white shadow-xs h-100 border-primary-subtle">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="p-2 rounded-3 bg-success bg-opacity-10 text-success"><i class="bi bi-globe2 fs-5"></i></div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Hệ Tiên Tiến, POHE & CLC</h6>
+                            <span class="small text-muted">Đào tạo chất lượng cao bằng tiếng Anh</span>
+                        </div>
+                    </div>
+                    <div class="display-6 fw-bold text-success my-2">45 – 70 <span class="fs-6 text-muted fw-normal">Triệu VNĐ/Năm</span></div>
+                    <p class="small text-muted mb-0">Bao gồm các chương trình giảng dạy 100% bằng tiếng Anh (EP, POHE, E-BBA, EPMP). Đảm bảo chuẩn đầu ra quốc tế và thực tập tại doanh nghiệp lớn.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card p-4 border rounded-4 bg-white shadow-xs h-100">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="p-2 rounded-3 bg-warning bg-opacity-10 text-warning"><i class="bi bi-trophy-fill fs-5"></i></div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Quỹ Học Bổng Khuyến Khích</h6>
+                            <span class="small text-muted">35+ Tỷ VNĐ / năm học</span>
+                        </div>
+                    </div>
+                    <div class="display-6 fw-bold text-warning-emphasis my-2">35+ <span class="fs-6 text-muted fw-normal">Tỷ VNĐ / Năm</span></div>
+                    <p class="small text-muted mb-0">Trao thưởng học bổng Thủ khoa, Á khoa tuyển sinh, Học bổng Khuyến khích học tập loại Xuất sắc (150% học phí) và học bổng tài trợ từ các tập đoàn lớn.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="d-flex justify-content-center gap-3 mt-4 pt-3 border-top flex-wrap">
+            <a href="/calculator" class="btn btn-warning text-dark fw-bold rounded-pill px-4 py-2.5 shadow-sm">
+                <i class="bi bi-calculator-fill me-1"></i> Tính Điểm Thử Vào Các Ngành K69
+            </a>
+            <a href="/majors" class="btn btn-primary fw-bold rounded-pill px-4 py-2.5 shadow-sm">
+                <i class="bi bi-mortarboard me-1"></i> Xem Toàn Bộ 88 Ngành & Điểm Chuẩn
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
