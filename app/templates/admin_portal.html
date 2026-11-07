@@ -112,10 +112,27 @@
             </p>
             <div class="row g-2 align-items-center">
                 <div class="col-md-5">
-                    <select id="filterMajorId" class="form-select">
-                        {% for m in majors %}
-                        <option value="{{ m.id }}">{{ m.name }} (Chỉ tiêu: {{ m.quota }} | Điểm chuẩn hiện tại: {{ m.benchmark_score }})</option>
-                        {% endfor %}
+                    <select id="filterMajorId" class="form-select" style="max-width: 100%; text-overflow: ellipsis;">
+                        <optgroup label="🌟 Chương trình Chuẩn (Mã 7xxxxxx)">
+                            {% for m in majors if m.code.startswith('7') %}
+                            <option value="{{ m.id }}">{{ m.admin_select_label }}</option>
+                            {% endfor %}
+                        </optgroup>
+                        <optgroup label="💎 Chất lượng cao & Tiên tiến">
+                            {% for m in majors if m.code in ['CLC1', 'CLC2', 'CLC3', 'TT1', 'TT2', 'EBBA', 'EPMP'] %}
+                            <option value="{{ m.id }}">{{ m.admin_select_label }}</option>
+                            {% endfor %}
+                        </optgroup>
+                        <optgroup label="🚀 POHE Định hướng ứng dụng">
+                            {% for m in majors if m.code.startswith('POHE') %}
+                            <option value="{{ m.id }}">{{ m.admin_select_label }}</option>
+                            {% endfor %}
+                        </optgroup>
+                        <optgroup label="🌐 Chương trình EP Tiếng Anh">
+                            {% for m in majors if m.code.startswith('EP') and m.code != 'EPMP' %}
+                            <option value="{{ m.id }}">{{ m.admin_select_label }}</option>
+                            {% endfor %}
+                        </optgroup>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -221,11 +238,28 @@
                 <div class="row g-2 align-items-end">
                     <div class="col-md-3">
                         <label class="form-label small fw-semibold text-muted mb-1">Lọc theo Ngành (NV1):</label>
-                        <select id="filterNv1Major" class="form-select form-select-sm" onchange="filterCandidatesMultiFacet()">
+                        <select id="filterNv1Major" class="form-select form-select-sm" style="max-width: 100%; text-overflow: ellipsis;" onchange="filterCandidatesMultiFacet()">
                             <option value="ALL">-- Tất cả 88 ngành & CTĐT --</option>
-                            {% for m in majors %}
-                            <option value="{{ m.id }}">{{ m.name }} ({{ m.code }})</option>
-                            {% endfor %}
+                            <optgroup label="🌟 Chương trình Chuẩn (7xxxxxx)">
+                                {% for m in majors if m.code.startswith('7') %}
+                                <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="💎 CLC & Tiên tiến">
+                                {% for m in majors if m.code in ['CLC1', 'CLC2', 'CLC3', 'TT1', 'TT2', 'EBBA', 'EPMP'] %}
+                                <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="🚀 POHE">
+                                {% for m in majors if m.code.startswith('POHE') %}
+                                <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="🌐 Chương trình EP Tiếng Anh">
+                                {% for m in majors if m.code.startswith('EP') and m.code != 'EPMP' %}
+                                <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                {% endfor %}
+                            </optgroup>
                         </select>
                     </div>
                     <div class="col-md-2">

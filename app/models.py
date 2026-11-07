@@ -37,6 +37,30 @@ class Major(Base):
     applications = relationship("AdmissionApplication", back_populates="major", foreign_keys="[AdmissionApplication.major_id]")
     applications_nv2 = relationship("AdmissionApplication", back_populates="major_nv2", foreign_keys="[AdmissionApplication.major_nv2_id]")
     subjects = relationship("Subject", back_populates="major", cascade="all, delete-orphan")
+
+    @property
+    def short_name(self) -> str:
+        c = (self.code or "").strip()
+        if c == "CLC1":
+            return "CLC: Kinh tế phát triển, Ngân hàng, CNTT, Bảo hiểm"
+        elif c == "CLC2":
+            return "CLC: Kinh tế đầu tư, QT nhân lực, QT kinh doanh, PR"
+        elif c == "CLC3":
+            return "CLC: TC DN, Marketing số, QT KDQT, Logistics, TMĐT, ACCA"
+        elif c == "TT1":
+            return "Tiên tiến: Kế toán, Kế hoạch tài chính, Quản trị kinh doanh"
+        elif c == "TT2":
+            return "Tiên tiến: Tài chính, Kinh doanh quốc tế"
+        return self.name
+
+    @property
+    def select_label(self) -> str:
+        return f"[{self.code}] {self.short_name} ({self.quota} chỉ tiêu)"
+
+    @property
+    def admin_select_label(self) -> str:
+        return f"[{self.code}] {self.short_name} (Chỉ tiêu: {self.quota} | K68: {self.benchmark_score})"
+
 class Subject(Base):
     __tablename__ = "subjects"
     id = Column(Integer, primary_key=True, index=True)

@@ -674,21 +674,55 @@
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-primary"><i class="bi bi-star-fill text-warning"></i> Nguyện Vọng 1 (* Bắt buộc)</label>
-                                <select id="app_majorId" class="form-select border-primary" required>
+                                <select id="app_majorId" class="form-select border-primary" style="max-width: 100%; text-overflow: ellipsis;" required>
                                     <option value="">-- Chọn ngành Nguyện Vọng 1 --</option>
-                                    {% for m in majors %}
-                                    <option value="{{ m.id }}">{{ m.name }} (Mã: {{ m.code }} | Chỉ tiêu: {{ m.quota }})</option>
-                                    {% endfor %}
+                                    <optgroup label="🌟 Chương trình Chuẩn (Mã 7xxxxxx - 42 ngành)">
+                                        {% for m in majors if m.code.startswith('7') %}
+                                        <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    <optgroup label="💎 Chương trình Chất lượng cao & Tiên tiến (7 chương trình)">
+                                        {% for m in majors if m.code in ['CLC1', 'CLC2', 'CLC3', 'TT1', 'TT2', 'EBBA', 'EPMP'] %}
+                                        <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    <optgroup label="🚀 Chương trình POHE Định hướng ứng dụng (7 ngành)">
+                                        {% for m in majors if m.code.startswith('POHE') %}
+                                        <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    <optgroup label="🌐 Chương trình Tiếng Anh & Quốc tế EP (32 ngành)">
+                                        {% for m in majors if m.code.startswith('EP') and m.code != 'EPMP' %}
+                                        <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                        {% endfor %}
+                                    </optgroup>
                                 </select>
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-secondary"><i class="bi bi-shield-check"></i> Nguyện Vọng 2 (Tùy chọn - Dự phòng)</label>
-                                <select id="app_majorNv2Id" class="form-select">
+                                <select id="app_majorNv2Id" class="form-select" style="max-width: 100%; text-overflow: ellipsis;">
                                     <option value="">-- Không đăng ký Nguyện Vọng 2 --</option>
-                                    {% for m in majors %}
-                                    <option value="{{ m.id }}">{{ m.name }} (Mã: {{ m.code }} | Chỉ tiêu: {{ m.quota }})</option>
-                                    {% endfor %}
+                                    <optgroup label="🌟 Chương trình Chuẩn (Mã 7xxxxxx - 42 ngành)">
+                                        {% for m in majors if m.code.startswith('7') %}
+                                        <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    <optgroup label="💎 Chương trình Chất lượng cao & Tiên tiến (7 chương trình)">
+                                        {% for m in majors if m.code in ['CLC1', 'CLC2', 'CLC3', 'TT1', 'TT2', 'EBBA', 'EPMP'] %}
+                                        <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    <optgroup label="🚀 Chương trình POHE Định hướng ứng dụng (7 ngành)">
+                                        {% for m in majors if m.code.startswith('POHE') %}
+                                        <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    <optgroup label="🌐 Chương trình Tiếng Anh & Quốc tế EP (32 ngành)">
+                                        {% for m in majors if m.code.startswith('EP') and m.code != 'EPMP' %}
+                                        <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                        {% endfor %}
+                                    </optgroup>
                                 </select>
                             </div>
                         </div>
@@ -966,20 +1000,54 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nguyện vọng 1 (Ưu tiên số 1) (*):</label>
-                        <select id="edit_majorId" class="form-select" required>
-                            {% for m in majors %}
-                            <option value="{{ m.id }}">{{ m.code }} - {{ m.name }} (Chỉ tiêu: {{ m.quota }})</option>
-                            {% endfor %}
+                        <select id="edit_majorId" class="form-select" style="max-width: 100%; text-overflow: ellipsis;" required>
+                            <optgroup label="🌟 Chương trình Chuẩn (Mã 7xxxxxx - 42 ngành)">
+                                {% for m in majors if m.code.startswith('7') %}
+                                <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="💎 Chương trình Chất lượng cao & Tiên tiến (7 chương trình)">
+                                {% for m in majors if m.code in ['CLC1', 'CLC2', 'CLC3', 'TT1', 'TT2', 'EBBA', 'EPMP'] %}
+                                <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="🚀 Chương trình POHE Định hướng ứng dụng (7 ngành)">
+                                {% for m in majors if m.code.startswith('POHE') %}
+                                <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="🌐 Chương trình Tiếng Anh & Quốc tế EP (32 ngành)">
+                                {% for m in majors if m.code.startswith('EP') and m.code != 'EPMP' %}
+                                <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                {% endfor %}
+                            </optgroup>
                         </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nguyện vọng 2 (Tùy chọn):</label>
-                        <select id="edit_majorNv2Id" class="form-select">
+                        <select id="edit_majorNv2Id" class="form-select" style="max-width: 100%; text-overflow: ellipsis;">
                             <option value="">-- Không đăng ký NV2 --</option>
-                            {% for m in majors %}
-                            <option value="{{ m.id }}">{{ m.code }} - {{ m.name }}</option>
-                            {% endfor %}
+                            <optgroup label="🌟 Chương trình Chuẩn (Mã 7xxxxxx - 42 ngành)">
+                                {% for m in majors if m.code.startswith('7') %}
+                                <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="💎 Chương trình Chất lượng cao & Tiên tiến (7 chương trình)">
+                                {% for m in majors if m.code in ['CLC1', 'CLC2', 'CLC3', 'TT1', 'TT2', 'EBBA', 'EPMP'] %}
+                                <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="🚀 Chương trình POHE Định hướng ứng dụng (7 ngành)">
+                                {% for m in majors if m.code.startswith('POHE') %}
+                                <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="🌐 Chương trình Tiếng Anh & Quốc tế EP (32 ngành)">
+                                {% for m in majors if m.code.startswith('EP') and m.code != 'EPMP' %}
+                                <option value="{{ m.id }}">{{ m.select_label }}</option>
+                                {% endfor %}
+                            </optgroup>
                         </select>
                     </div>
 
