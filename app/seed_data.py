@@ -344,23 +344,48 @@ NEU_ALL_88_MAJORS = [
 ]
 
 MAJORS_40 = []
+
+import json
+import os
+
+_curricula_path = os.path.join(os.path.dirname(__file__), "all_88_crawled_curricula.json")
+if not os.path.exists(_curricula_path):
+    _curricula_path = os.path.join(os.path.dirname(__file__), "..", "all_88_crawled_curricula.json")
+
+CRAWLED_CURRICULA = {}
+if os.path.exists(_curricula_path):
+    try:
+        with open(_curricula_path, "r", encoding="utf-8") as _f:
+            CRAWLED_CURRICULA = json.load(_f)
+    except Exception as e:
+        print(f"Error loading crawled curricula: {e}")
+
 for item in NEU_ALL_88_MAJORS:
     id_val, code, name, category, quota, benchmark, predicted, desc = item
-    specific = MAJOR_SPECIFIC_SUBJECTS.get(code, [
-        (f"SPE-{code[-3:]}-31", f"Cơ sở chuyên ngành {name} 1", 3, 3, "Cơ sở ngành", f"Kiến thức nền tảng và phương pháp luận chuyên ngành {name}."),
-        (f"SPE-{code[-3:]}-32", f"Cơ sở chuyên ngành {name} 2", 3, 3, "Cơ sở ngành", f"Mô hình hóa và các công cụ thực nghiệm trong {name}."),
-        (f"SPE-{code[-3:]}-41", f"Lý thuyết chuyên sâu {name}", 3, 4, "Cơ sở ngành", f"Phân tích chuyên sâu các mô hình lý thuyết của {name}."),
-        (f"SPE-{code[-3:]}-42", f"Ứng dụng chuyển đổi số trong {name}", 3, 4, "Cơ sở ngành", f"Áp dụng công nghệ số, dữ liệu và tự động hóa trong {name}."),
-        (f"SPE-{code[-3:]}-51", f"Chuyên đề nâng cao ngành {name}", 4, 5, "Chuyên ngành", f"Ứng dụng thực hành chuyên sâu và giải quyết vấn đề trong {name}."),
-        (f"SPE-{code[-3:]}-52", f"Quản trị dự án & Thực chiến {name}", 3, 5, "Chuyên ngành", f"Kỹ năng lập kế hoạch, triển khai dự án thực tế ngành {name}."),
-        (f"SPE-{code[-3:]}-61", f"Hệ thống thông tin & Phân tích chuyên sâu {name}", 3, 6, "Chuyên ngành", f"Kỹ thuật phân tích, mô phỏng và tối ưu giải pháp {name}."),
-        (f"SPE-{code[-3:]}-62", f"Đồ án thực hành chuyên ngành {name}", 3, 6, "Chuyên ngành", f"Xây dựng đề án / sản phẩm hoàn chỉnh theo nhóm."),
-        (f"SPE-{code[-3:]}-71", f"Khởi nghiệp đổi mới sáng tạo ngành {name}", 3, 7, "Chuyên ngành", f"Tư duy khởi nghiệp, lập kế hoạch kinh doanh và sở hữu trí tuệ."),
-        (f"SPE-{code[-3:]}-72", f"Thực tập doanh nghiệp (OJT) ngành {name}", 4, 7, "Chuyên ngành", f"Trải nghiệm môi trường làm việc thực tế và cọ xát nghiệp vụ {name}."),
-        (f"SPE-{code[-3:]}-81", f"Chuyên đề tốt nghiệp định hướng nghề nghiệp", 4, 8, "Chuyên ngành", f"Phân tích giải pháp thực tiễn trước khi tốt nghiệp."),
-        (f"SPE-{code[-3:]}-82", f"Khóa luận / Đồ án tốt nghiệp ngành {name}", 10, 8, "Khóa luận tốt nghiệp", f"Đồ án tốt nghiệp tổng hợp kiến thức toàn khóa học {name}.")
-    ])
-    full_subjects = list(COMMON_GENERAL_SUBJECTS) + specific
+    
+    if str(id_val) in CRAWLED_CURRICULA:
+        crawled_subs = CRAWLED_CURRICULA[str(id_val)]["subjects"]
+        full_subjects = [
+            (s["code"], s["name"], s["credits"], s["semester"], s["subject_type"], s["description"])
+            for s in crawled_subs
+        ]
+    else:
+        specific = MAJOR_SPECIFIC_SUBJECTS.get(code, [
+            (f"SPE-{code[-3:]}-31", f"Cơ sở chuyên ngành {name} 1", 3, 3, "Cơ sở ngành", f"Kiến thức nền tảng và phương pháp luận chuyên ngành {name}."),
+            (f"SPE-{code[-3:]}-32", f"Cơ sở chuyên ngành {name} 2", 3, 3, "Cơ sở ngành", f"Mô hình hóa và các công cụ thực nghiệm trong {name}."),
+            (f"SPE-{code[-3:]}-41", f"Lý thuyết chuyên sâu {name}", 3, 4, "Cơ sở ngành", f"Phân tích chuyên sâu các mô hình lý thuyết của {name}."),
+            (f"SPE-{code[-3:]}-42", f"Ứng dụng chuyển đổi số trong {name}", 3, 4, "Cơ sở ngành", f"Áp dụng công nghệ số, dữ liệu và tự động hóa trong {name}."),
+            (f"SPE-{code[-3:]}-51", f"Chuyên đề nâng cao ngành {name}", 4, 5, "Chuyên ngành", f"Ứng dụng thực hành chuyên sâu và giải quyết vấn đề trong {name}."),
+            (f"SPE-{code[-3:]}-52", f"Quản trị dự án & Thực chiến {name}", 3, 5, "Chuyên ngành", f"Kỹ năng lập kế hoạch, triển khai dự án thực tế ngành {name}."),
+            (f"SPE-{code[-3:]}-61", f"Hệ thống thông tin & Phân tích chuyên sâu {name}", 3, 6, "Chuyên ngành", f"Kỹ thuật phân tích, mô phỏng và tối ưu giải pháp {name}."),
+            (f"SPE-{code[-3:]}-62", f"Đồ án thực hành chuyên ngành {name}", 3, 6, "Chuyên ngành", f"Xây dựng đề án / sản phẩm hoàn chỉnh theo nhóm."),
+            (f"SPE-{code[-3:]}-71", f"Khởi nghiệp đổi mới sáng tạo ngành {name}", 3, 7, "Chuyên ngành", f"Tư duy khởi nghiệp, lập kế hoạch kinh doanh và sở hữu trí tuệ."),
+            (f"SPE-{code[-3:]}-72", f"Thực tập doanh nghiệp (OJT) ngành {name}", 4, 7, "Chuyên ngành", f"Trải nghiệm môi trường làm việc thực tế và cọ xát nghiệp vụ {name}."),
+            (f"SPE-{code[-3:]}-81", f"Chuyên đề tốt nghiệp định hướng nghề nghiệp", 4, 8, "Chuyên ngành", f"Phân tích giải pháp thực tiễn trước khi tốt nghiệp."),
+            (f"SPE-{code[-3:]}-82", f"Khóa luận / Đồ án tốt nghiệp ngành {name}", 10, 8, "Khóa luận tốt nghiệp", f"Đồ án tốt nghiệp tổng hợp kiến thức toàn khóa học {name}.")
+        ])
+        full_subjects = list(COMMON_GENERAL_SUBJECTS) + specific
+        
     MAJORS_40.append({
         "code": code,
         "name": name,

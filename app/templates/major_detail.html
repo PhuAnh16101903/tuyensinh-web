@@ -88,7 +88,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
             <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-journal-bookmark-fill text-primary me-2"></i> Khung Chương Trình Đào Tạo Chi Tiết</h4>
-            <p class="text-muted mb-0 small">Bao gồm <strong>các môn đại cương chung toàn trường</strong> và <strong>các môn chuyên sâu của ngành</strong></p>
+            <p class="text-muted mb-0 small">Dữ liệu chuẩn K68 trích xuất chính thức từ cổng đào tạo <a href="https://courses.neu.edu.vn/" target="_blank" class="fw-semibold text-primary text-decoration-none">Đại học Kinh tế Quốc dân (courses.neu.edu.vn) <i class="bi bi-box-arrow-up-right small"></i></a></p>
         </div>
         
         <!-- Bộ lọc hiện đại -->
@@ -107,7 +107,7 @@
         <div class="col-md-6 col-lg-4 subject-item" data-type="{{ s.subject_type }}">
             <div class="card card-modern h-100 p-3 bg-white">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="badge bg-light text-dark border font-monospace px-2 py-1">{{ s.code }}</span>
+                    <span class="badge bg-light text-primary border font-monospace px-2 py-1 fw-bold"><i class="bi bi-upc-scan me-1"></i>{{ s.code }}</span>
                     <div class="d-flex gap-1">
                         <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">{{ s.credits }} Tín chỉ</span>
                         <span class="badge bg-secondary bg-opacity-10 text-secondary border">Học kỳ {{ s.semester }}</span>
@@ -128,7 +128,12 @@
                     {% endif %}
                 </div>
                 
-                <p class="text-muted small mb-0 flex-grow-1" style="line-height: 1.6;">{{ s.description }}</p>
+                <p class="text-muted small mb-3 flex-grow-1" style="line-height: 1.6;">{{ s.description }}</p>
+                <div class="pt-2 border-top mt-auto">
+                    <a href="https://courses.neu.edu.vn/syllabus/K68/vi/{{ s.code }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light border text-primary py-1 px-2 w-100 fw-semibold" style="font-size: 0.8rem;">
+                        <i class="bi bi-file-earmark-text me-1"></i> Đề cương môn học NEU <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+                    </a>
+                </div>
             </div>
         </div>
         {% endfor %}
