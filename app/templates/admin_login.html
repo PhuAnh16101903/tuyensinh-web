@@ -49,6 +49,16 @@
                     </div>
                 </div>
 
+                <!-- Remember Admin Account Checkbox -->
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberAdmin" checked>
+                        <label class="form-check-label small text-secondary fw-semibold user-select-none" for="rememberAdmin">
+                            Ghi nhớ tài khoản trên thiết bị này
+                        </label>
+                    </div>
+                </div>
+
                 <div class="d-grid mt-4">
                     <button type="submit" class="btn btn-danger btn-lg fw-bold rounded-pill shadow-sm py-2.5 d-flex align-items-center justify-content-center gap-2" id="btnAdminLogin">
                         <i class="bi bi-shield-check"></i>
@@ -73,6 +83,15 @@
 
 {% block scripts %}
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('neu_saved_admin_email');
+    if (saved) {
+        document.getElementById('admin_email').value = saved;
+        document.getElementById('rememberAdmin').checked = true;
+        document.getElementById('admin_password').focus();
+    }
+});
+
 function fillDemoAdmin() {
     document.getElementById('admin_email').value = 'admin@tuyensinh.edu.vn';
     document.getElementById('admin_password').value = 'admin123';
@@ -89,8 +108,9 @@ async function handleAdminLogin(e) {
     const alertBox = document.getElementById('adminLoginAlert');
     btn.disabled = true;
 
+    const emailVal = document.getElementById('admin_email').value.trim();
     const payload = {
-        email: document.getElementById('admin_email').value.trim(),
+        email: emailVal,
         password: document.getElementById('admin_password').value
     };
 
@@ -102,6 +122,12 @@ async function handleAdminLogin(e) {
         });
         const data = await res.json();
         if (res.ok) {
+            if (document.getElementById('rememberAdmin').checked) {
+                localStorage.setItem('neu_saved_admin_email', emailVal);
+            } else {
+                localStorage.removeItem('neu_saved_admin_email');
+            }
+
             alertBox.className = "alert alert-success mt-3 py-2 text-center rounded-3";
             alertBox.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Xác thực thành công! Đang vào Cổng Quản Trị...';
             alertBox.classList.remove('d-none');

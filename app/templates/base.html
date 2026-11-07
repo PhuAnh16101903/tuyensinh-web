@@ -15,19 +15,19 @@
     
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
+            --primary: #1d4ed8;
+            --primary-dark: #1e40af;
             --primary-light: #eff6ff;
-            --primary-glow: rgba(37, 99, 235, 0.3);
+            --primary-glow: rgba(29, 78, 216, 0.25);
             --secondary: #0f172a;
-            --accent: #f59e0b;
-            --success: #10b981;
-            --danger: #ef4444;
+            --accent: #d97706;
+            --success: #059669;
+            --danger: #dc2626;
             --surface: #ffffff;
             --background: #f8fafc;
             --border: #e2e8f0;
             --text-main: #0f172a;
-            --text-muted: #64748b;
+            --text-muted: #475569;
         }
 
         body {
@@ -55,13 +55,58 @@
             color: #0f172a;
         }
 
+        /* Tương phản cao cho các tiêu đề và chữ trên nền tối */
+        .text-white h1, .text-white h2, .text-white h3, .text-white h4, .text-white h5, .text-white h6,
+        .text-white .fw-heading, [class*="bg-dark"] h1, [class*="bg-dark"] h2, [class*="bg-dark"] h3,
+        .bg-primary h1, .bg-primary h2, .bg-primary h3, .hero-section h1, .hero-section h2, .hero-section h3 {
+            color: #ffffff !important;
+        }
+
+        /* Màu chữ phụ đảm bảo độ tương phản rõ nét WCAG AA */
+        .text-muted {
+            color: #475569 !important;
+        }
+        .text-secondary {
+            color: #334155 !important;
+        }
+        .text-dark {
+            color: #0f172a !important;
+        }
+
+        /* Bảng màu Badge hài hòa, dịu mắt và rõ nét */
+        .badge.bg-primary.bg-opacity-10 {
+            background-color: #eff6ff !important;
+            color: #1d4ed8 !important;
+            border: 1px solid #bfdbfe !important;
+        }
+        .badge.bg-success.bg-opacity-10, .badge.bg-success.bg-opacity-25 {
+            background-color: #ecfdf5 !important;
+            color: #047857 !important;
+            border: 1px solid #a7f3d0 !important;
+        }
+        .badge.bg-warning.bg-opacity-10, .badge.bg-warning.bg-opacity-25 {
+            background-color: #fffbeb !important;
+            color: #b45309 !important;
+            border: 1px solid #fde68a !important;
+        }
+        .badge.bg-danger.bg-opacity-10, .badge.bg-danger.bg-opacity-25 {
+            background-color: #fef2f2 !important;
+            color: #b91c1c !important;
+            border: 1px solid #fecaca !important;
+        }
+        .badge.bg-info.bg-opacity-10, .badge.bg-info.bg-opacity-25 {
+            background-color: #f0fdfa !important;
+            color: #0f766e !important;
+            border: 1px solid #99f6e4 !important;
+        }
+
         /* Modern Glass Navbar (Clean Tech) */
         .navbar-modern {
-            background: rgba(15, 23, 42, 0.9) !important;
+            background: rgba(15, 23, 42, 0.95) !important;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             transition: all 0.3s ease;
         }
 
@@ -88,14 +133,14 @@
             font-weight: 600;
             font-size: 0.92rem;
             padding: 8px 16px !important;
-            color: #94a3b8 !important;
+            color: #cbd5e1 !important;
             border-radius: 10px;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .nav-link:hover, .nav-link.active {
             color: #ffffff !important;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.12);
             transform: translateY(-1px);
         }
 
@@ -266,20 +311,20 @@
 </head>
 <body>
     <!-- Top Utility Bar: Academic Prestige -->
-    <div class="py-1.5 px-3 d-none d-md-block" style="background: #06152d; color: #94a3b8; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.08);">
+    <div class="py-1.5 px-3 d-none d-md-block" style="background: #06152d; color: #cbd5e1; font-size: 0.82rem; border-bottom: 1px solid rgba(255,255,255,0.12);">
         <div class="container d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-3">
-                <span class="text-white-50"><i class="bi bi-bank text-warning me-1"></i> BỘ GIÁO DỤC VÀ ĐÀO TẠO • TRƯỜNG ĐẠI HỌC KINH TẾ QUỐC DÂN</span>
+                <span style="color: #cbd5e1;"><i class="bi bi-bank text-warning me-1"></i> BỘ GIÁO DỤC VÀ ĐÀO TẠO • TRƯỜNG ĐẠI HỌC KINH TẾ QUỐC DÂN</span>
                 <span class="text-white-50">|</span>
-                <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-30 rounded-pill px-2.5 py-0.5 fw-semibold">
+                <span class="badge rounded-pill px-2.5 py-0.5 fw-semibold" style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);">
                     <span class="d-inline-block rounded-circle bg-warning tech-pulse me-1" style="width: 6px; height: 6px;"></span>
                     Đang Nhận Hồ Sơ Đợt 1 (Khóa K68)
                 </span>
             </div>
             <div class="d-flex align-items-center gap-3">
                 <span><i class="bi bi-telephone-fill text-warning me-1"></i> Hotline: <strong class="text-white">024.36.280.280</strong></span>
-                <span><i class="bi bi-envelope-at text-info me-1"></i> tuyensinh@neu.edu.vn</span>
-                <span class="badge bg-success bg-opacity-25 text-success-emphasis border border-success border-opacity-40 rounded-pill px-2 py-0.5"><i class="bi bi-shield-check me-1"></i>Cổng Chính Thức</span>
+                <span style="color: #cbd5e1;"><i class="bi bi-envelope-at text-info me-1"></i> tuyensinh@neu.edu.vn</span>
+                <span class="badge rounded-pill px-2 py-0.5" style="background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35);"><i class="bi bi-shield-check me-1"></i>Cổng Chính Thức</span>
             </div>
         </div>
     </div>
