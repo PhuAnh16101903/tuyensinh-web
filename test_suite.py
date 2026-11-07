@@ -26,8 +26,8 @@ print('Test 1c: Student login with SHA-256 + Salt: OK')
 
 # 2. Test 40 Majors & Program Details
 r_majors = client.get('/api/admissions/majors')
-assert len(r_majors.json()) == 40
-print('Test 2: 40 Majors loaded: OK')
+assert len(r_majors.json()) == 88
+print('Test 2: 88 Majors loaded: OK')
 
 # 3. Test Real File Upload
 dummy_file = io.BytesIO(b'Fake image content for testing')
@@ -309,7 +309,7 @@ for ea in extra_apps:
 # Khôi phục điểm chuẩn chính thức của Kiểm toán sau test lọc ảo
 m1 = db_clean.query(Major).filter(Major.id == 1).first()
 if m1:
-    m1.benchmark_score = 28.84
+    m1.benchmark_score = 26.00
 
 # Đảm bảo thí sinh mẫu TS2026-100002 là hồ sơ độc lập, không gán cho tài khoản student@gmail.com để sinh viên tự tạo hồ sơ mới
 app_student = db_clean.query(AdmissionApplication).filter(AdmissionApplication.app_code == 'TS2026-100002').first()

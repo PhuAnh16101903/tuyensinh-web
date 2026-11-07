@@ -31,7 +31,7 @@
             
             <p class="fs-6 mb-4" style="line-height: 1.75; font-weight: 400; color: #e2e8f0;">
                 Chào đón thế hệ tân sinh viên Khóa 69 (K69)! Cổng thông tin tiếp nhận hồ sơ xét tuyển chính thức của 
-                <strong class="text-white">Trường Đại học Kinh tế Quốc dân</strong>. Hệ thống tích hợp <strong class="text-white">40 ngành đào tạo tiên phong</strong>, 
+                <strong class="text-white">Trường Đại học Kinh tế Quốc dân</strong>. Hệ thống tích hợp <strong class="text-white">88 ngành & chương trình đào tạo tiên phong</strong>, 
                 áp dụng <strong class="text-white">5 phương thức xét tuyển thông minh</strong> (IELTS, SAT, HSA/TSA, THPT), thanh toán lệ phí 
                 <strong class="text-white">VietQR Napas 24/7</strong> và tư vấn chọn ngành cùng <strong class="text-white">Trợ lý Tuyển sinh AI</strong>.
             </p>
@@ -40,7 +40,7 @@
             <div class="row g-2 mb-4">
                 <div class="col-6 col-sm-3">
                     <div class="p-2.5 rounded-3 text-center" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.18);">
-                        <div class="fs-5 fw-bold text-white mb-0" style="font-family: 'Outfit', sans-serif;">40 Ngành</div>
+                        <div class="fs-5 fw-bold text-white mb-0" style="font-family: 'Outfit', sans-serif;">88 Ngành</div>
                         <div style="font-size: 0.78rem; color: #cbd5e1; font-weight: 500;">Chuẩn Quốc tế</div>
                     </div>
                 </div>
@@ -83,7 +83,7 @@
                     </a>
                 {% endif %}
                 <a href="#majors-list" class="btn btn-link text-white text-decoration-none px-2 py-2 fs-6 fw-semibold">
-                    <i class="bi bi-arrow-down-circle text-info me-1"></i> 40 Ngành Đào Tạo &raquo;
+                    <i class="bi bi-arrow-down-circle text-info me-1"></i> 88 Ngành Đào Tạo &raquo;
                 </a>
             </div>
         </div>
@@ -275,7 +275,7 @@
     <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
         <div>
             <div class="text-primary fw-bold text-uppercase small tracking-wide mb-1">Chương Trình Đào Tạo</div>
-            <h3 class="fw-bold mb-1 text-dark">Danh Sách 40 Ngành Đào Tạo Đại Học</h3>
+            <h3 class="fw-bold mb-1 text-dark">Danh Sách 88 Ngành & Chương Trình Đào Tạo NEU</h3>
             <p class="text-muted mb-0 small">Nhấn vào từng ngành để xem khung chương trình gồm <strong>các môn đại cương chung và chuyên ngành chi tiết</strong></p>
         </div>
         <div class="d-flex align-items-center gap-2">
@@ -296,11 +296,11 @@
             </div>
             <div class="col-md-7">
                 <div class="d-flex gap-2 flex-wrap" id="categoryButtons">
-                    <button class="btn btn-sm btn-primary active cat-btn rounded-pill px-3 py-2 fw-semibold" onclick="selectCategory('ALL', this)">Tất cả (40)</button>
-                    <button class="btn btn-sm btn-outline-secondary cat-btn rounded-pill px-3 py-2 fw-semibold" onclick="selectCategory('Công nghệ & Kỹ thuật', this)">Công nghệ & Kỹ thuật</button>
+                    <button class="btn btn-sm btn-primary active cat-btn rounded-pill px-3 py-2 fw-semibold" onclick="selectCategory('ALL', this)">Tất cả ({{ majors|length }})</button>
                     <button class="btn btn-sm btn-outline-secondary cat-btn rounded-pill px-3 py-2 fw-semibold" onclick="selectCategory('Kinh tế & Quản lý', this)">Kinh tế & Quản lý</button>
-                    <button class="btn btn-sm btn-outline-secondary cat-btn rounded-pill px-3 py-2 fw-semibold" onclick="selectCategory('Ngoại ngữ & Xã hội', this)">Ngoại ngữ & Xã hội</button>
-                    <button class="btn btn-sm btn-outline-secondary cat-btn rounded-pill px-3 py-2 fw-semibold" onclick="selectCategory('Y Dược - Sinh học - Kiến trúc', this)">Y Dược & Khác</button>
+                    <button class="btn btn-sm btn-outline-secondary cat-btn rounded-pill px-3 py-2 fw-semibold" onclick="selectCategory('Công nghệ & Phân tích số', this)">Công nghệ & Số</button>
+                    <button class="btn btn-sm btn-outline-secondary cat-btn rounded-pill px-3 py-2 fw-semibold" onclick="selectCategory('Chương trình Tiên tiến & Quốc tế (EP/POHE/CLC)', this)">Tiên tiến & Quốc tế (EP/POHE/CLC)</button>
+                    <button class="btn btn-sm btn-outline-secondary cat-btn rounded-pill px-3 py-2 fw-semibold" onclick="selectCategory('Luật & Ngoại ngữ - Xã hội', this)">Luật & Xã hội</button>
                 </div>
             </div>
         </div>
