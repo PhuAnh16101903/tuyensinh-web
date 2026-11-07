@@ -250,6 +250,49 @@ def receipt_page(tx_code: str, request: Request, db: Session = Depends(get_db)):
         "app": app,
         "major": major
     })
+
+# --- IN PHIẾU ĐĂNG KÝ XÉT TUYỂN CHUẨN A4 (PDF) ---
+@router.get("/application/print/{app_code}")
+def application_print_page(app_code: str, request: Request, db: Session = Depends(get_db)):
+    app = db.query(AdmissionApplication).filter(AdmissionApplication.app_code == app_code).first()
+    if not app:
+        raise HTTPException(status_code=404, detail="Không tìm thấy hồ sơ tuyển sinh!")
+
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse(url=f"/login?msg=please_login&redirect=/application/print/{app_code}")
+
+    if user.role == "STUDENT" and (app.user_id != user.id and app.email != user.email):
+        raise HTTPException(status_code=403, detail="Bảo mật: Bạn không có quyền truy cập hồ sơ của thí sinh khác!")
+
+    return render_template(request, "application_print.html", {
+        "app": app,
+        "user": user
+    })
+
+# --- IN GIẤY BÁO TRÚNG TUYỂN & NHẬP HỌC CHUẨN A4 (PDF) ---
+@router.get("/certificate/print/{app_code}")
+def certificate_print_page(app_code: str, request: Request, db: Session = Depends(get_db)):
+    app = db.query(AdmissionApplication).filter(AdmissionApplication.app_code == app_code).first()
+    if not app:
+        raise HTTPException(status_code=404, detail="Không tìm thấy hồ sơ tuyển sinh!")
+
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse(url=f"/login?msg=please_login&redirect=/certificate/print/{app_code}")
+
+    if user.role == "STUDENT" and (app.user_id != user.id and app.email != user.email):
+        raise HTTPException(status_code=403, detail="Bảo mật: Bạn không có quyền truy cập hồ sơ của thí sinh khác!")
+
+    admitted_major = app.major
+    if app.status == "TRUNG_TUYEN_NV2" and app.major_nv2:
+        admitted_major = app.major_nv2
+
+    return render_template(request, "certificate_print.html", {
+        "app": app,
+        "admitted_major": admitted_major,
+        "user": user
+    })
 # --- FILE SWAGGER UI RIÊNG & TÀI LIỆU OPENAPI ---
 @router.get("/swagger-ui")
 def custom_swagger_ui():

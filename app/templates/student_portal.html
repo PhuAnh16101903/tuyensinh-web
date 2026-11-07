@@ -331,6 +331,12 @@
                            
                                     <div class="col-lg-3 text-lg-end">
                                         <div class="d-flex flex-column gap-2">
+                                            <div class="d-flex gap-1">
+                                                <a href="/application/print/{{ app.app_code }}" target="_blank" class="btn btn-sm btn-outline-dark flex-fill fw-semibold" title="In Phiếu Đăng Ký Xét Tuyển khổ A4">
+                                                    <i class="bi bi-printer me-1"></i> In Phiếu ĐK (PDF)
+                                                </a>
+                                            </div>
+
                                             {% if not app.payment or app.payment.status != 'PAID' %}
                                                 <button type="button" class="btn btn-sm btn-danger fw-bold py-2 shadow-sm" onclick="switchToPay('{{ app.app_code }}')">
                                                     <i class="bi bi-qr-code me-1"></i> Nộp Lệ Phí VietQR
@@ -341,7 +347,7 @@
                                                         <i class="bi bi-eye me-1"></i> VietQR
                                                     </button>
                                                     <a href="/receipt/{{ app.payment.tx_code }}" target="_blank" class="btn btn-sm btn-outline-primary flex-fill">
-                                                        <i class="bi bi-printer me-1"></i> Biên lai
+                                                        <i class="bi bi-receipt me-1"></i> Biên lai
                                                     </a>
                                                 </div>
                                             {% endif %}
@@ -1201,7 +1207,7 @@
                 </div>
             </div>
             <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-primary fw-bold" onclick="printCertificate()"><i class="bi bi-printer me-1"></i> In Giấy Báo / Lưu PDF</button>
+                <a href="#" id="btnOpenCertPrint" target="_blank" class="btn btn-primary fw-bold"><i class="bi bi-printer me-1"></i> In Giấy Báo Chuẩn A4 / Lưu PDF</a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
             </div>
         </div>
@@ -2091,6 +2097,10 @@ async function openCertificateModal(appCode, reloadOnClose = false) {
         document.getElementById('certMSSV').textContent = data.student_code;
         document.getElementById('certEmail').textContent = data.student_email;
         document.getElementById('certQR').src = data.verification_qr;
+        const printBtn = document.getElementById('btnOpenCertPrint');
+        if (printBtn) {
+            printBtn.href = '/certificate/print/' + encodeURIComponent(data.app_code);
+        }
 
         const modalEl = document.getElementById('certificateModal');
         certModalObj = new bootstrap.Modal(modalEl);

@@ -477,6 +477,14 @@
                                         <span>Chi Tiết</span>
                                     </button>
                                     {% endif %}
+                                    <a href="/application/print/{{ app.app_code }}" target="_blank" class="btn btn-sm btn-outline-dark rounded-pill px-2 py-1" title="In Phiếu ĐK Xét Tuyển (PDF)">
+                                        <i class="bi bi-printer"></i>
+                                    </a>
+                                    {% if app.status in ['TRUNG_TUYEN_NV1', 'TRUNG_TUYEN_NV2', 'TRUNG_TUYEN', 'DA_NHAP_HOC'] %}
+                                    <a href="/certificate/print/{{ app.app_code }}" target="_blank" class="btn btn-sm btn-outline-success rounded-pill px-2 py-1" title="In Giấy Báo Trúng Tuyển (PDF)">
+                                        <i class="bi bi-award"></i>
+                                    </a>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>
