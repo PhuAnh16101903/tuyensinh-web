@@ -24,6 +24,15 @@
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label fw-semibold">Số Căn cước công dân (CCCD - đúng 12 chữ số) (*)</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
+                        <input type="text" id="id_card" class="form-control font-monospace" required pattern="[0-9]{12}" maxlength="12" minlength="12" placeholder="Nhập đúng 12 chữ số CCCD (VD: 001202001111)" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12)">
+                    </div>
+                    <small class="text-muted"><i class="bi bi-shield-check text-success me-1"></i> Ràng buộc bắt buộc 12 số định danh duy nhất theo Bộ Công an.</small>
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label fw-semibold">Địa chỉ Email đăng nhập (*)</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-envelope"></i></span>
@@ -41,11 +50,12 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Mật khẩu (*)</label>
+                    <label class="form-label fw-semibold">Mật khẩu (* Tối thiểu 8 ký tự)</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input type="password" id="password" class="form-control" required placeholder="Tạo mật khẩu an toàn">
+                        <input type="password" id="password" class="form-control" required minlength="8" placeholder="Tối thiểu 8 ký tự an toàn">
                     </div>
+                    <small class="text-muted"><i class="bi bi-shield-lock text-primary me-1"></i> Mật khẩu bắt buộc có độ dài từ 8 ký tự trở lên.</small>
                 </div>
 
                 <div class="d-grid mt-4">
@@ -75,11 +85,32 @@ async function handleRegister(e) {
     const alertBox = document.getElementById('regAlert');
     btn.disabled = true;
 
+    const idCard = document.getElementById('id_card').value.trim();
+    if (!/^\d{12}$/.test(idCard)) {
+        alertBox.className = "alert alert-danger mt-3";
+        alertBox.textContent = "Số Căn cước công dân (CCCD) bắt buộc phải gồm đúng 12 chữ số!";
+        alertBox.classList.remove('d-none');
+        btn.disabled = false;
+        document.getElementById('id_card').focus();
+        return;
+    }
+
+    const password = document.getElementById('password').value;
+    if (!password || password.length < 8) {
+        alertBox.className = "alert alert-danger mt-3";
+        alertBox.textContent = "Mật khẩu đăng ký bắt buộc phải từ 8 ký tự trở lên!";
+        alertBox.classList.remove('d-none');
+        btn.disabled = false;
+        document.getElementById('password').focus();
+        return;
+    }
+
     const payload = {
         full_name: document.getElementById('full_name').value.trim(),
+        id_card: idCard,
         email: document.getElementById('email').value.trim(),
         phone: document.getElementById('phone').value.trim(),
-        password: document.getElementById('password').value
+        password: password
     };
 
     try {

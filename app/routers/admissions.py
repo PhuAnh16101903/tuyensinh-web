@@ -1,3 +1,4 @@
+import re
 import random
 import datetime
 import os
@@ -115,6 +116,14 @@ def submit_application(data: ApplicationCreate, db: Session = Depends(get_db)):
         if not major2:
             raise HTTPException(status_code=404, detail="Ngành nguyện vọng 2 không tồn tại!")
 
+    # 0. Ràng buộc CCCD nhất định phải là 12 chữ số theo chuẩn Bộ Công an
+    clean_id_card = (data.id_card or "").strip()
+    if not re.match(r"^\d{12}$", clean_id_card):
+        raise HTTPException(
+            status_code=400,
+            detail="Số Căn cước công dân (CCCD) bắt buộc phải gồm đúng 12 chữ số!"
+        )
+
     # 1. Kiểm tra trạng thái nhập học chính thức: nếu thí sinh đã nhập học thì không thể đăng ký thêm hồ sơ mới
     if data.user_id:
         enrolled_app = db.query(AdmissionApplication).filter(
@@ -144,7 +153,7 @@ def submit_application(data: ApplicationCreate, db: Session = Depends(get_db)):
     new_app = AdmissionApplication(
         app_code=app_code,
         full_name=data.full_name,
-        id_card=data.id_card,
+        id_card=clean_id_card,
         email=data.email,
         phone=data.phone,
         method=data.method or data.method_code or "THPT",

@@ -1,4 +1,5 @@
-﻿import hashlib
+import re
+import hashlib
 import datetime
 from typing import Optional
 import jwt
@@ -13,7 +14,7 @@ router = APIRouter(prefix="/api/auth", tags=["Xác thực & Tài khoản"])
 # Cấu hình JWT Token
 SECRET_KEY = "UniAdmissionsSecureJWTKey_NEU2026_AdvancedAdmissionSecurityKey123456789!"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_HOURS = 24
+ACCESS_TOKEN_EXPIRE_HOURS = 24 * 365 # Duy trì phiên 1 năm
 
 def hash_password(password: str) -> str:
     """Băm mật khẩu an toàn với thuật toán SHA-256 kèm muối cố định cho đồ án"""
@@ -51,23 +52,42 @@ def set_auth_cookies(response: Response, user: User) -> str:
         "full_name": user.full_name
     }
     token = create_access_token(token_payload)
-    response.set_cookie(key="auth_token", value=token, httponly=True, samesite="lax", max_age=86400)
-    response.set_cookie(key="user_id", value=str(user.id), httponly=True, samesite="lax", max_age=86400)
-    response.set_cookie(key="user_role", value=user.role, httponly=True, samesite="lax", max_age=86400)
+    # Lưu phiên vĩnh viễn 1 năm (31.536.000 giây) không bị mất trạng thái đăng nhập
+    ONE_YEAR_SEC = 365 * 24 * 3600
+    response.set_cookie(key="auth_token", value=token, httponly=True, samesite="lax", max_age=ONE_YEAR_SEC)
+    response.set_cookie(key="user_id", value=str(user.id), httponly=True, samesite="lax", max_age=ONE_YEAR_SEC)
+    response.set_cookie(key="user_role", value=user.role, httponly=True, samesite="lax", max_age=ONE_YEAR_SEC)
     return token
 
 @router.post("/register", response_model=UserOut)
 def register_student(data: UserRegister, response: Response, db: Session = Depends(get_db)):
-    """[Thí sinh] Đăng ký tài khoản học sinh bằng Email (mật khẩu được mã hóa băm bảo mật kèm JWT token)"""
+    """[Thí sinh] Đăng ký tài khoản học sinh bằng Email và CCCD (mật khẩu bảo mật >= 8 ký tự, CCCD đúng 12 chữ số)"""
+    # 1. Ràng buộc mật khẩu bắt buộc phải từ 8 ký tự trở lên
+    if not data.password or len(data.password) < 8:
+        raise HTTPException(status_code=400, detail="Mật khẩu đăng ký bắt buộc phải từ 8 ký tự trở lên!")
+
+    # 2. Ràng buộc CCCD bắt buộc đúng 12 chữ số
+    clean_id_card = None
+    if data.id_card:
+        clean_id_card = data.id_card.strip()
+        if not re.match(r"^\d{12}$", clean_id_card):
+            raise HTTPException(status_code=400, detail="Số Căn cước công dân (CCCD) bắt buộc phải gồm đúng 12 chữ số!")
+
     existing = db.query(User).filter(User.email == data.email.lower()).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email này đã được đăng ký tài khoản!")
+
+    if clean_id_card:
+        existing_id = db.query(User).filter(User.id_card == clean_id_card).first()
+        if existing_id:
+            raise HTTPException(status_code=400, detail=f"Số CCCD {clean_id_card} này đã được đăng ký bởi tài khoản khác!")
 
     new_user = User(
         email=data.email.lower(),
         password=hash_password(data.password),
         full_name=data.full_name,
         phone=data.phone,
+        id_card=clean_id_card,
         role="STUDENT"
     )
     db.add(new_user)

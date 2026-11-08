@@ -10,6 +10,7 @@ class User(Base):
     password = Column(String(200), nullable=False) # Đã được mã hóa băm mật khẩu
     full_name = Column(String(150), nullable=False)
     phone = Column(String(20), nullable=True)
+    id_card = Column(String(20), nullable=True) # Số CCCD (12 chữ số)
     role = Column(String(20), default="STUDENT") # STUDENT (Thí sinh), OFFICER (Cán bộ tuyển sinh), ADMIN (Quản trị toàn quyền)
     # Hậu tuyển sinh (Post-admission enrollment) & Phúc khảo hồ sơ
     student_code = Column(String(30), nullable=True) # Mã số sinh viên chính thức (MSSV)

@@ -445,8 +445,9 @@
                                 <input type="text" id="app_fullName" class="form-control" required value="{{ user.full_name }}">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Số CCCD / CMND định danh (*)</label>
-                                <input type="text" id="app_idCard" class="form-control" required value="{{ my_app.id_card if my_app else '' }}" placeholder="Ví dụ: 001202012345">
+                                <label class="form-label fw-semibold">Số CCCD / CMND định danh (* đúng 12 chữ số)</label>
+                                <input type="text" id="app_idCard" class="form-control font-monospace" required pattern="[0-9]{12}" maxlength="12" minlength="12" value="{{ user.id_card or (my_applications[0].id_card if my_applications else '') }}" placeholder="Nhập đúng 12 chữ số CCCD (VD: 001202001111)" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12)">
+                                <small class="text-muted"><i class="bi bi-shield-check text-success me-1"></i> Ràng buộc bắt buộc 12 chữ số theo quy chuẩn Bộ Công an.</small>
                             </div>
 
                             <div class="col-md-6">
@@ -1482,19 +1483,32 @@ function calculateNeuScore() {
         breakdownText = `Chi tiết: ${m1Name} (${m1}) + ${m2Name} (${m2}) + ${m3Name} (${m3}) = ${rawScore.toFixed(2)}`;
     }
 
-    // Tính điểm ưu tiên (Khu vực + Đối tượng)
+    // Tính điểm ưu tiên (Khu vực + Đối tượng) - ĐỒNG BỘ CÔNG THỨC K69 BỘ GD&ĐT & NEU
     const areaOpt = document.getElementById('app_priorityArea').selectedOptions[0];
     const areaBonus = parseFloat(areaOpt.getAttribute('data-bonus')) || 0;
     const objOpt = document.getElementById('app_priorityObj').selectedOptions[0];
     const objBonus = parseFloat(objOpt.getAttribute('data-bonus')) || 0;
-    const priorityBonus = areaBonus + objBonus;
+    const nominalPriority = areaBonus + objBonus;
 
-    const totalFinal = Math.min(30.0, Math.round((rawScore + priorityBonus) * 100) / 100);
+    // Quy chế Bộ GD&ĐT & NEU K69: Nếu tổng điểm gốc >= 22.50 thì điểm ưu tiên giảm dần: [(30 - Điểm gốc)/7.5] * Mức ưu tiên
+    let actualPriority = nominalPriority;
+    let priorityDesc = `+${nominalPriority.toFixed(2)} (${areaOpt.value}: +${areaBonus}, ĐT: +${objBonus})`;
+
+    if (rawScore >= 22.5 && nominalPriority > 0) {
+        actualPriority = Math.round((((30.0 - rawScore) / 7.5) * nominalPriority) * 100) / 100;
+        priorityDesc = `+${actualPriority.toFixed(2)} <span class="badge bg-warning text-dark ms-1">Giảm theo CT K69 Bộ GD&ĐT</span> <small class="text-muted">(Mức quy định: +${nominalPriority.toFixed(2)}đ, giảm do điểm gốc ≥ 22.5đ)</small>`;
+    } else {
+        priorityDesc = `+${actualPriority.toFixed(2)} (${areaOpt.value}: +${areaBonus}, ĐT: +${objBonus})`;
+    }
+
+    const totalFinal = Math.min(30.0, Math.round((rawScore + actualPriority) * 100) / 100);
 
     document.getElementById('liveScoreFormula').textContent = formulaText;
-    document.getElementById('liveScoreBreakdownText').innerHTML = breakdownText + ` | Ưu tiên: <strong>+${priorityBonus.toFixed(2)}</strong> (${areaOpt.value}: +${areaBonus}, ĐT: +${objBonus})`;
+    document.getElementById('liveScoreBreakdownText').innerHTML = breakdownText + ` | Ưu tiên: <strong>${priorityDesc}</strong>`;
     document.getElementById('liveTotalScoreDisplay').textContent = totalFinal.toFixed(2);
     document.getElementById('app_score').value = totalFinal.toFixed(2);
+    window.currentActualPriority = actualPriority;
+    window.currentNominalPriority = nominalPriority;
 }
 
 // --- NỘP HỒ SƠ ĐẦY ĐỦ THÀNH PHẦN ĐIỂM (M02) ---
@@ -1520,10 +1534,19 @@ async function handleApply(e) {
     const methodCode = document.getElementById('app_methodCode').value;
     const methodSelect = document.getElementById('app_methodCode');
     const methodName = methodSelect.options[methodSelect.selectedIndex].text;
+    const idCard = document.getElementById('app_idCard').value.trim();
+    if (!/^\d{12}$/.test(idCard)) {
+        alert("Lỗi: Số Căn cước công dân (CCCD) bắt buộc phải gồm đúng 12 chữ số!");
+        document.getElementById('app_idCard').focus();
+        btn.disabled = false;
+        return;
+    }
+
     const priorityArea = document.getElementById('app_priorityArea').value;
     const areaBonus = parseFloat(document.getElementById('app_priorityArea').selectedOptions[0].getAttribute('data-bonus')) || 0;
     const objBonus = parseFloat(document.getElementById('app_priorityObj').selectedOptions[0].getAttribute('data-bonus')) || 0;
-    const priorityScore = areaBonus + objBonus;
+    const nominalPriority = areaBonus + objBonus;
+    const priorityScore = (typeof window.currentActualPriority !== 'undefined') ? window.currentActualPriority : nominalPriority;
 
     let comboStr = null;
     let scoreDetails = {};

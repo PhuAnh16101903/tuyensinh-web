@@ -294,14 +294,17 @@ print('Test 17: Candidate active application withdrawal: OK')
 print("\n🎉 TẤT CẢ 17 BÀI KIỂM THỬ TOÀN DIỆN (MBBANK QR, JWT SECURITY, POST-ADMISSION LIFECYCLE, IPN RECONCILE) ĐẠT ĐIỂM 10/10 TUYỆT ĐỐI! 🎉")
 
 
-# Dọn dẹp toàn bộ dữ liệu tạm sinh ra trong quá trình chạy Test để DB luôn sạch 100% (1 Sinh viên = 1 Hồ sơ = 1 MSSV)
+# Chỉ dọn dẹp ĐÚNG hồ sơ kiểm thử tạm sinh ra trong phiên chạy test, TUYỆT ĐỐI BẢO LƯU tài khoản và hồ sơ thật của người dùng
 import os
 from app.database import SessionLocal
 from app.models import AdmissionApplication, PaymentTransaction, Major
 
 db_clean = SessionLocal()
-core_codes = ['TS2026-100001', 'TS2026-100002', 'TS2026-100003', 'TS2026-100004', 'TS2026-100005']
-extra_apps = db_clean.query(AdmissionApplication).filter(~AdmissionApplication.app_code.in_(core_codes)).all()
+test_codes = [new_app['app_code']]
+if 'neu_res' in locals() and isinstance(neu_res, dict) and 'app_code' in neu_res:
+    test_codes.append(neu_res['app_code'])
+
+extra_apps = db_clean.query(AdmissionApplication).filter(AdmissionApplication.app_code.in_(test_codes)).all()
 for ea in extra_apps:
     db_clean.query(PaymentTransaction).filter(PaymentTransaction.application_id == ea.id).delete()
     db_clean.delete(ea)

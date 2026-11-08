@@ -8,6 +8,7 @@ class UserRegister(BaseModel):
     password: str
     full_name: str
     phone: Optional[str] = None
+    id_card: Optional[str] = None # Số CCCD (12 chữ số)
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -18,6 +19,7 @@ class UserOut(BaseModel):
     email: str
     full_name: str
     phone: Optional[str]
+    id_card: Optional[str] = None
     role: str
     created_at: datetime
 
