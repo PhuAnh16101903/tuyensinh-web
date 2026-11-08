@@ -23,14 +23,7 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Số Căn cước công dân (CCCD - đúng 12 chữ số) (*)</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
-                        <input type="text" id="id_card" class="form-control font-monospace" required pattern="[0-9]{12}" maxlength="12" minlength="12" placeholder="Nhập đúng 12 chữ số CCCD (VD: 001202001111)" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12)">
-                    </div>
-                    <small class="text-muted"><i class="bi bi-shield-check text-success me-1"></i> Ràng buộc bắt buộc 12 số định danh duy nhất theo Bộ Công an.</small>
-                </div>
+
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Địa chỉ Email đăng nhập (*)</label>
@@ -85,16 +78,6 @@ async function handleRegister(e) {
     const alertBox = document.getElementById('regAlert');
     btn.disabled = true;
 
-    const idCard = document.getElementById('id_card').value.trim();
-    if (!/^\d{12}$/.test(idCard)) {
-        alertBox.className = "alert alert-danger mt-3";
-        alertBox.textContent = "Số Căn cước công dân (CCCD) bắt buộc phải gồm đúng 12 chữ số!";
-        alertBox.classList.remove('d-none');
-        btn.disabled = false;
-        document.getElementById('id_card').focus();
-        return;
-    }
-
     const password = document.getElementById('password').value;
     if (!password || password.length < 8) {
         alertBox.className = "alert alert-danger mt-3";
@@ -107,7 +90,6 @@ async function handleRegister(e) {
 
     const payload = {
         full_name: document.getElementById('full_name').value.trim(),
-        id_card: idCard,
         email: document.getElementById('email').value.trim(),
         phone: document.getElementById('phone').value.trim(),
         password: password
