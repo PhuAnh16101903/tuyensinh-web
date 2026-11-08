@@ -44,7 +44,7 @@ def decode_access_token(token: str) -> Optional[dict]:
         return None
 
 def set_auth_cookies(response: Response, user: User) -> str:
-    """Ghi cookie JWT token HttpOnly và các thông tin phiên an toàn"""
+    """Ghi cookie JWT token HttpOnly dạng Session Cookie (xóa phiên khi đóng trình duyệt, link mới luôn ở trạng thái Đăng Xuất)"""
     token_payload = {
         "sub": str(user.id),
         "email": user.email,
@@ -52,11 +52,11 @@ def set_auth_cookies(response: Response, user: User) -> str:
         "full_name": user.full_name
     }
     token = create_access_token(token_payload)
-    # Lưu phiên vĩnh viễn 1 năm (31.536.000 giây) không bị mất trạng thái đăng nhập
-    ONE_YEAR_SEC = 365 * 24 * 3600
-    response.set_cookie(key="auth_token", value=token, httponly=True, samesite="lax", max_age=ONE_YEAR_SEC)
-    response.set_cookie(key="user_id", value=str(user.id), httponly=True, samesite="lax", max_age=ONE_YEAR_SEC)
-    response.set_cookie(key="user_role", value=user.role, httponly=True, samesite="lax", max_age=ONE_YEAR_SEC)
+    # Session Cookie (không set max_age): Khi đóng trình duyệt hoặc truy cập mới sẽ tự động đăng xuất
+    # Bắt buộc có path="/" để áp dụng thống nhất toàn bộ trang web
+    response.set_cookie(key="auth_token", value=token, httponly=True, samesite="lax", path="/")
+    response.set_cookie(key="user_id", value=str(user.id), httponly=True, samesite="lax", path="/")
+    response.set_cookie(key="user_role", value=user.role, httponly=True, samesite="lax", path="/")
     return token
 
 @router.post("/register", response_model=UserOut)
