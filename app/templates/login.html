@@ -38,7 +38,7 @@
                 <div class="mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label class="form-label small fw-bold text-secondary mb-0">Mật khẩu (*)</label>
-                        <a href="#majors-list" class="small text-muted text-decoration-none" style="font-size: 0.78rem;">Quên mật khẩu?</a>
+                        <a href="/forgot-password" class="small text-primary fw-semibold text-decoration-none" style="font-size: 0.78rem;"><i class="bi bi-key me-1"></i>Quên mật khẩu?</a>
                     </div>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
@@ -86,6 +86,13 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('reset') === 'success') {
+        const alertBox = document.getElementById('loginAlert');
+        alertBox.className = "alert alert-success mt-3 py-2 text-center rounded-3";
+        alertBox.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Đổi mật khẩu thành công! Bạn có thể đăng nhập ngay với mật khẩu mới.';
+        alertBox.classList.remove('d-none');
+    }
     const saved = localStorage.getItem('neu_saved_student_email');
     if (saved) {
         document.getElementById('email').value = saved;

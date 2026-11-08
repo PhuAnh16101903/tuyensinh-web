@@ -14,6 +14,14 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ForgotPasswordReset(BaseModel):
+    email: str
+    otp_code: str
+    new_password: str
+
 class UserOut(BaseModel):
     id: int
     email: str

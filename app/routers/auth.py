@@ -1,3 +1,4 @@
+import random
 import re
 import hashlib
 import datetime
@@ -6,8 +7,8 @@ import jwt
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from sqlalchemy.orm import Session
 from ..database import get_db
-from ..models import User
-from ..schemas import UserRegister, UserLogin, UserOut
+from ..models import User, PasswordResetToken
+from ..schemas import UserRegister, UserLogin, UserOut, ForgotPasswordRequest, ForgotPasswordReset
 
 router = APIRouter(prefix="/api/auth", tags=["Xác thực & Tài khoản"])
 
@@ -197,3 +198,90 @@ def logout(response: Response):
     response.delete_cookie("user_id")
     response.delete_cookie("user_role")
     return {"message": "Đã đăng xuất thành công"}
+
+
+# ==========================================================
+# MODULE XAC THUC: QUEN MAT KHAU & CAP MA OTP
+# ==========================================================
+@router.post("/forgot-password/request-otp")
+def request_password_reset_otp(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    """[Quen Mat Khau] Buoc 1: Tiep nhan yeu cau, kiem tra tai khoan va sinh ma OTP 6 so xac thuc"""
+    input_val = data.email.strip()
+    if not input_val:
+        raise HTTPException(status_code=400, detail="Vui lòng nhập Email, Số điện thoại hoặc CCCD của bạn!")
+    
+    clean_email = input_val.lower()
+    user = db.query(User).filter(User.email == clean_email).first()
+    
+    # Neu khong tim thay bang email, thu tim bang So dien thoai hoac CCCD
+    if not user:
+        user = db.query(User).filter(
+            (User.phone == input_val) | (User.id_card == input_val)
+        ).first()
+        if user:
+            clean_email = user.email.lower()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="Không tìm thấy tài khoản tương ứng với thông tin bạn cung cấp. Vui lòng kiểm tra lại hoặc Đăng ký tài khoản mới!")
+    
+    # Sinh ma OTP 6 chu so ngau nhien
+    otp_code = f"{random.randint(100000, 999999)}"
+    expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+    
+    reset_entry = PasswordResetToken(
+        email=clean_email,
+        otp_code=otp_code,
+        is_used=0,
+        expires_at=expires_at
+    )
+    db.add(reset_entry)
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": f"Ma xac thuc OTP da duoc tao thanh cong cho tai khoan {user.full_name} ({clean_email})!",
+        "email": clean_email,
+        "full_name": user.full_name,
+        "otp_code": otp_code,
+        "expires_in_minutes": 15
+    }
+
+@router.post("/forgot-password/verify-and-reset")
+def verify_otp_and_reset_password(data: ForgotPasswordReset, db: Session = Depends(get_db)):
+    """[Quen Mat Khau] Buoc 2: Xac thuc ma OTP va cap nhat mat khau moi bao mat (tu 8 ky tu tro len)"""
+    clean_email = data.email.strip().lower()
+    clean_otp = data.otp_code.strip()
+    new_pw = data.new_password.strip() if data.new_password else ""
+    
+    if not clean_email or not clean_otp:
+        raise HTTPException(status_code=400, detail="Vui lòng điền đầy đủ Email và Mã xác nhận OTP!")
+    
+    if len(new_pw) < 8:
+        raise HTTPException(status_code=400, detail="Mật khẩu mới bắt buộc phải có độ dài từ 8 ký tự trở lên!")
+    
+    # Tim ma OTP con han va chua dung
+    token_entry = db.query(PasswordResetToken).filter(
+        PasswordResetToken.email == clean_email,
+        PasswordResetToken.otp_code == clean_otp,
+        PasswordResetToken.is_used == 0
+    ).order_by(PasswordResetToken.id.desc()).first()
+    
+    if not token_entry:
+        raise HTTPException(status_code=400, detail="Mã OTP không chính xác hoặc đã được sử dụng trước đó!")
+    
+    if token_entry.expires_at < datetime.datetime.utcnow():
+        raise HTTPException(status_code=400, detail="Mã OTP này đã hết hiệu lực (quá 15 phút). Vui lòng yêu cầu cấp mã mới!")
+    
+    user = db.query(User).filter(User.email == clean_email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Không tìm thấy tài khoản người dùng tương ứng!")
+    
+    # Cap nhat mat khau moi da bam an toan
+    user.password = hash_password(new_pw)
+    token_entry.is_used = 1
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": f"Dat lai mat khau cho tai khoan {clean_email} thanh cong! Ban co the dang nhap ngay voi mat khau moi."
+    }

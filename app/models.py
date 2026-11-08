@@ -165,3 +165,14 @@ class SupportTicket(Base):
     resolved_at = Column(DateTime, nullable=True)
     application = relationship("AdmissionApplication", back_populates="tickets")
 
+# ==========================================================
+# MODULE XÁC THỰC: QUÊN MẬT KHẨU & MÃ OTP
+# ==========================================================
+class PasswordResetToken(Base):
+    __tablename__ = 'password_reset_tokens'
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(120), index=True, nullable=False)
+    otp_code = Column(String(10), nullable=False) # Mã OTP xác thực 6 số
+    is_used = Column(Integer, default=0)          # 0: Chưa dùng, 1: Đã xác thực thành công
+    expires_at = Column(DateTime, nullable=False) # Thời hạn hết hiệu lực (15 phút)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)

@@ -145,6 +145,15 @@ def register_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/student")
     return render_template(request, "register.html", {"user": None})
 
+@router.get("/forgot-password")
+def forgot_password_page(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if user:
+        if user.role in ["ADMIN", "OFFICER"]:
+            return RedirectResponse(url="/admin")
+        return RedirectResponse(url="/student")
+    return render_template(request, "forgot_password.html", {"user": None})
+
 @router.get("/logout")
 def logout_view():
     resp = RedirectResponse(url="/")
