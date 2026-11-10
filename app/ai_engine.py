@@ -301,6 +301,83 @@ class StandaloneAIAdvisor:
                 "type": "k69_prediction_overview"
             }
 
+        # 3b1. HỎI VỀ NHIỀU MINH CHỨNG / TẢI NHIỀU MINH CHỨNG HỒ SƠ
+        if any(k in norm_q for k in ["nhieu minh chung", "nop nhieu minh chung", "tai nhieu minh chung", "dat nhieu minh chung", "nhieu file", "nhieu anh", "them minh chung", "minh chung gom nhung gi", "minh chung can nhung gi"]):
+            return {
+                "reply": (
+                    f"📂 <strong>HỆ THỐNG TUYỂN SINH HOÀN TOÀN CHO PHÉP NỘP NHIỀU MINH CHỨNG CÙNG LÚC!</strong><br><br>"
+                    f"Chào bạn, tại mục <strong>'Minh chứng xét tuyển'</strong> trên Cổng Thí Sinh, bạn hoàn toàn có thể tải lên <strong>nhiều file/hình ảnh minh chứng</strong> cùng lúc hoặc tải bổ sung nhiều lần:<br><br>"
+                    f"📄 <strong>Các loại minh chứng bạn có thể tải lên gồm:</strong><br>"
+                    f"• 1️⃣ <strong>Bản scan/ảnh Chứng chỉ quốc tế:</strong> Chứng chỉ IELTS, SAT, ACT, hoặc Giấy báo điểm HSA, TSA.<br>"
+                    f"• 2️⃣ <strong>Kết quả học tập / Điểm thi:</strong> Giấy chứng nhận điểm thi tốt nghiệp THPT năm 2026 hoặc Bảng điểm học bạ 3 năm.<br>"
+                    f"• 3️⃣ <strong>Giấy tờ cá nhân:</strong> Ảnh 2 mặt Căn cước công dân (CCCD).<br>"
+                    f"• 4️⃣ <strong>Minh chứng diện ưu tiên:</strong> Giấy xác nhận đối tượng chính sách, ưu tiên vùng sâu vùng xa, con thương binh, dân tộc thiểu số... (nếu có).<br><br>"
+                    f"💡 <strong>Cách thực hiện rất đơn giản:</strong><br>"
+                    f"• Tại ô chọn file, bạn nhấn giữ phím <code>Ctrl</code> (trên máy tính) hoặc chọn nhiều ảnh (trên điện thoại) để tải cùng lúc nhiều tài liệu.<br>"
+                    f"• Hệ thống hiển thị danh sách các file đã nạp kèm ảnh xem trước thu nhỏ (thumbnail) và cho phép bạn xem lại phóng to hoặc xóa từng ảnh nếu muốn thay đổi.<br>"
+                    f"• Cả thí sinh và Cán bộ duyệt hồ sơ đều có thể duyệt xem toàn bộ bộ sưu tập minh chứng này một cách rõ nét!"
+                ),
+                "type": "multiple_proofs_guide"
+            }
+
+        # 3b2. HỎI CÁCH VÀO TRƯỜNG / HƯỚNG DẪN XÉT TUYỂN BẰNG CHỨNG CHỈ IELTS (VD: IELTS 7.5 làm như nào để vào trường)
+        has_ielts_kw = any(k in norm_q for k in ["ielts", "tieng anh", "ielts 7.5", "ielts 7.0", "ielts 6.5", "ielts 6.0", "ielts 5.5", "ielts 8.0"])
+        has_how_kw = any(k in norm_q for k in ["lam nhu nao", "lam sao", "lam the nao", "cach nao", "cach vao", "xet vao", "de vao truong", "vao duoc khong", "co do khong", "xet tuyen the nao", "huong dan", "nop ho so the nao", "vao truong k", "vao truong khong"])
+        if has_ielts_kw and has_how_kw:
+            # Nhận diện band điểm IELTS trong câu hỏi (mặc định 7.5 nếu thí sinh hỏi về 7.5)
+            band_match = re.search(r'(\d(?:\.\d)?)', norm_q)
+            band_val = float(band_match.group(1)) if band_match and 5.0 <= float(band_match.group(1)) <= 9.0 else 7.5
+            
+            # Tính điểm quy đổi chuẩn NEU
+            if band_val >= 7.5:
+                conv_score = 10.0
+                eval_txt = f"<strong class='text-success fs-5'>{conv_score} / 10.0 điểm</strong> (Mức điểm Ngoại ngữ tối đa tuyệt đối!)"
+                target_advice = (
+                    f"Với lợi thế tối đa <strong>10.0 điểm IELTS</strong>, bạn đã nắm giữ một ưu thế cực kỳ lớn! Trong kỳ thi tốt nghiệp THPT, bạn chỉ cần đạt từ <strong>7.5 đến 8.5 điểm</strong> mỗi môn Toán và môn thứ 2 (tổng 2 môn đạt khoảng 15.5 - 17.0đ) là tổng Điểm xét tuyển của bạn đã chạm mốc <strong>25.5 - 27.5+ điểm</strong>.<br>"
+                    f"Mức điểm này giúp bạn <strong>tự tin đỗ vào hầu hết các ngành HOT nhất của NEU</strong> như: <em>Kinh doanh quốc tế (K68: 27.2đ), Kiểm toán (27.3đ), Marketing (27.39đ), Logistics & Quỗi cung ứng (27.4đ), Khoa học dữ liệu, CNTT (26.35đ)...</em>"
+                )
+            elif band_val >= 7.0:
+                conv_score = 9.5
+                eval_txt = f"<strong class='text-primary fs-5'>{conv_score} / 10.0 điểm</strong>"
+                target_advice = f"Với mức quy đổi <strong>9.5 điểm</strong>, bạn chỉ cần thi môn Toán và môn thứ hai đạt khoảng 8.0 - 8.5 điểm là đạt từ 25.5 - 26.5+ điểm, cơ hội trúng tuyển rộng mở vào đại đa số ngành đào tạo của NEU."
+            elif band_val >= 6.5:
+                conv_score = 9.0
+                eval_txt = f"<strong class='text-primary fs-5'>{conv_score} / 10.0 điểm</strong>"
+                target_advice = f"Với mức quy đổi <strong>9.0 điểm</strong>, bạn cần duy trì điểm thi 2 môn THPT từ 8.0 - 8.8 điểm để đạt mốc 25.0 - 26.0+ điểm, rất an toàn cho các ngành khối Kinh tế, Quản trị, Tài chính..."
+            elif band_val >= 6.0:
+                conv_score = 8.5
+                eval_txt = f"<strong class='text-primary fs-5'>{conv_score} / 10.0 điểm</strong>"
+                target_advice = f"Với mức quy đổi <strong>8.5 điểm</strong>, bạn kết hợp điểm thi THPT tốt (tổng 2 môn từ 16.5 - 17.5đ) để chinh phục các ngành mục tiêu."
+            elif band_val >= 5.5:
+                conv_score = 8.0
+                eval_txt = f"<strong class='text-primary fs-5'>{conv_score} / 10.0 điểm</strong> (Ngưỡng sàn nộp hồ sơ)"
+                target_advice = f"Mức 5.5 vừa đủ điều kiện sàn nộp hồ sơ vào NEU. Bạn nên đặt các ngành vừa sức hoặc cân nhắc thi lại để nâng band lên 6.5 - 7.5+."
+            else:
+                conv_score = 0.0
+                eval_txt = f"<strong class='text-danger'>Dưới 5.5</strong>"
+                target_advice = f"Theo quy chế NEU, chứng chỉ IELTS phải đạt từ 5.5 trở lên mới đủ điều kiện xét tuyển."
+
+            return {
+                "reply": (
+                    f"🎯 <strong>LỘ TRÌNH & CHIẾN LƯỢC VÀO ĐẠI HỌC KINH TẾ QUỐC DÂN VỚI CHỨNG CHỈ IELTS {band_val}:</strong><br><br>"
+                    f"Chào bạn! Bạn hoàn toàn có thể dùng chứng chỉ <strong>IELTS {band_val}</strong> để trúng tuyển vào NEU theo <strong>Phương thức 3 (Xét tuyển kết hợp chứng chỉ tiếng Anh quốc tế với điểm thi tốt nghiệp THPT)</strong> - đây là phương thức chủ lực chiếm tới <strong>80% tổng chỉ tiêu tuyển sinh</strong> toàn trường!<br><br>"
+                    f"📌 <strong>1. Mức điểm quy đổi IELTS {band_val} chính thức của NEU:</strong><br>"
+                    f"• IELTS {band_val} được quy đổi thành: {eval_txt}.<br><br>"
+                    f"📌 <strong>2. Công thức tính Điểm Xét Tuyển (ĐXT) chuẩn NEU:</strong><br>"
+                    f"<code>ĐXT = Điểm quy đổi IELTS ({conv_score}) + Điểm thi môn Toán + Điểm thi môn thứ 2 (Lý/Hóa/Văn) + Điểm ưu tiên (nếu có)</code><br><br>"
+                    f"📊 <strong>3. Đánh giá cơ hội trúng tuyển & Mục tiêu điểm thi:</strong><br>"
+                    f"• {target_advice}<br><br>"
+                    f"📝 <strong>4. Hướng dẫn 5 bước nộp hồ sơ xét tuyển ngay trên Cổng Thí Sinh:</strong><br>"
+                    f"• <strong>Bước 1:</strong> Đăng ký tài khoản tại <a href='/register' class='fw-bold text-primary'>Cổng Đăng Ký Thí Sinh</a>.<br>"
+                    f"• <strong>Bước 2:</strong> Vào Cổng cá nhân, chọn <strong>'Đăng ký xét tuyển mới'</strong> ➜ Chọn <strong>Phương thức 3 (IELTS + Điểm thi THPT)</strong>.<br>"
+                    f"• <strong>Bước 3:</strong> Nhập mức điểm IELTS {band_val} (hệ thống sẽ tự động nhảy điểm quy đổi <strong>{conv_score}đ</strong>) và nhập điểm dự kiến 2 môn thi THPT.<br>"
+                    f"• <strong>Bước 4:</strong> Tải ảnh scan/chụp chứng chỉ IELTS lên mục <strong>Minh chứng</strong> (Hệ thống hỗ trợ tải <strong>nhiều minh chứng</strong> cùng lúc gồm cả chứng chỉ IELTS, học bạ, CCCD...).<br>"
+                    f"• <strong>Bước 5:</strong> Chọn Nguyện vọng 1 (ngành mơ ước) và Nguyện vọng 2 (ngành an toàn), bấm Nộp hồ sơ và quét mã VietQR MBBank nộp 50.000đ lệ phí là hoàn tất!<br><br>"
+                    f"👉 Bạn hãy mở ngay <a href='/calculator' class='btn btn-sm btn-outline-primary fw-bold mt-1'><i class='bi bi-calculator me-1'></i> Công Cụ Tính Điểm & Đánh Giá 88 Ngành NEU</a> để nhập thử điểm và xem tỷ lệ đỗ chi tiết nhé!"
+                ),
+                "type": "ielts_admission_guide"
+            }
+
         # 3c. HỎI VỀ BẢNG QUY ĐỔI ĐIỂM IELTS / CHỨNG CHỈ TIẾNG ANH TẠI NEU
         if any(k in norm_q for k in ["quy doi ielts", "doi diem ielts", "ielts 5.5", "ielts 6.0", "ielts 6.5", "ielts 7.0", "ielts 7.5", "ielts 8.0", "ielts duoc bao nhieu"]):
             return {

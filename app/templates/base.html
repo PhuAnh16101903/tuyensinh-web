@@ -699,56 +699,116 @@
     let globalActiveProofUrl = '';
     let globalProofModalObj = null;
 
+let globalProofUrlsList = [];
+    let globalActiveProofIndex = 0;
+
     function viewProofModal(appCode, arg2, arg3) {
         let title = 'Minh chứng hồ sơ ' + (appCode || '');
-        let url = '';
+        let rawUrl = '';
         if (arg3) {
             title = `Minh chứng hồ sơ ${appCode} - ${arg2}`;
-            url = arg3;
+            rawUrl = arg3;
         } else if (arg2) {
-            url = arg2;
+            rawUrl = arg2;
         } else {
-            url = appCode;
+            rawUrl = appCode;
         }
 
-        if (!url || url === 'None' || url === 'null' || url.trim() === '') {
-            url = '/static/uploads/default_proof.png';
+        if (!rawUrl || rawUrl === 'None' || rawUrl === 'null' || rawUrl.trim() === '') {
+            rawUrl = '/static/uploads/default_proof.png';
         }
 
-        globalActiveProofUrl = url;
+        // Tách danh sách nhiều URL minh chứng (phân tách bởi dấu phẩy)
+        globalProofUrlsList = rawUrl.split(',').map(s => s.trim()).filter(Boolean);
+        if (globalProofUrlsList.length === 0) {
+            globalProofUrlsList = ['/static/uploads/default_proof.png'];
+        }
+        globalActiveProofIndex = 0;
+
         const titleEl = document.getElementById('proofModalTitle');
         if (titleEl) {
-            titleEl.innerHTML = `<i class="bi bi-file-earmark-image text-info me-2"></i> ${title}`;
+            const countBadge = globalProofUrlsList.length > 1 ? ` <span class="badge bg-primary ms-1">${globalProofUrlsList.length} tài liệu</span>` : '';
+            titleEl.innerHTML = `<i class="bi bi-file-earmark-image text-info me-2"></i> ${title}${countBadge}`;
         }
 
-        const body = document.getElementById('proofModalBody');
-        if (body) {
-            const isPdf = url.toLowerCase().includes('.pdf') || url.startsWith('data:application/pdf');
-            if (isPdf) {
-                body.innerHTML = `
-                    <div class="p-4 text-center">
-                        <i class="bi bi-file-earmark-pdf fs-1 text-danger d-block mb-2"></i>
-                        <h6 class="fw-bold">Tài liệu minh chứng định dạng PDF</h6>
-                        <p class="text-muted small">Nhấn nút bên dưới để mở tài liệu trong trình đọc PDF.</p>
-                        <button class="btn btn-primary btn-sm px-3 mt-1" onclick="openProofInNewWindow('${url}')">
-                            <i class="bi bi-box-arrow-up-right me-1"></i> Mở toàn màn hình
-                        </button>
-                    </div>
-                `;
-            } else {
-                body.innerHTML = `
-                    <div class="text-center w-100">
-                        <img src="${url}" onerror="this.src='/static/uploads/default_proof.png'" class="img-fluid rounded border shadow-sm" style="max-height: 68vh; max-width: 100%; object-fit: contain;">
-                        <div class="small text-muted mt-2"><i class="bi bi-zoom-in"></i> Hình ảnh minh chứng bản scan rõ nét</div>
-                    </div>
-                `;
-            }
-        }
+        renderProofModalContent();
 
         if (!globalProofModalObj) {
             globalProofModalObj = new bootstrap.Modal(document.getElementById('globalProofModal'));
         }
         globalProofModalObj.show();
+    }
+
+    function renderProofModalContent() {
+        const body = document.getElementById('proofModalBody');
+        if (!body) return;
+
+        const currentUrl = globalProofUrlsList[globalActiveProofIndex] || '/static/uploads/default_proof.png';
+        globalActiveProofUrl = currentUrl;
+        const isPdf = currentUrl.toLowerCase().includes('.pdf') || currentUrl.startsWith('data:application/pdf');
+
+        let pillsHtml = '';
+        if (globalProofUrlsList.length > 1) {
+            pillsHtml = `
+                <div class="d-flex align-items-center justify-content-between p-2 mb-3 bg-light border rounded-3 flex-wrap gap-1">
+                    <div class="d-flex align-items-center gap-1 flex-wrap">
+                        <span class="small fw-bold text-secondary me-1"><i class="bi bi-collection me-1"></i>Chọn minh chứng:</span>
+                        ${globalProofUrlsList.map((u, i) => `
+                            <button type="button" class="btn btn-sm ${i === globalActiveProofIndex ? 'btn-primary text-white fw-bold' : 'btn-outline-secondary'} py-0.5 px-2.5 rounded-pill" 
+                                    style="font-size: 0.78rem;" onclick="switchProofIndex(${i})">
+                                #${i + 1}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                        <button type="button" class="btn btn-sm btn-outline-dark py-0.5 px-2 rounded-pill" 
+                                ${globalActiveProofIndex === 0 ? 'disabled' : ''} onclick="switchProofIndex(${globalActiveProofIndex - 1})">
+                            <i class="bi bi-chevron-left"></i> Trước
+                        </button>
+                        <span class="small text-muted px-1">${globalActiveProofIndex + 1} / ${globalProofUrlsList.length}</span>
+                        <button type="button" class="btn btn-sm btn-outline-dark py-0.5 px-2 rounded-pill" 
+                                ${globalActiveProofIndex === globalProofUrlsList.length - 1 ? 'disabled' : ''} onclick="switchProofIndex(${globalActiveProofIndex + 1})">
+                            Sau <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        let viewerHtml = '';
+        if (isPdf) {
+            viewerHtml = `
+                <div class="p-4 text-center">
+                    <i class="bi bi-file-earmark-pdf fs-1 text-danger d-block mb-2"></i>
+                    <h6 class="fw-bold">Tài liệu minh chứng định dạng PDF (Tài liệu #${globalActiveProofIndex + 1})</h6>
+                    <p class="text-muted small">Nhấn nút bên dưới để mở tài liệu trong trình đọc PDF.</p>
+                    <button class="btn btn-primary btn-sm px-3 mt-1" onclick="openProofInNewWindow('${currentUrl}')">
+                        <i class="bi bi-box-arrow-up-right me-1"></i> Mở toàn màn hình
+                    </button>
+                </div>
+            `;
+        } else {
+            viewerHtml = `
+                <div class="text-center w-100">
+                    <img src="${currentUrl}" onerror="this.src='/static/uploads/default_proof.png'" class="img-fluid rounded border shadow-sm" style="max-height: 65vh; max-width: 100%; object-fit: contain;">
+                    <div class="small text-muted mt-2 d-flex justify-content-between align-items-center px-2">
+                        <span><i class="bi bi-zoom-in"></i> Hình ảnh minh chứng #${globalActiveProofIndex + 1}</span>
+                        <a href="${currentUrl}" target="_blank" class="text-primary text-decoration-none small fw-semibold">
+                            <i class="bi bi-box-arrow-up-right me-1"></i> Mở ảnh gốc trong tab mới
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        body.innerHTML = pillsHtml + viewerHtml;
+    }
+
+    function switchProofIndex(index) {
+        if (index >= 0 && index < globalProofUrlsList.length) {
+            globalActiveProofIndex = index;
+            renderProofModalContent();
+        }
     }
 
     function openProofInNewWindow(url) {
